@@ -86,6 +86,32 @@
 
 ---
 
+## Phase 4 Checklist — Dashboard Engine ✅
+
+- [x] `stores/dashboard-store.ts` — Zustand v5 store (dashboard, layout, filters, isEditMode, isDirty, loadDashboard, addChart, removePanel, setFilter, clearFilter, saveDashboard, publishDashboard)
+- [x] `app/api/dashboards/route.ts` — GET list (paginated), POST create (slug auto-generated)
+- [x] `app/api/dashboards/[id]/route.ts` — GET with charts joined, PUT (syncs dashboard_charts), DELETE
+- [x] `app/api/dashboards/slug/[slug]/route.ts` — GET by slug (public, no auth required)
+- [x] `app/api/public/charts/[id]/data/route.ts` — GET chart data (no auth, validates chart is on published dashboard)
+- [x] `auth.config.ts` — updated to allow /public/* and /api/public/* routes
+- [x] `components/dashboard/DashboardCanvas.tsx` — 12-col CSS grid, dnd-kit drag-to-reorder, Add Chart button
+- [x] `components/dashboard/ChartPanel.tsx` — per-panel data fetch (TanStack Query), loading skeleton, error retry, cross-filter emit
+- [x] `components/dashboard/FilterBar.tsx` — active filter chips, clear all, cross-filter display
+- [x] `components/dashboard/AddChartDialog.tsx` — searchable chart picker modal
+- [x] `components/dashboard/PublicChartPanel.tsx` — unauthenticated chart panel for public dashboards
+- [x] `app/(dashboard)/dashboards/page.tsx` — grid of dashboard cards, search, published/draft filter, create modal
+- [x] `app/(dashboard)/dashboards/[id]/page.tsx` — viewer + edit mode toggle, save/discard/publish, Ctrl+S shortcut, unsaved-changes guard
+- [x] `app/public/dashboard/[slug]/page.tsx` — public read-only dashboard, cross-filter support, ?embed=true mode
+
+### After Phase 4
+1. `npm run dev` and verify dashboard canvas renders at `/dashboards`
+2. Test: create a dashboard, add 2 charts, drag to rearrange, save layout
+3. Test: add a cross-filter by clicking a chart element, verify both charts re-fetch
+4. Test: publish a dashboard, visit `/public/dashboard/[slug]`, verify charts render without auth
+5. Test: append `?embed=true` to public URL, verify chrome is hidden
+
+---
+
 # Run these in order inside Claude Code. Complete each phase fully before moving to the next.
 
 # Between each prompt: run migrations if schema changed, test, update CLAUDE.md checklist.

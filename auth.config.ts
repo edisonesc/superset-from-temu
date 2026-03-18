@@ -31,8 +31,10 @@ export const authConfig: NextAuthConfig = {
       // All other API routes — require a valid session.
       if (nextUrl.pathname.startsWith("/api/")) return isLoggedIn;
 
-      // Public routes — login page should always be accessible.
+      // Public routes — login page, public dashboard pages, and public API endpoints.
       if (nextUrl.pathname === "/login") return true;
+      if (nextUrl.pathname.startsWith("/public/")) return true;
+      if (nextUrl.pathname.startsWith("/api/public/")) return true;
 
       // Everything else (dashboard, sqllab, charts, …) — require auth.
       return isLoggedIn;
