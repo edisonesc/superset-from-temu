@@ -51,6 +51,41 @@
 
 ---
 
+## Phase 3 Checklist — Chart System ✅
+
+- [x] `types/index.ts` — extended with Row, FilterItem, FilterContext, ChartConfig, ChartConfigField, ChartConfigSchema, ChartComponentProps, ChartTransformer
+- [x] `lib/chart-query.ts` — buildChartQuery (SQL generation from config), fetchChartData (Redis cached, filter support)
+- [x] `components/charts/registry.ts` — ChartDefinition type, chartRegistry map, getChart(), listCharts()
+- [x] `components/charts/bar.tsx` — vertical/horizontal bar chart (ECharts), transformer, configSchema
+- [x] `components/charts/line.tsx` — line/area chart (ECharts), transformer, configSchema
+- [x] `components/charts/pie.tsx` — pie/donut chart (ECharts), transformer, configSchema
+- [x] `components/charts/scatter.tsx` — scatter/bubble chart (ECharts), transformer, configSchema
+- [x] `components/charts/area.tsx` — stacked area chart (ECharts), transformer, configSchema
+- [x] `components/charts/heatmap.tsx` — heatmap grid (ECharts), transformer, configSchema
+- [x] `components/charts/big-number.tsx` — KPI big number with trend indicator, transformer, configSchema
+- [x] `components/charts/big-number-total.tsx` — KPI big number without trend, transformer, configSchema
+- [x] `components/charts/table-chart.tsx` — sortable paginated table (@tanstack/react-table), transformer, configSchema
+- [x] `components/charts/pivot-table.tsx` — pivot table with aggregation, transformer, configSchema
+- [x] `components/ui/icons.tsx` — inline SVG icon components (replaces lucide-react which is not installed)
+- [x] `app/api/charts/route.ts` — GET list (paginated, searchable), POST create (auth + role check)
+- [x] `app/api/charts/[id]/route.ts` — GET, PUT, DELETE with dataset join
+- [x] `app/api/charts/[id]/data/route.ts` — GET chart data with cross-filter query params
+- [x] `app/api/charts/preview/route.ts` — POST preview (no save, used by ChartBuilder live preview)
+- [x] `app/api/datasets/route.ts` — GET list (minimal, for ChartBuilder; full CRUD in Phase 5)
+- [x] `app/api/datasets/[id]/route.ts` — GET single dataset (minimal; full CRUD in Phase 5)
+- [x] `app/api/datasets/[id]/columns/route.ts` — GET columns (uses columnMetadata or schema introspection)
+- [x] `components/charts/ChartBuilder.tsx` — full builder UI (dataset selector, column browser, config form, 500ms debounced live preview, save)
+- [x] `app/(dashboard)/charts/new/page.tsx` — new chart page wrapping ChartBuilder
+- [x] `app/(dashboard)/charts/page.tsx` — chart list grid with search, viz type icons, empty state
+- [x] `app/(dashboard)/charts/[id]/page.tsx` — chart explorer: view mode + edit mode toggle (role-gated)
+
+### After Phase 3
+1. `npm run dev` and verify chart builder renders at `/charts/new`
+2. Test: select a dataset, configure a bar chart, verify live preview renders with real data
+3. Test: save chart, navigate to `/charts/[id]`, verify it loads and displays correctly
+
+---
+
 # Run these in order inside Claude Code. Complete each phase fully before moving to the next.
 
 # Between each prompt: run migrations if schema changed, test, update CLAUDE.md checklist.
