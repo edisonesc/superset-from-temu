@@ -28,6 +28,29 @@
 
 ---
 
+## Phase 2 Checklist — SQL Lab ✅
+
+- [x] `lib/query-runner.ts` — runQuery (mysql2 + pg, LIMIT enforcement, Redis cache, history logging), testConnection
+- [x] `app/api/connections/route.ts` — GET list, POST create (test-before-save, encrypt password)
+- [x] `app/api/connections/[id]/route.ts` — GET, PUT, DELETE
+- [x] `app/api/connections/[id]/test/route.ts` — POST test existing connection
+- [x] `app/api/connections/[id]/schema/route.ts` — GET schema browser (tables + columns, Redis cached 60s)
+- [x] `app/api/query/route.ts` — POST execute SQL
+- [x] `app/api/saved-queries/route.ts` — GET list, POST create
+- [x] `app/api/saved-queries/[id]/route.ts` — PUT update, DELETE (owner-scoped)
+- [x] `app/api/query-history/route.ts` — GET paginated history (user-scoped, connectionId filter)
+- [x] `stores/sqllab-store.ts` — Zustand v5 store (tabs, sql, connectionId, results, status)
+- [x] `components/sqllab/SqlEditor.tsx` — CodeMirror 6 (SQL dialect, dark theme, Ctrl+Enter)
+- [x] `components/react-query-provider.tsx` — TanStack Query client provider
+- [x] `app/layout.tsx` — added ReactQueryProvider
+- [x] `app/(dashboard)/sqllab/page.tsx` — full SQL Lab UI (multi-tab, schema browser, results table, history, save modal)
+
+### After Phase 2
+1. `npm run dev` and verify SQL Lab works end to end
+2. Test: create a connection, run a SELECT query, verify results table renders
+
+---
+
 # Run these in order inside Claude Code. Complete each phase fully before moving to the next.
 
 # Between each prompt: run migrations if schema changed, test, update CLAUDE.md checklist.
