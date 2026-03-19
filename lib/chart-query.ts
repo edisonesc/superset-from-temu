@@ -69,13 +69,13 @@ export function buildChartQuery(chart: Chart, dataset: Dataset): string {
   const selectParts: string[] = [];
   const groupByParts: string[] = [];
 
-  // --- Dimension columns (GROUP BY keys) ---
+  // --- Dimension columns (GROUP BY keys) --- (skip empty strings)
   const dims = new Set<string>();
-  if (config.x_axis) dims.add(config.x_axis);
-  if (config.y_axis) dims.add(config.y_axis);
-  if (config.dimension) dims.add(config.dimension);
-  if (config.rows) config.rows.forEach((r) => dims.add(r));
-  if (config.columns) config.columns.forEach((c) => dims.add(c));
+  if (config.x_axis?.trim()) dims.add(config.x_axis);
+  if (config.y_axis?.trim()) dims.add(config.y_axis);
+  if (config.dimension?.trim()) dims.add(config.dimension);
+  if (config.rows) config.rows.filter((r) => r.trim()).forEach((r) => dims.add(r));
+  if (config.columns) config.columns.filter((c) => c.trim()).forEach((c) => dims.add(c));
 
   // Table / pivot_table: no GROUP BY, select all if no dims
   const isAggChart = !["table", "pivot_table"].includes(chart.vizType);
@@ -86,12 +86,12 @@ export function buildChartQuery(chart: Chart, dataset: Dataset): string {
     if (isAggChart) groupByParts.push(quoted);
   }
 
-  // --- Metric columns ---
+  // --- Metric columns --- (filter out empty strings from unset dropdowns)
   const rawMetrics: string[] = [];
-  if (config.metrics?.length) rawMetrics.push(...config.metrics);
-  if (config.metric) rawMetrics.push(config.metric);
-  if (config.comparison_metric) rawMetrics.push(config.comparison_metric);
-  if (config.bubble_size) rawMetrics.push(config.bubble_size);
+  if (config.metrics?.length) rawMetrics.push(...config.metrics.filter((m) => m.trim()));
+  if (config.metric?.trim()) rawMetrics.push(config.metric);
+  if (config.comparison_metric?.trim()) rawMetrics.push(config.comparison_metric);
+  if (config.bubble_size?.trim()) rawMetrics.push(config.bubble_size);
 
   rawMetrics.forEach((m, i) => {
     // If it looks like an aggregation expression (contains a function call)

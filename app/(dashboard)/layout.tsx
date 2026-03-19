@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { headers } from "next/headers";
 import { auth } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import { SidebarLogoutButton } from "@/components/dashboard/sidebar-logout-button";
@@ -18,20 +19,24 @@ export default async function DashboardLayout({
 
   const { user } = session;
 
+  // Resolve current pathname from headers for active link highlighting
+  const headersList = await headers();
+  const pathname = headersList.get("x-pathname") ?? "";
+
   return (
     <div className="flex min-h-screen bg-zinc-950">
       {/* ── Sidebar ─────────────────────────────────────────────────────── */}
       <aside className="flex w-56 flex-shrink-0 flex-col border-r border-zinc-800 bg-zinc-900">
         {/* Brand */}
         <div className="flex h-14 items-center border-b border-zinc-800 px-4">
-          <span className="text-sm font-bold tracking-wide text-zinc-100">
+          <Link href="/" className="text-sm font-bold tracking-wide text-zinc-100 hover:text-white transition-colors">
             Supaset
-          </span>
+          </Link>
         </div>
 
         {/* Navigation */}
         <nav className="flex-1 overflow-y-auto px-2 py-3">
-          <SidebarNav />
+          <SidebarNav pathname={pathname} isAdmin={user.role === "admin"} />
         </nav>
 
         {/* Footer — user info + logout */}
@@ -53,7 +58,7 @@ export default async function DashboardLayout({
 }
 
 // ---------------------------------------------------------------------------
-// Sidebar navigation — server component, no state needed.
+// Sidebar navigation
 // ---------------------------------------------------------------------------
 
 const NAV_ITEMS = [
@@ -64,19 +69,30 @@ const NAV_ITEMS = [
   { href: "/connections", label: "Connections" },
 ] as const;
 
-function SidebarNav() {
+function SidebarNav({ pathname, isAdmin }: { pathname: string; isAdmin: boolean }) {
+  const items = isAdmin
+    ? [...NAV_ITEMS, { href: "/admin/users", label: "Users" } as const]
+    : NAV_ITEMS;
+
   return (
     <ul className="space-y-0.5">
-      {NAV_ITEMS.map(({ href, label }) => (
-        <li key={href}>
-          <Link
-            href={href}
-            className="flex items-center rounded-lg px-3 py-2 text-sm text-zinc-400 transition-colors hover:bg-zinc-800 hover:text-zinc-100"
-          >
-            {label}
-          </Link>
-        </li>
-      ))}
+      {items.map(({ href, label }) => {
+        const isActive = pathname === href || pathname.startsWith(href + "/");
+        return (
+          <li key={href}>
+            <Link
+              href={href}
+              className={`flex items-center rounded-lg px-3 py-2 text-sm transition-colors ${
+                isActive
+                  ? "bg-zinc-800 text-zinc-100 font-medium"
+                  : "text-zinc-400 hover:bg-zinc-800 hover:text-zinc-100"
+              }`}
+            >
+              {label}
+            </Link>
+          </li>
+        );
+      })}
     </ul>
   );
 }

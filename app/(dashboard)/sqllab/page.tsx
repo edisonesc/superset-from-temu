@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useCallback, useRef } from "react";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useQuery, useMutation } from "@tanstack/react-query";
 import { format as formatSql } from "sql-formatter";
 import {
   useReactTable,
@@ -32,6 +32,14 @@ type HistoryItem = {
   status: "success" | "error";
   rowCount: number | null;
   durationMs: number | null;
+  createdAt: string;
+};
+
+type SavedQuery = {
+  id: string;
+  name: string;
+  sql: string;
+  connectionId: string;
   createdAt: string;
 };
 
@@ -317,12 +325,11 @@ export default function SqlLabPage() {
   const activeTab = tabs.find((t) => t.id === activeTabId);
 
   const [schemaBrowserOpen, setSchemaBrowserOpen] = useState(true);
-  const [bottomTab, setBottomTab] = useState<"results" | "history">("results");
+  const [bottomTab, setBottomTab] = useState<"results" | "history" | "saved">("results");
   const [showSaveModal, setShowSaveModal] = useState(false);
   const [editingTabId, setEditingTabId] = useState<string | null>(null);
   const [editingTabName, setEditingTabName] = useState("");
 
-  const queryClient = useQueryClient();
 
   // ── Connections ────────────────────────────────────────────────────────────
   const { data: connectionsData } = useQuery({
@@ -333,6 +340,21 @@ export default function SqlLabPage() {
         .then((d) => (d.data ?? []) as Connection[]),
   });
   const connections: Connection[] = connectionsData ?? [];
+
+  // ── Saved queries ──────────────────────────────────────────────────────────
+  const { data: savedQueriesData, refetch: refetchSaved } = useQuery({
+    queryKey: ["saved-queries"],
+    queryFn: () =>
+      fetch("/api/saved-queries")
+        .then((r) => r.json())
+        .then((d) => (d.data ?? []) as SavedQuery[]),
+  });
+
+  const deleteSavedMutation = useMutation({
+    mutationFn: (id: string) =>
+      fetch(`/api/saved-queries/${id}`, { method: "DELETE" }).then((r) => r.json()),
+    onSuccess: () => refetchSaved(),
+  });
 
   // ── Query history ──────────────────────────────────────────────────────────
   const { data: historyData, refetch: refetchHistory } = useQuery({
@@ -396,7 +418,10 @@ export default function SqlLabPage() {
       });
       return res.json();
     },
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["saved-queries"] }),
+    onSuccess: () => {
+      refetchSaved();
+      setBottomTab("saved");
+    },
   });
 
   const handleSaveQuery = useCallback(
@@ -604,7 +629,7 @@ export default function SqlLabPage() {
           <div className="flex h-56 shrink-0 flex-col border-t border-zinc-800">
             {/* Panel tabs */}
             <div className="flex items-center border-b border-zinc-800 bg-zinc-900">
-              {(["results", "history"] as const).map((t) => (
+              {(["results", "history", "saved"] as const).map((t) => (
                 <button
                   key={t}
                   onClick={() => setBottomTab(t)}
@@ -640,6 +665,44 @@ export default function SqlLabPage() {
                     Run a query to see results
                   </div>
                 )}
+              </div>
+            )}
+
+            {/* Saved queries panel */}
+            {bottomTab === "saved" && (
+              <div className="min-h-0 flex-1 overflow-auto">
+                {(savedQueriesData ?? []).length === 0 && (
+                  <div className="flex h-full items-center justify-center text-sm text-zinc-600">
+                    No saved queries — use Save (Ctrl+S) to save the current query
+                  </div>
+                )}
+                {(savedQueriesData ?? []).map((item) => (
+                  <div
+                    key={item.id}
+                    className="flex w-full items-start gap-2 border-b border-zinc-800/50 px-3 py-2 hover:bg-zinc-900 group"
+                  >
+                    <button
+                      className="flex min-w-0 flex-1 flex-col items-start gap-0.5 text-left"
+                      onClick={() => {
+                        if (activeTabId) {
+                          updateTabSql(activeTabId, item.sql);
+                          if (item.connectionId) setTabConnection(activeTabId, item.connectionId);
+                        }
+                      }}
+                    >
+                      <span className="truncate text-xs font-medium text-zinc-200">{item.name}</span>
+                      <code className="max-w-full truncate text-xs text-zinc-500">{item.sql}</code>
+                    </button>
+                    <button
+                      onClick={() => deleteSavedMutation.mutate(item.id)}
+                      disabled={deleteSavedMutation.isPending}
+                      className="mt-0.5 shrink-0 rounded px-1 py-0.5 text-xs text-zinc-700 opacity-0 hover:text-red-400 group-hover:opacity-100 transition-opacity disabled:opacity-30"
+                      title="Delete saved query"
+                    >
+                      ×
+                    </button>
+                  </div>
+                ))}
               </div>
             )}
 

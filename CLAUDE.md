@@ -112,6 +112,36 @@
 
 ---
 
+## Phase 5 Checklist — Dataset Manager & Final Polish ✅
+
+- [x] `lib/schema-introspector.ts` — getTables, getColumns, getRowCount (MySQL + PostgreSQL, Redis cached 60s)
+- [x] `app/api/datasets/[id]/route.ts` — PUT update + DELETE (409 if charts depend on dataset)
+- [x] `app/api/datasets/route.ts` — full CRUD (GET paginated, POST create) — already complete from Phase 3
+- [x] `app/api/datasets/[id]/columns/route.ts` — GET columns — already complete from Phase 3
+- [x] `app/api/admin/users/route.ts` — GET all users (admin only)
+- [x] `app/api/admin/users/[id]/role/route.ts` — PUT update user role (admin only)
+- [x] `app/(dashboard)/datasets/[id]/page.tsx` — overview tab (name/desc/connection/SQL) + columns tab (sync, edit label/description/flags, save)
+- [x] `app/(dashboard)/connections/[id]/page.tsx` — edit connection form (pre-populated, password blank, test + save)
+- [x] `app/(dashboard)/admin/users/page.tsx` — admin-only user management, role dropdown per user
+- [x] `sonner` — installed, `<Toaster>` added to `app/layout.tsx` (dark theme, bottom-right)
+- [x] `middleware.ts` — injects `x-pathname` header for active nav highlighting
+- [x] `app/(dashboard)/layout.tsx` — active route highlighting, admin-only Users link
+- [x] `app/(dashboard)/datasets/loading.tsx` — skeleton loading state
+- [x] `app/(dashboard)/connections/loading.tsx` — skeleton loading state
+- [x] `app/(dashboard)/charts/loading.tsx` — skeleton loading state
+- [x] `app/(dashboard)/dashboards/loading.tsx` — skeleton loading state
+- [x] `components/ui/icons.tsx` — added Users, Shield, ChevronRight, X, Filter, Copy, Settings icons
+- [x] `.env.example` — complete template at project root
+
+### After Phase 5
+1. `npm run dev` — full end to end test
+2. Verify dataset detail page renders at `/datasets/[id]`
+3. Verify connection edit page works at `/connections/[id]`
+4. Verify admin users page at `/admin/users` (admin role required)
+5. Verify toast notifications appear on mutations
+
+---
+
 # Run these in order inside Claude Code. Complete each phase fully before moving to the next.
 
 # Between each prompt: run migrations if schema changed, test, update CLAUDE.md checklist.

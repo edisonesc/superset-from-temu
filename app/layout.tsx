@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { SessionProvider } from "@/components/session-provider";
 import { ReactQueryProvider } from "@/components/react-query-provider";
+import { Toaster } from "sonner";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -30,6 +31,7 @@ export default function RootLayout({
         <ReactQueryProvider>
           <SessionProvider>{children}</SessionProvider>
         </ReactQueryProvider>
+        <Toaster theme="dark" position="bottom-right" />
       </body>
     </html>
   );
