@@ -498,7 +498,7 @@ export default function DatasetDetailPage() {
                             type="checkbox"
                             checked={col.is_temporal ?? false}
                             onChange={(e) => updateColumn(idx, "is_temporal", e.target.checked)}
-                            style={{ accentColor: "var(--accent)" }}
+                            style={{ accentColor: "var(--accent-deep)" }}
                           />
                         </td>
                         <td className="px-4 py-2.5 text-center">
@@ -506,7 +506,7 @@ export default function DatasetDetailPage() {
                             type="checkbox"
                             checked={col.is_filterable ?? true}
                             onChange={(e) => updateColumn(idx, "is_filterable", e.target.checked)}
-                            style={{ accentColor: "var(--accent)" }}
+                            style={{ accentColor: "var(--accent-deep)" }}
                           />
                         </td>
                         <td className="px-4 py-2.5 text-center">
@@ -514,7 +514,7 @@ export default function DatasetDetailPage() {
                             type="checkbox"
                             checked={col.is_groupable ?? true}
                             onChange={(e) => updateColumn(idx, "is_groupable", e.target.checked)}
-                            style={{ accentColor: "var(--accent)" }}
+                            style={{ accentColor: "var(--accent-deep)" }}
                           />
                         </td>
                       </tr>

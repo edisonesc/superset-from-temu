@@ -27,33 +27,33 @@ export function DevTabFAB({ items }: { items: DevTabItem[] }) {
         title="Developer Tab"
         style={{
           position: "fixed",
-          bottom: "88px",
+          bottom: "24px",
           right: "20px",
           zIndex: 9997,
           display: "flex",
           alignItems: "center",
           padding: "7px 13px",
-          background: "#1e293b",
-          color: "#94a3b8",
-          border: "1px solid #334155",
+          background: "var(--bg-surface)",
+          color: "var(--text-secondary)",
+          border: "1px solid var(--bg-border)",
           borderRadius: "2px",
           fontSize: "12px",
           fontFamily: "inherit",
           fontWeight: 500,
           cursor: "pointer",
-          boxShadow: "0 4px 12px rgba(0,0,0,0.25)",
+          boxShadow: "0 2px 8px rgba(0,0,0,0.08)",
           transition: "background 0.15s, color 0.15s, border-color 0.15s",
           letterSpacing: "0.02em",
         }}
         onMouseEnter={(e) => {
-          e.currentTarget.style.background = "#0f172a";
-          e.currentTarget.style.color = "#e2e8f0";
-          e.currentTarget.style.borderColor = "#475569";
+          e.currentTarget.style.background = "var(--bg-hover)";
+          e.currentTarget.style.color = "var(--text-primary)";
+          e.currentTarget.style.borderColor = "var(--accent)";
         }}
         onMouseLeave={(e) => {
-          e.currentTarget.style.background = "#1e293b";
-          e.currentTarget.style.color = "#94a3b8";
-          e.currentTarget.style.borderColor = "#334155";
+          e.currentTarget.style.background = "var(--bg-surface)";
+          e.currentTarget.style.color = "var(--text-secondary)";
+          e.currentTarget.style.borderColor = "var(--bg-border)";
         }}
       >
         Developer Tab
@@ -66,7 +66,7 @@ export function DevTabFAB({ items }: { items: DevTabItem[] }) {
           position: "fixed",
           inset: 0,
           zIndex: 9998,
-          background: "rgba(15,23,42,0.45)",
+          background: "rgba(0,0,0,0.20)",
           backdropFilter: "blur(2px)",
           opacity: open ? 1 : 0,
           pointerEvents: open ? "auto" : "none",
@@ -101,15 +101,15 @@ export function DevTabFAB({ items }: { items: DevTabItem[] }) {
             padding: "0 16px",
             height: "48px",
             flexShrink: 0,
-            borderBottom: "1px solid #1e293b",
-            background: "#1e293b",
+            borderBottom: "1px solid var(--bg-border)",
+            background: "var(--bg-elevated)",
           }}
         >
           <span
             style={{
               fontSize: "13px",
               fontWeight: 600,
-              color: "#e2e8f0",
+              color: "var(--text-primary)",
               letterSpacing: "0.03em",
             }}
           >
@@ -122,7 +122,7 @@ export function DevTabFAB({ items }: { items: DevTabItem[] }) {
               background: "none",
               border: "none",
               cursor: "pointer",
-              color: "#64748b",
+              color: "var(--text-muted)",
               fontSize: "18px",
               lineHeight: 1,
               padding: "4px 6px",
@@ -131,8 +131,12 @@ export function DevTabFAB({ items }: { items: DevTabItem[] }) {
               alignItems: "center",
               justifyContent: "center",
             }}
-            onMouseEnter={(e) => (e.currentTarget.style.color = "#e2e8f0")}
-            onMouseLeave={(e) => (e.currentTarget.style.color = "#64748b")}
+            onMouseEnter={(e) =>
+              (e.currentTarget.style.color = "var(--text-primary)")
+            }
+            onMouseLeave={(e) =>
+              (e.currentTarget.style.color = "var(--text-muted)")
+            }
           >
             ✕
           </button>
@@ -198,19 +202,16 @@ export function DevTabFAB({ items }: { items: DevTabItem[] }) {
                     height: "40px",
                     fontSize: "12.5px",
                     fontWeight: isActive ? 600 : 400,
-                    color: isActive
-                      ? "var(--accent)"
-                      : "var(--text-secondary)",
-                    background: isActive
-                      ? "var(--bg-surface)"
-                      : "transparent",
+                    color: isActive ? "var(--accent)" : "var(--text-secondary)",
+                    background: isActive ? "var(--bg-surface)" : "transparent",
                     border: "none",
                     borderBottom: isActive
                       ? "2px solid var(--accent)"
                       : "2px solid transparent",
                     cursor: "pointer",
                     whiteSpace: "nowrap",
-                    transition: "color 0.1s, background 0.1s, border-color 0.1s",
+                    transition:
+                      "color 0.1s, background 0.1s, border-color 0.1s",
                   }}
                   onMouseEnter={(e) => {
                     if (!isActive)
