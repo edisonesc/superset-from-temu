@@ -5,6 +5,7 @@ import { useQuery } from "@tanstack/react-query";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
+import { toast } from "sonner";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -43,12 +44,10 @@ function CreateDashboardModal({ onClose }: { onClose: () => void }) {
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
 
   async function handleCreate() {
     if (!name.trim()) return;
     setLoading(true);
-    setError("");
     try {
       const res = await fetch("/api/dashboards", {
         method: "POST",
@@ -57,12 +56,13 @@ function CreateDashboardModal({ onClose }: { onClose: () => void }) {
       });
       const json = await res.json();
       if (json.error) {
-        setError(json.error);
+        toast.error(json.error);
         return;
       }
+      toast.success("Dashboard created");
       router.push(`/dashboards/${json.data.id}`);
     } catch {
-      setError("Failed to create dashboard");
+      toast.error("Failed to create dashboard");
     } finally {
       setLoading(false);
     }
@@ -102,7 +102,6 @@ function CreateDashboardModal({ onClose }: { onClose: () => void }) {
               className="w-full rounded bg-zinc-800 px-3 py-2 text-sm text-zinc-100 placeholder-zinc-500 outline-none focus:ring-1 focus:ring-blue-500"
             />
           </div>
-          {error && <p className="text-xs text-red-400">{error}</p>}
         </div>
         <div className="mt-5 flex justify-end gap-2">
           <button

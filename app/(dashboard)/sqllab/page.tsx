@@ -2,6 +2,7 @@
 
 import { useState, useCallback, useRef } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
+import { toast } from "sonner";
 import { format as formatSql } from "sql-formatter";
 import {
   useReactTable,
@@ -381,13 +382,16 @@ export default function SqlLabPage() {
         setTabResults(activeTabId, response.data);
         setBottomTab("results");
       } else {
-        setTabStatus(activeTabId, "error", response.error ?? "Query failed");
+        const msg = response.error ?? "Query failed";
+        setTabStatus(activeTabId, "error", msg);
         setBottomTab("results");
+        toast.error(msg);
       }
       refetchHistory();
     },
     onError: () => {
       if (activeTabId) setTabStatus(activeTabId, "error", "Network error");
+      toast.error("Network error");
     },
   });
 
@@ -419,9 +423,11 @@ export default function SqlLabPage() {
       return res.json();
     },
     onSuccess: () => {
+      toast.success("Query saved");
       refetchSaved();
       setBottomTab("saved");
     },
+    onError: () => toast.error("Failed to save query"),
   });
 
   const handleSaveQuery = useCallback(

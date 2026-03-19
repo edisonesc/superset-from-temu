@@ -3,6 +3,7 @@
 import { useEffect, useState, useCallback } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
+import { toast } from "sonner";
 import { useDashboardStore } from "@/stores/dashboard-store";
 import { DashboardCanvas } from "@/components/dashboard/DashboardCanvas";
 import { FilterBar } from "@/components/dashboard/FilterBar";
@@ -36,7 +37,6 @@ export default function DashboardViewerPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
-  const [saveError, setSaveError] = useState<string | null>(null);
 
   const canEdit =
     session?.user.role === "admin" || session?.user.role === "alpha";
@@ -79,11 +79,11 @@ export default function DashboardViewerPage() {
 
   const handleSave = useCallback(async () => {
     setSaving(true);
-    setSaveError(null);
     try {
       await saveDashboard();
+      toast.success("Dashboard saved");
     } catch (err) {
-      setSaveError(err instanceof Error ? err.message : "Save failed");
+      toast.error(err instanceof Error ? err.message : "Save failed");
     } finally {
       setSaving(false);
     }
@@ -97,11 +97,13 @@ export default function DashboardViewerPage() {
 
   const handlePublish = useCallback(async () => {
     try {
+      const wasPublished = dashboard?.isPublished;
       await publishDashboard();
+      toast.success(wasPublished ? "Unpublished" : "Dashboard published");
     } catch (err) {
-      alert(err instanceof Error ? err.message : "Publish failed");
+      toast.error(err instanceof Error ? err.message : "Publish failed");
     }
-  }, [publishDashboard]);
+  }, [publishDashboard, dashboard?.isPublished]);
 
   // Cross-filter handler — sets filter in store (ChartPanel components re-fetch)
   const handleCrossFilter = useCallback(
@@ -179,9 +181,6 @@ export default function DashboardViewerPage() {
           {/* Edit mode controls */}
           {isEditMode ? (
             <>
-              {saveError && (
-                <span className="text-xs text-red-400">{saveError}</span>
-              )}
               <button
                 onClick={handlePublish}
                 className={`rounded px-3 py-1.5 text-xs font-medium transition-colors ${

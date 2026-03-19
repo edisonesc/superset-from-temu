@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { toast } from "sonner";
 import { ArrowLeft, Eye, CheckCircle, XCircle, Loader, Save, RefreshCw } from "@/components/ui/icons";
 
 type FormState = {
@@ -38,7 +39,6 @@ export default function NewConnectionPage() {
   const [testStatus, setTestStatus] = useState<{ success: boolean; message: string } | null>(null);
   const [isTesting, setIsTesting] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
-  const [saveError, setSaveError] = useState<string | null>(null);
 
   function setField<K extends keyof FormState>(key: K, value: FormState[K]) {
     setForm((prev) => {
@@ -71,18 +71,18 @@ export default function NewConnectionPage() {
       const json = await res.json();
       if (json.error) throw new Error(json.error);
       setTestStatus(json.data);
+      if (json.data?.success) toast.success("Connected");
+      else toast.error(json.data?.message ?? "Connection failed");
     } catch (err) {
-      setTestStatus({
-        success: false,
-        message: err instanceof Error ? err.message : "Test failed",
-      });
+      const msg = err instanceof Error ? err.message : "Test failed";
+      setTestStatus({ success: false, message: msg });
+      toast.error(msg);
     } finally {
       setIsTesting(false);
     }
   }
 
   async function handleSave() {
-    setSaveError(null);
     setIsSaving(true);
     try {
       const res = await fetch("/api/connections", {
@@ -101,9 +101,10 @@ export default function NewConnectionPage() {
       });
       const json = await res.json();
       if (json.error) throw new Error(json.error);
+      toast.success("Connection created");
       router.push("/connections");
     } catch (err) {
-      setSaveError(err instanceof Error ? err.message : "Save failed");
+      toast.error(err instanceof Error ? err.message : "Save failed");
     } finally {
       setIsSaving(false);
     }
@@ -263,10 +264,6 @@ export default function NewConnectionPage() {
             </div>
           )}
         </div>
-
-        {saveError && (
-          <p className="text-sm text-red-400">{saveError}</p>
-        )}
 
         {/* Save */}
         <div className="flex items-center gap-3 pt-2">

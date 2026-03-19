@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { toast } from "sonner";
 import { ArrowLeft, Loader, Save } from "@/components/ui/icons";
 import { useQuery } from "@tanstack/react-query";
 
@@ -27,7 +28,6 @@ export default function NewDatasetPage() {
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [isSaving, setIsSaving] = useState(false);
-  const [saveError, setSaveError] = useState<string | null>(null);
 
   // Load connections
   const { data: connections = [] } = useQuery({
@@ -52,11 +52,10 @@ export default function NewDatasetPage() {
   }, [tableName, name]);
 
   async function handleSave() {
-    setSaveError(null);
-    if (!name.trim()) { setSaveError("Name is required"); return; }
-    if (!connectionId) { setSaveError("Select a connection"); return; }
-    if (datasetType === "physical" && !tableName) { setSaveError("Select a table"); return; }
-    if (datasetType === "virtual" && !sqlDefinition.trim()) { setSaveError("Enter SQL definition"); return; }
+    if (!name.trim()) { toast.error("Name is required"); return; }
+    if (!connectionId) { toast.error("Select a connection"); return; }
+    if (datasetType === "physical" && !tableName) { toast.error("Select a table"); return; }
+    if (datasetType === "virtual" && !sqlDefinition.trim()) { toast.error("Enter SQL definition"); return; }
 
     setIsSaving(true);
     try {
@@ -73,9 +72,10 @@ export default function NewDatasetPage() {
       });
       const json = await res.json();
       if (json.error) throw new Error(json.error);
+      toast.success("Dataset created");
       router.push("/datasets");
     } catch (err) {
-      setSaveError(err instanceof Error ? err.message : "Save failed");
+      toast.error(err instanceof Error ? err.message : "Save failed");
     } finally {
       setIsSaving(false);
     }
@@ -216,8 +216,6 @@ export default function NewDatasetPage() {
             className="w-full bg-zinc-800 text-zinc-200 text-sm rounded px-3 py-2 outline-none placeholder:text-zinc-600 border border-zinc-700 focus:border-indigo-500 transition-colors"
           />
         </div>
-
-        {saveError && <p className="text-sm text-red-400">{saveError}</p>}
 
         {/* Actions */}
         <div className="flex items-center gap-3 pt-2">

@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useCallback, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { useQuery, useMutation } from "@tanstack/react-query";
+import { toast } from "sonner";
 import { listCharts, getChart } from "./registry";
 import type { ChartVizType, ChartConfig, ChartComponentProps } from "@/types";
 
@@ -161,8 +162,10 @@ export default function ChartBuilder({ initialChartId }: Props) {
       return result;
     },
     onSuccess: (result) => {
+      toast.success("Chart saved");
       router.push(`/charts/${result?.id ?? initialChartId}`);
     },
+    onError: (err) => toast.error(err instanceof Error ? err.message : "Save failed"),
   });
 
   // ── Derived ──────────────────────────────────────────────────────────────

@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
 import { Plus, Database, CheckCircle, XCircle, RefreshCw, Trash2 } from "@/components/ui/icons";
 
 type Connection = {
@@ -40,7 +41,11 @@ export default function ConnectionsPage() {
   const { mutate: deleteConnection } = useMutation({
     mutationFn: (id: string) =>
       fetchJson<{ id: string }>(`/api/connections/${id}`, { method: "DELETE" }),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["connections"] }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["connections"] });
+      toast.success("Connection deleted");
+    },
+    onError: (err) => toast.error(err instanceof Error ? err.message : "Delete failed"),
     onSettled: () => setDeletingId(null),
   });
 
@@ -52,11 +57,12 @@ export default function ConnectionsPage() {
         { method: "POST" },
       );
       setTestStatuses((prev) => ({ ...prev, [id]: { id, ...result } }));
+      if (result.success) toast.success("Connected");
+      else toast.error(result.message ?? "Connection failed");
     } catch (err) {
-      setTestStatuses((prev) => ({
-        ...prev,
-        [id]: { id, success: false, message: err instanceof Error ? err.message : "Test failed" },
-      }));
+      const msg = err instanceof Error ? err.message : "Test failed";
+      setTestStatuses((prev) => ({ ...prev, [id]: { id, success: false, message: msg } }));
+      toast.error(msg);
     } finally {
       setTestingId(null);
     }
