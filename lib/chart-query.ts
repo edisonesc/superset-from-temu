@@ -7,16 +7,84 @@ import { QUERY_CACHE_TTL_SECONDS } from "@/lib/constants";
 import { createHash } from "crypto";
 import type { ChartComponentProps, ChartConfig, FilterContext, Row } from "@/types";
 import type { Chart, Dataset } from "@/db/schema";
+import type { FilterValue } from "@/stores/filterStore";
+
+// ---------------------------------------------------------------------------
+// Native filter types
+// ---------------------------------------------------------------------------
+
+/**
+ * A resolved filter entry ready to be injected into a SQL WHERE clause.
+ * Column name is validated and the value is typed.
+ */
+export type NativeFilterInput = {
+  column: string;
+  value: FilterValue;
+};
 
 // ---------------------------------------------------------------------------
 // Helpers
 // ---------------------------------------------------------------------------
 
-function buildCacheKey(chartId: string, filters: FilterContext): string {
+function buildCacheKey(
+  chartId: string,
+  filters: FilterContext,
+  nativeFilters: NativeFilterInput[],
+): string {
   const hash = createHash("sha256")
-    .update(chartId + ":" + JSON.stringify(filters))
+    .update(chartId + ":" + JSON.stringify(filters) + ":" + JSON.stringify(nativeFilters))
     .digest("hex");
   return `chart:${chartId}:${hash}`;
+}
+
+/**
+ * Wraps the base SQL in a subquery and applies typed native filter WHERE conditions.
+ * Column names are sanitised; values are escaped to prevent injection.
+ *
+ * Filter types:
+ *  - date_range: column >= 'from' AND column <= 'to'
+ *  - select:     column IN ('v1', 'v2', ...)
+ *  - search:     column LIKE '%query%'
+ */
+function applyNativeFilters(baseSql: string, filters: NativeFilterInput[]): string {
+  if (filters.length === 0) return baseSql;
+
+  const conditions: string[] = [];
+
+  for (const { column, value } of filters) {
+    const safeCol = column.replace(/[^a-zA-Z0-9_.]/g, "");
+    if (!safeCol) continue;
+    const quotedCol = `\`${safeCol}\``;
+
+    if (value.type === "date_range") {
+      if (value.from) {
+        const safe = String(value.from).replace(/'/g, "''");
+        conditions.push(`${quotedCol} >= '${safe}'`);
+      }
+      if (value.to) {
+        const safe = String(value.to).replace(/'/g, "''");
+        conditions.push(`${quotedCol} <= '${safe}'`);
+      }
+    } else if (value.type === "select" && value.values.length > 0) {
+      const inList = value.values
+        .map((v) => `'${String(v).replace(/'/g, "''")}'`)
+        .join(", ");
+      conditions.push(`${quotedCol} IN (${inList})`);
+    } else if (value.type === "search" && value.query.trim()) {
+      // Escape LIKE special chars, then wrap in %
+      const safe = value.query
+        .replace(/'/g, "''")
+        .replace(/\\/g, "\\\\")
+        .replace(/%/g, "\\%")
+        .replace(/_/g, "\\_");
+      conditions.push(`${quotedCol} LIKE '%${safe}%'`);
+    }
+  }
+
+  if (conditions.length === 0) return baseSql;
+
+  const whereClause = conditions.join(" AND ");
+  return `SELECT * FROM (${baseSql}) AS __nf_filtered__ WHERE ${whereClause}`;
 }
 
 /**
@@ -133,8 +201,9 @@ export async function fetchChartData(
   chartId: string,
   userId: string,
   filters: FilterContext = {},
+  nativeFilters: NativeFilterInput[] = [],
 ): Promise<ChartComponentProps> {
-  const cacheKey = buildCacheKey(chartId, filters);
+  const cacheKey = buildCacheKey(chartId, filters, nativeFilters);
   const cached = await cache.get<ChartComponentProps>(cacheKey);
   if (cached) return cached;
 
@@ -156,11 +225,14 @@ export async function fetchChartData(
 
   if (!dataset) throw new Error("Dataset not found");
 
-  // Build SQL
+  // Build SQL — apply cross-filters first, then native filters
   const baseSql = buildChartQuery(chart, dataset);
-  const filteredSql = Object.keys(filters).length
+  let filteredSql = Object.keys(filters).length
     ? applyFilters(baseSql, filters)
     : baseSql;
+  if (nativeFilters.length > 0) {
+    filteredSql = applyNativeFilters(filteredSql, nativeFilters);
+  }
 
   // Execute via runQuery (handles limit enforcement + history logging)
   const result = await runQuery(dataset.connectionId, filteredSql, userId);

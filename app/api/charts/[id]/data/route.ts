@@ -1,12 +1,16 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
-import { fetchChartData } from "@/lib/chart-query";
+import { fetchChartData, type NativeFilterInput } from "@/lib/chart-query";
 import type { ApiResponse, ChartComponentProps, FilterContext } from "@/types";
 
 /**
  * GET /api/charts/[id]/data
+ *
  * Fetches chart-ready data for a saved chart.
- * Supports filter query params for cross-filtering (e.g. ?region=North&product=A).
+ *
+ * Query params:
+ *  - Any non-reserved key=value pair: applied as cross-filter WHERE conditions
+ *  - __nf__: JSON-encoded NativeFilterInput[] for typed native filter bar filters
  */
 export async function GET(
   req: NextRequest,
@@ -19,15 +23,30 @@ export async function GET(
     }
 
     const { id } = await params;
+    const searchParams = new URL(req.url).searchParams;
 
-    // Parse any filter params passed as query string (skip pagination/reserved params)
-    const reserved = new Set(["page", "pageSize", "q"]);
+    // Parse cross-filter params (skip reserved and internal params)
+    const reserved = new Set(["page", "pageSize", "q", "__nf__"]);
     const filters: FilterContext = {};
-    for (const [key, value] of new URL(req.url).searchParams) {
+    for (const [key, value] of searchParams) {
       if (!reserved.has(key)) filters[key] = value;
     }
 
-    const data = await fetchChartData(id, session.user.id, filters);
+    // Parse native filter bar filters encoded as JSON
+    let nativeFilters: NativeFilterInput[] = [];
+    const nfRaw = searchParams.get("__nf__");
+    if (nfRaw) {
+      try {
+        const parsed = JSON.parse(nfRaw);
+        if (Array.isArray(parsed)) {
+          nativeFilters = parsed as NativeFilterInput[];
+        }
+      } catch {
+        // Malformed __nf__ param — ignore, proceed without native filters
+      }
+    }
+
+    const data = await fetchChartData(id, session.user.id, filters, nativeFilters);
 
     return NextResponse.json<ApiResponse<ChartComponentProps>>({ data, error: null });
   } catch (err) {

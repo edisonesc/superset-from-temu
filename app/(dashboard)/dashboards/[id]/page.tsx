@@ -5,9 +5,10 @@ import { useParams, useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { toast } from "sonner";
 import { useDashboardStore } from "@/stores/dashboard-store";
+import { useFilterStore } from "@/stores/filterStore";
 import { DashboardCanvas } from "@/components/dashboard/DashboardCanvas";
-import { FilterBar } from "@/components/dashboard/FilterBar";
-import type { FilterConfigItem } from "@/stores/dashboard-store";
+import { FilterBar } from "@/components/filters/FilterBar";
+import type { FilterConfig } from "@/stores/filterStore";
 
 export default function DashboardViewerPage() {
   const { id } = useParams<{ id: string }>();
@@ -17,8 +18,10 @@ export default function DashboardViewerPage() {
   const {
     dashboard, layout, filters, isEditMode, isDirty,
     loadDashboard, setEditMode, setFilter, clearFilter,
-    clearAllFilters, saveDashboard, publishDashboard, reset,
+    saveDashboard, publishDashboard, reset,
   } = useDashboardStore();
+
+  const loadFilterConfigs = useFilterStore((s) => s.loadConfigs);
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -33,6 +36,19 @@ export default function DashboardViewerPage() {
       .finally(() => setLoading(false));
     return () => reset();
   }, [id, loadDashboard, reset]);
+
+  // Load filter configs from the API after dashboard is loaded
+  useEffect(() => {
+    if (!id) return;
+    fetch(`/api/dashboards/${id}/filters`)
+      .then((r) => r.json())
+      .then((json) => {
+        if (!json.error) {
+          loadFilterConfigs(id, (json.data ?? []) as FilterConfig[]);
+        }
+      })
+      .catch(() => {});
+  }, [id, loadFilterConfigs]);
 
   useEffect(() => {
     const handler = (e: BeforeUnloadEvent) => { if (isDirty) { e.preventDefault(); e.returnValue = ""; } };
@@ -105,7 +121,11 @@ export default function DashboardViewerPage() {
 
   if (!dashboard) return null;
 
-  const filterConfig = (dashboard.filterConfig as FilterConfigItem[]) ?? [];
+  // Extract chart options from layout for use in filter config modal
+  const dashboardCharts = layout.map((item) => ({
+    id: item.chartId,
+    name: item.chartId, // name resolved inside ChartPanel — use chartId as fallback
+  }));
 
   return (
     <div className="flex h-full flex-col" style={{ background: "var(--bg-base)" }}>
@@ -204,8 +224,18 @@ export default function DashboardViewerPage() {
         </div>
       </div>
 
-      <FilterBar filterConfig={filterConfig} isEditMode={isEditMode} />
-      <DashboardCanvas isEditMode={isEditMode} filters={filters} onCrossFilter={handleCrossFilter} />
+      <FilterBar
+        dashboardId={id}
+        isEditMode={isEditMode}
+        dashboardCharts={dashboardCharts}
+      />
+
+      <DashboardCanvas
+        isEditMode={isEditMode}
+        filters={filters}
+        dashboardId={id}
+        onCrossFilter={handleCrossFilter}
+      />
     </div>
   );
 }

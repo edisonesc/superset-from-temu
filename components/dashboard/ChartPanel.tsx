@@ -1,8 +1,9 @@
 "use client";
 
-import { memo } from "react";
+import { memo, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { getChart } from "@/components/charts/registry";
+import { useFilterStore } from "@/stores/filterStore";
 import type { FilterContext, ChartComponentProps, ChartVizType } from "@/types";
 
 // ---------------------------------------------------------------------------
@@ -14,6 +15,7 @@ type ChartPanelProps = {
   panelId: string;
   isEditMode: boolean;
   filters: FilterContext;
+  dashboardId: string;
   onCrossFilter?: (column: string, value: unknown) => void;
   onRemove?: (panelId: string) => void;
 };
@@ -25,13 +27,22 @@ type ChartPanelProps = {
 async function fetchChartData(
   chartId: string,
   filters: FilterContext,
+  nativeFiltersJson: string,
 ): Promise<ChartComponentProps & { vizType: string }> {
   const params = new URLSearchParams();
+
+  // Cross-filter params (simple key=value)
   for (const [key, val] of Object.entries(filters)) {
     if (val !== null && val !== undefined) {
       params.set(key, String(val));
     }
   }
+
+  // Native filter bar params — encoded as JSON to preserve typed structure
+  if (nativeFiltersJson && nativeFiltersJson !== "[]") {
+    params.set("__nf__", nativeFiltersJson);
+  }
+
   const qs = params.toString() ? `?${params.toString()}` : "";
   const res = await fetch(`/api/charts/${chartId}/data${qs}`);
   if (!res.ok) throw new Error("Failed to load chart data");
@@ -74,16 +85,45 @@ function PanelSkeleton() {
 /**
  * Single chart panel within the dashboard canvas.
  * Handles its own data fetching, loading skeleton, and error states.
- * Emits cross-filter events when the user clicks on chart elements.
+ * Merges cross-filter values (from chart element clicks) with native filter
+ * bar values before fetching data.
  */
 export const ChartPanel = memo(function ChartPanel({
   chartId,
   panelId,
   isEditMode,
   filters,
+  dashboardId,
   onCrossFilter,
   onRemove,
 }: ChartPanelProps) {
+  // Resolve native filter bar entries that apply to this chart
+  const configs = useFilterStore((s) => s.configs);
+  const values = useFilterStore((s) => s.values);
+
+  const nativeFilters = useMemo(() => {
+    return Object.values(configs)
+      .filter(
+        (c) =>
+          c.dashboardId === dashboardId &&
+          (c.targetChartIds.length === 0 || c.targetChartIds.includes(chartId)),
+      )
+      .flatMap((c) => {
+        const val = values[c.id];
+        if (!val) return [];
+        if (val.type === "date_range" && !val.from && !val.to) return [];
+        if (val.type === "select" && val.values.length === 0) return [];
+        if (val.type === "search" && !val.query.trim()) return [];
+        return [{ column: c.column, value: val }];
+      });
+  }, [configs, values, dashboardId, chartId]);
+
+  // Stable JSON string — used as query key and fetch param to avoid unnecessary re-fetches
+  const nativeFiltersJson = useMemo(
+    () => JSON.stringify(nativeFilters),
+    [nativeFilters],
+  );
+
   // Fetch chart metadata (name + vizType)
   const metaQuery = useQuery({
     queryKey: ["chart-meta", chartId],
@@ -91,10 +131,10 @@ export const ChartPanel = memo(function ChartPanel({
     staleTime: 1000 * 60 * 5,
   });
 
-  // Fetch chart data — re-fetches when filters change
+  // Fetch chart data — re-fetches when cross-filters or native filters change
   const dataQuery = useQuery({
-    queryKey: ["chart-data", chartId, filters],
-    queryFn: () => fetchChartData(chartId, filters),
+    queryKey: ["chart-data", chartId, filters, nativeFiltersJson],
+    queryFn: () => fetchChartData(chartId, filters, nativeFiltersJson),
     enabled: !!metaQuery.data,
     staleTime: 1000 * 60,
   });

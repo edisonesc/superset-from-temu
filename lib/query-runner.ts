@@ -111,8 +111,12 @@ export async function runQuery(
         connectTimeout: 10_000,
       });
 
-      const [rows, fields] = await conn.execute(limitedSql);
-      await conn.end();
+      let rows: unknown, fields: unknown;
+      try {
+        [rows, fields] = await conn.execute(limitedSql);
+      } finally {
+        await conn.end();
+      }
 
       const durationMs = Date.now() - start;
       const columns: ColumnDefinition[] = (fields as FieldPacket[]).map((f) => ({
@@ -138,8 +142,12 @@ export async function runQuery(
       });
 
       await client.connect();
-      const pgResult = await client.query(limitedSql);
-      await client.end();
+      let pgResult!: Awaited<ReturnType<typeof client.query>>;
+      try {
+        pgResult = await client.query(limitedSql);
+      } finally {
+        await client.end();
+      }
 
       const durationMs = Date.now() - start;
       const columns: ColumnDefinition[] = pgResult.fields.map((f) => ({

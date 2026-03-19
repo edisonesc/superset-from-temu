@@ -19,11 +19,12 @@ type SortablePanelProps = {
   item: LayoutItem;
   isEditMode: boolean;
   filters: FilterContext;
+  dashboardId: string;
   onCrossFilter: (column: string, value: unknown) => void;
   onRemove: (panelId: string) => void;
 };
 
-function SortablePanel({ item, isEditMode, filters, onCrossFilter, onRemove }: SortablePanelProps) {
+function SortablePanel({ item, isEditMode, filters, dashboardId, onCrossFilter, onRemove }: SortablePanelProps) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } =
     useSortable({ id: item.id, disabled: !isEditMode });
 
@@ -60,6 +61,7 @@ function SortablePanel({ item, isEditMode, filters, onCrossFilter, onRemove }: S
           panelId={item.id}
           isEditMode={isEditMode}
           filters={filters}
+          dashboardId={dashboardId}
           onCrossFilter={onCrossFilter}
           onRemove={isEditMode ? onRemove : undefined}
         />
@@ -71,13 +73,14 @@ function SortablePanel({ item, isEditMode, filters, onCrossFilter, onRemove }: S
 type DashboardCanvasProps = {
   isEditMode: boolean;
   filters: FilterContext;
+  dashboardId: string;
   onCrossFilter: (column: string, value: unknown) => void;
 };
 
 /**
  * Drag-and-drop grid canvas for arranging chart panels.
  */
-export function DashboardCanvas({ isEditMode, filters, onCrossFilter }: DashboardCanvasProps) {
+export function DashboardCanvas({ isEditMode, filters, dashboardId, onCrossFilter }: DashboardCanvasProps) {
   const { layout, updateLayout, addChart, removePanel } = useDashboardStore();
   const [showAddChart, setShowAddChart] = useState(false);
 
@@ -144,6 +147,7 @@ export function DashboardCanvas({ isEditMode, filters, onCrossFilter }: Dashboar
                   item={item}
                   isEditMode={isEditMode}
                   filters={filters}
+                  dashboardId={dashboardId}
                   onCrossFilter={onCrossFilter}
                   onRemove={removePanel}
                 />
