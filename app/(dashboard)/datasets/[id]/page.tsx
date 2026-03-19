@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useSession } from "next-auth/react";
 import { toast } from "sonner";
 import { ArrowLeft, Save, RefreshCw, Trash2 } from "@/components/ui/icons";
 
@@ -42,6 +43,12 @@ type Chart = {
   vizType: string;
 };
 
+type Connection = {
+  id: string;
+  name: string;
+  dialect: string;
+};
+
 async function fetchJson<T>(url: string, init?: RequestInit): Promise<T> {
   const res = await fetch(url, init);
   const json = await res.json();
@@ -56,9 +63,13 @@ export default function DatasetDetailPage() {
   const queryClient = useQueryClient();
   const id = params.id as string;
 
+  const { data: session } = useSession();
+  const canEdit = ["admin", "alpha"].includes(session?.user?.role ?? "");
+
   const [activeTab, setActiveTab] = useState<"overview" | "columns">("overview");
   const [editName, setEditName] = useState<string | null>(null);
   const [editDesc, setEditDesc] = useState<string | null>(null);
+  const [editConnectionId, setEditConnectionId] = useState<string | null>(null);
   const [localColumns, setLocalColumns] = useState<ColumnMeta[] | null>(null);
   const [isSyncing, setIsSyncing] = useState(false);
 
@@ -71,6 +82,7 @@ export default function DatasetDetailPage() {
     if (dataset) {
       setEditName(dataset.name);
       setEditDesc(dataset.description ?? "");
+      setEditConnectionId(dataset.connectionId);
     }
   }, [dataset]);
 
@@ -84,6 +96,12 @@ export default function DatasetDetailPage() {
     if (columns.length > 0) setLocalColumns(columns);
   }, [columns]);
 
+  const { data: connections = [] } = useQuery<Connection[]>({
+    queryKey: ["connections"],
+    queryFn: () => fetchJson<Connection[]>("/api/connections"),
+    enabled: canEdit,
+  });
+
   const { data: chartList = [] } = useQuery<Chart[]>({
     queryKey: ["dataset-charts", id],
     queryFn: async () => {
@@ -95,16 +113,28 @@ export default function DatasetDetailPage() {
   });
 
   const saveMeta = useMutation({
-    mutationFn: () =>
-      fetchJson(`/api/datasets/${id}`, {
+    mutationFn: () => {
+      const payload: Record<string, unknown> = { name: editName, description: editDesc };
+      if (editConnectionId && editConnectionId !== dataset?.connectionId) {
+        payload.connectionId = editConnectionId;
+      }
+      return fetchJson(`/api/datasets/${id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name: editName, description: editDesc }),
-      }),
+        body: JSON.stringify(payload),
+      });
+    },
     onSuccess: () => {
+      const connectionChanged = editConnectionId !== dataset?.connectionId;
       toast.success("Dataset saved");
       queryClient.invalidateQueries({ queryKey: ["dataset", id] });
       queryClient.invalidateQueries({ queryKey: ["datasets"] });
+      if (connectionChanged) {
+        // Clear cached column metadata so the user re-syncs with the new connection
+        queryClient.invalidateQueries({ queryKey: ["dataset-columns", id] });
+        setLocalColumns(null);
+        toast.info("Connection changed — sync columns to refresh metadata");
+      }
     },
     onError: (e) => toast.error(`Save failed: ${(e as Error).message}`),
   });
@@ -299,22 +329,39 @@ export default function DatasetDetailPage() {
             {/* Connection */}
             <div>
               <label className="block text-xs font-medium mb-1.5" style={{ color: "var(--text-secondary)" }}>Connection</label>
-              <div className="flex items-center gap-2">
-                <span className="text-sm" style={{ color: "var(--text-primary)" }}>{dataset.connectionName ?? "—"}</span>
-                {dataset.dialect && (
-                  <span
-                    className="inline-flex items-center px-2 py-0.5 text-xs font-medium"
-                    style={{
-                      borderRadius: "2px",
-                      background: dataset.dialect === "mysql" ? "rgba(234,88,12,0.1)" : "rgba(32,167,201,0.1)",
-                      color: dataset.dialect === "mysql" ? "#EA580C" : "var(--accent)",
-                      border: `1px solid ${dataset.dialect === "mysql" ? "rgba(234,88,12,0.2)" : "rgba(32,167,201,0.2)"}`,
-                    }}
-                  >
-                    {dataset.dialect}
-                  </span>
-                )}
-              </div>
+              {canEdit ? (
+                <select
+                  value={editConnectionId ?? dataset.connectionId}
+                  onChange={(e) => setEditConnectionId(e.target.value)}
+                  className="w-full text-sm px-3 py-2 outline-none transition-colors"
+                  style={{ ...inputStyle, cursor: "pointer" }}
+                  onFocus={(e) => (e.currentTarget.style.borderColor = "var(--accent)")}
+                  onBlur={(e) => (e.currentTarget.style.borderColor = "var(--bg-border)")}
+                >
+                  {connections.map((c) => (
+                    <option key={c.id} value={c.id}>
+                      {c.name} ({c.dialect})
+                    </option>
+                  ))}
+                </select>
+              ) : (
+                <div className="flex items-center gap-2">
+                  <span className="text-sm" style={{ color: "var(--text-primary)" }}>{dataset.connectionName ?? "—"}</span>
+                  {dataset.dialect && (
+                    <span
+                      className="inline-flex items-center px-2 py-0.5 text-xs font-medium"
+                      style={{
+                        borderRadius: "2px",
+                        background: dataset.dialect === "mysql" ? "rgba(234,88,12,0.1)" : "rgba(32,167,201,0.1)",
+                        color: dataset.dialect === "mysql" ? "#EA580C" : "var(--accent)",
+                        border: `1px solid ${dataset.dialect === "mysql" ? "rgba(234,88,12,0.2)" : "rgba(32,167,201,0.2)"}`,
+                      }}
+                    >
+                      {dataset.dialect}
+                    </span>
+                  )}
+                </div>
+              )}
             </div>
 
             {/* Table or SQL */}

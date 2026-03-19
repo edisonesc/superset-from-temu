@@ -9,6 +9,7 @@ import type { ApiResponse } from "@/types";
 const updateDatasetSchema = z.object({
   name: z.string().min(1).optional(),
   description: z.string().optional(),
+  connectionId: z.string().min(1).optional(),
   tableName: z.string().optional(),
   sqlDefinition: z.string().optional(),
   columnMetadata: z.array(z.record(z.string(), z.unknown())).optional(),
@@ -99,6 +100,24 @@ export async function PUT(
     if (parsed.data.tableName !== undefined) updates.tableName = parsed.data.tableName;
     if (parsed.data.sqlDefinition !== undefined) updates.sqlDefinition = parsed.data.sqlDefinition;
     if (parsed.data.columnMetadata !== undefined) updates.columnMetadata = parsed.data.columnMetadata;
+
+    if (parsed.data.connectionId !== undefined) {
+      // Verify the new connection exists
+      const [conn] = await db
+        .select({ id: databaseConnections.id })
+        .from(databaseConnections)
+        .where(eq(databaseConnections.id, parsed.data.connectionId))
+        .limit(1);
+      if (!conn) {
+        return NextResponse.json<ApiResponse<null>>(
+          { data: null, error: "Connection not found" },
+          { status: 404 },
+        );
+      }
+      updates.connectionId = parsed.data.connectionId;
+      // Clear column metadata so the user re-syncs against the new connection
+      updates.columnMetadata = null;
+    }
 
     if (Object.keys(updates).length === 0) {
       return NextResponse.json<ApiResponse<{ id: string }>>({ data: { id }, error: null });
