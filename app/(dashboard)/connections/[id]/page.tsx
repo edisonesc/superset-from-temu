@@ -36,6 +36,11 @@ const PORT_DEFAULTS: Record<"mysql" | "postgresql", number> = {
   postgresql: 5432,
 };
 
+const DIALECT_META = {
+  mysql:      { label: "MySQL",      color: "#EA580C", bg: "rgba(234,88,12,0.08)",  border: "rgba(234,88,12,0.25)" },
+  postgresql: { label: "PostgreSQL", color: "var(--accent)", bg: "rgba(32,167,201,0.08)", border: "rgba(32,167,201,0.25)" },
+};
+
 async function fetchJson<T>(url: string, init?: RequestInit): Promise<T> {
   const res = await fetch(url, init);
   const json = await res.json();
@@ -70,7 +75,6 @@ export default function ConnectionDetailPage() {
     queryFn: () => fetchJson(`/api/connections/${id}`),
   });
 
-  // Populate form once connection loads
   useEffect(() => {
     if (connection) {
       setForm({
@@ -81,7 +85,7 @@ export default function ConnectionDetailPage() {
         port: String(connection.port),
         databaseName: connection.databaseName,
         username: connection.username,
-        password: "", // never pre-fill password
+        password: "",
       });
     }
   }, [connection]);
@@ -101,37 +105,30 @@ export default function ConnectionDetailPage() {
     setIsTesting(true);
     setTestStatus(null);
     try {
-      // If no new password provided, test the existing connection
+      let result: { success: boolean; message: string };
       if (!form.password) {
-        const result = await fetchJson<{ success: boolean; message: string }>(
-          `/api/connections/${id}/test`,
-          { method: "POST" },
-        );
-        setTestStatus(result);
+        result = await fetchJson(`/api/connections/${id}/test`, { method: "POST" });
       } else {
-        // Test with new credentials
-        const result = await fetchJson<{ success: boolean; message: string }>(
-          "/api/connections/test",
-          {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              dialect: form.dialect,
-              host: form.host,
-              port: parseInt(form.port, 10),
-              databaseName: form.databaseName,
-              username: form.username,
-              password: form.password,
-            }),
-          },
-        );
-        setTestStatus(result);
+        result = await fetchJson("/api/connections/test", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            dialect: form.dialect,
+            host: form.host,
+            port: parseInt(form.port, 10),
+            databaseName: form.databaseName,
+            username: form.username,
+            password: form.password,
+          }),
+        });
       }
+      setTestStatus(result);
+      if (result.success) toast.success("Connection successful");
+      else toast.error(result.message ?? "Connection failed");
     } catch (err) {
-      setTestStatus({
-        success: false,
-        message: err instanceof Error ? err.message : "Test failed",
-      });
+      const msg = err instanceof Error ? err.message : "Test failed";
+      setTestStatus({ success: false, message: msg });
+      toast.error(msg);
     } finally {
       setIsTesting(false);
     }
@@ -180,13 +177,28 @@ export default function ConnectionDetailPage() {
 
   const canSave = form.name && form.host && form.databaseName && form.username;
 
+  const inp = {
+    background: "var(--bg-elevated)",
+    border: "1px solid var(--bg-border)",
+    color: "var(--text-primary)",
+    borderRadius: "2px",
+  };
+  const onF = (e: React.FocusEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) =>
+    (e.currentTarget.style.borderColor = "var(--accent)");
+  const onB = (e: React.FocusEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) =>
+    (e.currentTarget.style.borderColor = "var(--bg-border)");
+
   if (isLoading) {
     return (
-      <div className="p-6 space-y-4 max-w-xl">
-        <div className="h-8 w-48 bg-zinc-800 animate-pulse rounded" />
-        {Array.from({ length: 6 }).map((_, i) => (
-          <div key={i} className="h-10 bg-zinc-800 animate-pulse rounded" />
-        ))}
+      <div className="flex flex-col h-full" style={{ background: "var(--bg-base)" }}>
+        <div className="px-6 py-4" style={{ background: "var(--bg-surface)", borderBottom: "1px solid var(--bg-border)" }}>
+          <div className="h-5 w-40 animate-pulse" style={{ background: "var(--bg-border)", borderRadius: "2px" }} />
+        </div>
+        <div className="p-6 max-w-2xl space-y-5">
+          {Array.from({ length: 3 }).map((_, i) => (
+            <div key={i} className="h-32 animate-pulse" style={{ background: "var(--bg-border)", borderRadius: "2px" }} />
+          ))}
+        </div>
       </div>
     );
   }
@@ -194,8 +206,8 @@ export default function ConnectionDetailPage() {
   if (isError || !connection) {
     return (
       <div className="p-6">
-        <p className="text-red-400">Failed to load connection.</p>
-        <Link href="/connections" className="text-sm text-indigo-400 hover:text-indigo-300 mt-2 inline-block">
+        <p className="text-sm" style={{ color: "var(--error)" }}>Failed to load connection.</p>
+        <Link href="/connections" className="text-sm mt-2 inline-block" style={{ color: "var(--accent)" }}>
           Back to Connections
         </Link>
       </div>
@@ -203,171 +215,269 @@ export default function ConnectionDetailPage() {
   }
 
   return (
-    <div className="flex flex-col h-full p-6 max-w-xl">
+    <div className="flex flex-col h-full" style={{ background: "var(--bg-base)" }}>
       {/* Header */}
-      <div className="flex items-center justify-between mb-6">
+      <div
+        className="flex items-center justify-between px-6 py-4"
+        style={{ background: "var(--bg-surface)", borderBottom: "1px solid var(--bg-border)" }}
+      >
         <div className="flex items-center gap-3">
-          <Link href="/connections" className="text-zinc-500 hover:text-zinc-300 transition-colors">
+          <Link href="/connections" className="transition-colors" style={{ color: "var(--text-muted)" }}>
             <ArrowLeft size={16} />
           </Link>
-          <h1 className="text-xl font-bold text-zinc-100">{connection.name}</h1>
+          <div>
+            <h1 className="text-base font-semibold" style={{ color: "var(--text-primary)" }}>{connection.name}</h1>
+            <p className="text-xs mt-0.5" style={{ color: "var(--text-muted)" }}>Edit database connection</p>
+          </div>
         </div>
         <button
           onClick={handleDelete}
           disabled={isDeleting}
-          className="px-2.5 py-1.5 text-xs rounded border border-zinc-800 text-zinc-600 hover:text-red-400 hover:border-red-900 disabled:opacity-50 transition-colors"
+          className="px-3 py-1.5 text-xs font-medium transition-colors disabled:opacity-50"
+          style={{ border: "1px solid var(--bg-border)", color: "var(--text-muted)", borderRadius: "2px" }}
+          onMouseEnter={(e) => {
+            (e.currentTarget as HTMLButtonElement).style.color = "var(--error)";
+            (e.currentTarget as HTMLButtonElement).style.borderColor = "rgba(220,38,38,0.3)";
+          }}
+          onMouseLeave={(e) => {
+            (e.currentTarget as HTMLButtonElement).style.color = "var(--text-muted)";
+            (e.currentTarget as HTMLButtonElement).style.borderColor = "var(--bg-border)";
+          }}
         >
-          {isDeleting ? "Deleting…" : "Delete"}
+          {isDeleting ? "Deleting…" : "Delete Connection"}
         </button>
       </div>
 
-      <div className="space-y-4">
-        {/* Name */}
-        <div>
-          <label className="block text-xs font-medium text-zinc-400 mb-1.5">
-            Name <span className="text-red-400">*</span>
-          </label>
-          <input
-            value={form.name}
-            onChange={(e) => setField("name", e.target.value)}
-            className="w-full bg-zinc-800 text-zinc-200 text-sm rounded px-3 py-2 outline-none border border-zinc-700 focus:border-indigo-500 transition-colors"
-          />
-        </div>
+      <div className="flex-1 overflow-auto p-6">
+        <div className="max-w-2xl space-y-5">
 
-        {/* Description */}
-        <div>
-          <label className="block text-xs font-medium text-zinc-400 mb-1.5">Description</label>
-          <input
-            value={form.description}
-            onChange={(e) => setField("description", e.target.value)}
-            placeholder="Optional description…"
-            className="w-full bg-zinc-800 text-zinc-200 text-sm rounded px-3 py-2 outline-none placeholder:text-zinc-600 border border-zinc-700 focus:border-indigo-500 transition-colors"
-          />
-        </div>
-
-        {/* Dialect */}
-        <div>
-          <label className="block text-xs font-medium text-zinc-400 mb-1.5">
-            Dialect <span className="text-red-400">*</span>
-          </label>
-          <select
-            value={form.dialect}
-            onChange={(e) => setField("dialect", e.target.value as "mysql" | "postgresql")}
-            className="w-full bg-zinc-800 text-zinc-200 text-sm rounded px-3 py-2 outline-none border border-zinc-700 focus:border-indigo-500 transition-colors"
+          {/* Section: General */}
+          <div
+            className="p-5 space-y-4"
+            style={{ background: "var(--bg-surface)", border: "1px solid var(--bg-border)", borderRadius: "2px" }}
           >
-            <option value="mysql">MySQL</option>
-            <option value="postgresql">PostgreSQL</option>
-          </select>
-        </div>
+            <h2 className="text-xs font-semibold uppercase tracking-wide" style={{ color: "var(--text-muted)" }}>General</h2>
 
-        {/* Host + Port */}
-        <div className="flex gap-3">
-          <div className="flex-1">
-            <label className="block text-xs font-medium text-zinc-400 mb-1.5">
-              Host <span className="text-red-400">*</span>
-            </label>
-            <input
-              value={form.host}
-              onChange={(e) => setField("host", e.target.value)}
-              className="w-full bg-zinc-800 text-zinc-200 text-sm rounded px-3 py-2 outline-none border border-zinc-700 focus:border-indigo-500 transition-colors"
-            />
+            <div className="grid grid-cols-2 gap-4">
+              <div className="col-span-2">
+                <label className="block text-xs font-medium mb-1.5" style={{ color: "var(--text-secondary)" }}>
+                  Display Name <span style={{ color: "var(--error)" }}>*</span>
+                </label>
+                <input
+                  value={form.name}
+                  onChange={(e) => setField("name", e.target.value)}
+                  placeholder="e.g. Production MySQL"
+                  className="w-full text-sm px-3 py-2 outline-none"
+                  style={inp}
+                  onFocus={onF}
+                  onBlur={onB}
+                />
+              </div>
+              <div className="col-span-2">
+                <label className="block text-xs font-medium mb-1.5" style={{ color: "var(--text-secondary)" }}>Description</label>
+                <textarea
+                  value={form.description}
+                  onChange={(e) => setField("description", e.target.value)}
+                  placeholder="Optional description…"
+                  rows={2}
+                  className="w-full text-sm px-3 py-2 outline-none resize-none"
+                  style={{ ...inp }}
+                  onFocus={(e) => (e.currentTarget.style.borderColor = "var(--accent)")}
+                  onBlur={(e) => (e.currentTarget.style.borderColor = "var(--bg-border)")}
+                />
+              </div>
+            </div>
+
+            {/* Dialect selector */}
+            <div>
+              <label className="block text-xs font-medium mb-2" style={{ color: "var(--text-secondary)" }}>
+                Database Type <span style={{ color: "var(--error)" }}>*</span>
+              </label>
+              <div className="flex gap-3">
+                {(["mysql", "postgresql"] as const).map((d) => {
+                  const meta = DIALECT_META[d];
+                  const isActive = form.dialect === d;
+                  return (
+                    <button
+                      key={d}
+                      onClick={() => setField("dialect", d)}
+                      className="flex items-center gap-2 px-4 py-2.5 text-sm font-medium transition-colors"
+                      style={{
+                        border: `1px solid ${isActive ? meta.border : "var(--bg-border)"}`,
+                        background: isActive ? meta.bg : "var(--bg-elevated)",
+                        color: isActive ? meta.color : "var(--text-secondary)",
+                        borderRadius: "2px",
+                        flex: 1,
+                        justifyContent: "center",
+                      }}
+                    >
+                      <span className="w-2 h-2 rounded-full" style={{ background: isActive ? meta.color : "var(--bg-border)" }} />
+                      {meta.label}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
           </div>
-          <div className="w-28">
-            <label className="block text-xs font-medium text-zinc-400 mb-1.5">Port</label>
-            <input
-              value={form.port}
-              onChange={(e) => setField("port", e.target.value)}
-              type="number"
-              className="w-full bg-zinc-800 text-zinc-200 text-sm rounded px-3 py-2 outline-none border border-zinc-700 focus:border-indigo-500 transition-colors"
-            />
+
+          {/* Section: Connection */}
+          <div
+            className="p-5 space-y-4"
+            style={{ background: "var(--bg-surface)", border: "1px solid var(--bg-border)", borderRadius: "2px" }}
+          >
+            <h2 className="text-xs font-semibold uppercase tracking-wide" style={{ color: "var(--text-muted)" }}>Connection</h2>
+
+            <div className="grid grid-cols-4 gap-3">
+              <div className="col-span-3">
+                <label className="block text-xs font-medium mb-1.5" style={{ color: "var(--text-secondary)" }}>
+                  Host <span style={{ color: "var(--error)" }}>*</span>
+                </label>
+                <input
+                  value={form.host}
+                  onChange={(e) => setField("host", e.target.value)}
+                  placeholder="localhost or IP address"
+                  className="w-full text-sm px-3 py-2 outline-none"
+                  style={inp}
+                  onFocus={onF}
+                  onBlur={onB}
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-medium mb-1.5" style={{ color: "var(--text-secondary)" }}>Port</label>
+                <input
+                  value={form.port}
+                  onChange={(e) => setField("port", e.target.value)}
+                  type="number"
+                  className="w-full text-sm px-3 py-2 outline-none"
+                  style={inp}
+                  onFocus={onF}
+                  onBlur={onB}
+                />
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-xs font-medium mb-1.5" style={{ color: "var(--text-secondary)" }}>
+                Database Name <span style={{ color: "var(--error)" }}>*</span>
+              </label>
+              <input
+                value={form.databaseName}
+                onChange={(e) => setField("databaseName", e.target.value)}
+                placeholder="my_database"
+                className="w-full text-sm px-3 py-2 outline-none"
+                style={inp}
+                onFocus={onF}
+                onBlur={onB}
+              />
+            </div>
           </div>
-        </div>
 
-        {/* Database name */}
-        <div>
-          <label className="block text-xs font-medium text-zinc-400 mb-1.5">
-            Database Name <span className="text-red-400">*</span>
-          </label>
-          <input
-            value={form.databaseName}
-            onChange={(e) => setField("databaseName", e.target.value)}
-            className="w-full bg-zinc-800 text-zinc-200 text-sm rounded px-3 py-2 outline-none border border-zinc-700 focus:border-indigo-500 transition-colors"
-          />
-        </div>
+          {/* Section: Credentials */}
+          <div
+            className="p-5 space-y-4"
+            style={{ background: "var(--bg-surface)", border: "1px solid var(--bg-border)", borderRadius: "2px" }}
+          >
+            <h2 className="text-xs font-semibold uppercase tracking-wide" style={{ color: "var(--text-muted)" }}>Credentials</h2>
 
-        {/* Username */}
-        <div>
-          <label className="block text-xs font-medium text-zinc-400 mb-1.5">
-            Username <span className="text-red-400">*</span>
-          </label>
-          <input
-            value={form.username}
-            onChange={(e) => setField("username", e.target.value)}
-            className="w-full bg-zinc-800 text-zinc-200 text-sm rounded px-3 py-2 outline-none border border-zinc-700 focus:border-indigo-500 transition-colors"
-          />
-        </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-xs font-medium mb-1.5" style={{ color: "var(--text-secondary)" }}>
+                  Username <span style={{ color: "var(--error)" }}>*</span>
+                </label>
+                <input
+                  value={form.username}
+                  onChange={(e) => setField("username", e.target.value)}
+                  placeholder="root"
+                  className="w-full text-sm px-3 py-2 outline-none"
+                  style={inp}
+                  onFocus={onF}
+                  onBlur={onB}
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-medium mb-1.5" style={{ color: "var(--text-secondary)" }}>
+                  New Password{" "}
+                  <span className="font-normal" style={{ color: "var(--text-muted)" }}>(blank = keep current)</span>
+                </label>
+                <div className="relative">
+                  <input
+                    value={form.password}
+                    onChange={(e) => setField("password", e.target.value)}
+                    type={showPassword ? "text" : "password"}
+                    placeholder="••••••••"
+                    className="w-full text-sm px-3 py-2 pr-9 outline-none"
+                    style={inp}
+                    onFocus={onF}
+                    onBlur={onB}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword((v) => !v)}
+                    className="absolute right-2.5 top-1/2 -translate-y-1/2 transition-colors"
+                    style={{ color: "var(--text-muted)" }}
+                    onMouseEnter={(e) => ((e.currentTarget as HTMLButtonElement).style.color = "var(--text-primary)")}
+                    onMouseLeave={(e) => ((e.currentTarget as HTMLButtonElement).style.color = "var(--text-muted)")}
+                  >
+                    <Eye size={14} />
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
 
-        {/* Password */}
-        <div>
-          <label className="block text-xs font-medium text-zinc-400 mb-1.5">
-            New Password <span className="text-zinc-600 text-xs">(leave blank to keep current)</span>
-          </label>
-          <div className="relative">
-            <input
-              value={form.password}
-              onChange={(e) => setField("password", e.target.value)}
-              type={showPassword ? "text" : "password"}
-              placeholder="••••••••"
-              className="w-full bg-zinc-800 text-zinc-200 text-sm rounded px-3 py-2 pr-10 outline-none placeholder:text-zinc-600 border border-zinc-700 focus:border-indigo-500 transition-colors"
-            />
+          {/* Actions */}
+          <div className="flex items-center gap-3 pt-1">
             <button
-              type="button"
-              onClick={() => setShowPassword((v) => !v)}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-500 hover:text-zinc-300"
+              onClick={handleTest}
+              disabled={isTesting || !form.host || !form.databaseName || !form.username}
+              className="flex items-center gap-1.5 px-4 py-2 text-sm font-medium transition-colors disabled:opacity-50"
+              style={{
+                border: "1px solid var(--bg-border)",
+                color: "var(--text-secondary)",
+                background: "var(--bg-surface)",
+                borderRadius: "2px",
+              }}
+              onMouseEnter={(e) => {
+                (e.currentTarget as HTMLButtonElement).style.borderColor = "var(--accent)";
+                (e.currentTarget as HTMLButtonElement).style.color = "var(--accent)";
+              }}
+              onMouseLeave={(e) => {
+                (e.currentTarget as HTMLButtonElement).style.borderColor = "var(--bg-border)";
+                (e.currentTarget as HTMLButtonElement).style.color = "var(--text-secondary)";
+              }}
             >
-              <Eye size={14} />
+              {isTesting ? <Loader size={14} className="animate-spin" /> : <RefreshCw size={14} />}
+              Test Connection
+            </button>
+
+            {testStatus && (
+              <div className="flex items-center gap-1.5 text-sm">
+                {testStatus.success
+                  ? <CheckCircle size={15} style={{ color: "var(--success)" }} />
+                  : <XCircle size={15} style={{ color: "var(--error)" }} />}
+                <span style={{ color: testStatus.success ? "var(--success)" : "var(--error)" }}>
+                  {testStatus.message}
+                </span>
+              </div>
+            )}
+
+            <div className="flex-1" />
+
+            <Link href="/connections" className="px-4 py-2 text-sm transition-colors" style={{ color: "var(--text-muted)" }}>
+              Cancel
+            </Link>
+            <button
+              onClick={handleSave}
+              disabled={isSaving || !canSave}
+              className="flex items-center gap-1.5 px-4 py-2 text-sm font-medium text-white transition-colors disabled:opacity-50"
+              style={{ background: "var(--accent)", borderRadius: "2px" }}
+              onMouseEnter={(e) => ((e.currentTarget as HTMLButtonElement).style.background = "var(--accent-deep)")}
+              onMouseLeave={(e) => ((e.currentTarget as HTMLButtonElement).style.background = "var(--accent)")}
+            >
+              {isSaving ? <Loader size={14} className="animate-spin" /> : <Save size={14} />}
+              {isSaving ? "Saving…" : "Save Changes"}
             </button>
           </div>
-        </div>
-
-        {/* Test */}
-        <div className="flex items-center gap-3 pt-1">
-          <button
-            onClick={handleTest}
-            disabled={isTesting || !form.host || !form.databaseName || !form.username}
-            className="flex items-center gap-1.5 px-3 py-2 text-sm rounded border border-zinc-700 text-zinc-300 hover:border-zinc-500 hover:text-zinc-100 disabled:opacity-50 transition-colors"
-          >
-            {isTesting ? <Loader size={14} className="animate-spin" /> : <RefreshCw size={14} />}
-            Test Connection
-          </button>
-
-          {testStatus && (
-            <div className="flex items-center gap-1.5 text-sm">
-              {testStatus.success ? (
-                <CheckCircle size={15} className="text-emerald-400" />
-              ) : (
-                <XCircle size={15} className="text-red-400" />
-              )}
-              <span className={testStatus.success ? "text-emerald-400" : "text-red-400"}>
-                {testStatus.message}
-              </span>
-            </div>
-          )}
-        </div>
-
-        {/* Save */}
-        <div className="flex items-center gap-3 pt-2">
-          <button
-            onClick={handleSave}
-            disabled={isSaving || !canSave}
-            className="flex items-center gap-1.5 px-4 py-2 text-sm font-medium rounded bg-indigo-600 hover:bg-indigo-500 text-white disabled:opacity-50 transition-colors"
-          >
-            {isSaving ? <Loader size={14} className="animate-spin" /> : <Save size={14} />}
-            {isSaving ? "Saving…" : "Save Changes"}
-          </button>
-          <Link href="/connections" className="text-sm text-zinc-500 hover:text-zinc-300 transition-colors">
-            Cancel
-          </Link>
         </div>
       </div>
     </div>

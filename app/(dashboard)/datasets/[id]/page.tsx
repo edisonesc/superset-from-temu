@@ -71,7 +71,7 @@ export default function DatasetDetailPage() {
     },
   } as Parameters<typeof useQuery>[0]);
 
-  const { data: columns = [], refetch: refetchColumns } = useQuery<ColumnMeta[]>({
+  const { data: columns = [] } = useQuery<ColumnMeta[]>({
     queryKey: ["dataset-columns", id],
     queryFn: () => fetchJson(`/api/datasets/${id}/columns`),
     enabled: activeTab === "columns",
@@ -171,12 +171,19 @@ export default function DatasetDetailPage() {
 
   const displayColumns = localColumns ?? (columns as ColumnMeta[]);
 
+  const inputStyle = {
+    background: "var(--bg-elevated)",
+    border: "1px solid var(--bg-border)",
+    color: "var(--text-primary)",
+    borderRadius: "2px",
+  };
+
   if (isLoading) {
     return (
       <div className="p-6 space-y-4">
-        <div className="h-8 w-48 bg-zinc-800 animate-pulse rounded" />
-        <div className="h-4 w-96 bg-zinc-800 animate-pulse rounded" />
-        <div className="h-64 bg-zinc-800 animate-pulse rounded-lg" />
+        <div className="h-8 w-48 animate-pulse" style={{ background: "var(--bg-border)", borderRadius: "2px" }} />
+        <div className="h-4 w-96 animate-pulse" style={{ background: "var(--bg-border)", borderRadius: "2px" }} />
+        <div className="h-64 animate-pulse" style={{ background: "var(--bg-border)", borderRadius: "2px" }} />
       </div>
     );
   }
@@ -184,8 +191,8 @@ export default function DatasetDetailPage() {
   if (isError || !dataset) {
     return (
       <div className="p-6">
-        <p className="text-red-400">Failed to load dataset.</p>
-        <Link href="/datasets" className="text-sm text-indigo-400 hover:text-indigo-300 mt-2 inline-block">
+        <p className="text-sm" style={{ color: "var(--error)" }}>Failed to load dataset.</p>
+        <Link href="/datasets" className="text-sm mt-2 inline-block transition-colors" style={{ color: "var(--accent)" }}>
           Back to Datasets
         </Link>
       </div>
@@ -193,16 +200,19 @@ export default function DatasetDetailPage() {
   }
 
   return (
-    <div className="flex flex-col h-full">
+    <div className="flex flex-col h-full" style={{ background: "var(--bg-base)" }}>
       {/* Header */}
-      <div className="flex items-center justify-between px-6 py-4 border-b border-zinc-800">
+      <div
+        className="flex items-center justify-between px-6 py-4"
+        style={{ background: "var(--bg-surface)", borderBottom: "1px solid var(--bg-border)" }}
+      >
         <div className="flex items-center gap-3">
-          <Link href="/datasets" className="text-zinc-500 hover:text-zinc-300 transition-colors">
+          <Link href="/datasets" className="transition-colors" style={{ color: "var(--text-muted)" }}>
             <ArrowLeft size={16} />
           </Link>
           <div>
-            <h1 className="text-lg font-bold text-zinc-100">{dataset.name}</h1>
-            <p className="text-xs text-zinc-500 mt-0.5">
+            <h1 className="text-lg font-semibold" style={{ color: "var(--text-primary)" }}>{dataset.name}</h1>
+            <p className="text-xs mt-0.5" style={{ color: "var(--text-muted)" }}>
               {dataset.sqlDefinition ? "Virtual dataset" : "Physical table"} ·{" "}
               {dataset.connectionName ?? "unknown connection"}
             </p>
@@ -211,7 +221,20 @@ export default function DatasetDetailPage() {
         <button
           onClick={confirmDelete}
           disabled={deleteDataset.isPending}
-          className="flex items-center gap-1.5 px-2.5 py-1.5 text-xs rounded border border-zinc-800 text-zinc-600 hover:text-red-400 hover:border-red-900 transition-colors disabled:opacity-50"
+          className="flex items-center gap-1.5 px-2.5 py-1.5 text-xs transition-colors disabled:opacity-50"
+          style={{
+            border: "1px solid var(--bg-border)",
+            color: "var(--text-muted)",
+            borderRadius: "2px",
+          }}
+          onMouseEnter={(e) => {
+            (e.currentTarget as HTMLButtonElement).style.color = "var(--error)";
+            (e.currentTarget as HTMLButtonElement).style.borderColor = "rgba(220,38,38,0.3)";
+          }}
+          onMouseLeave={(e) => {
+            (e.currentTarget as HTMLButtonElement).style.color = "var(--text-muted)";
+            (e.currentTarget as HTMLButtonElement).style.borderColor = "var(--bg-border)";
+          }}
         >
           <Trash2 size={12} />
           Delete
@@ -219,16 +242,16 @@ export default function DatasetDetailPage() {
       </div>
 
       {/* Tabs */}
-      <div className="flex gap-0 border-b border-zinc-800 px-6">
+      <div className="flex px-6" style={{ background: "var(--bg-surface)", borderBottom: "1px solid var(--bg-border)" }}>
         {(["overview", "columns"] as const).map((tab) => (
           <button
             key={tab}
             onClick={() => setActiveTab(tab)}
-            className={`px-4 py-2.5 text-sm font-medium border-b-2 transition-colors capitalize ${
-              activeTab === tab
-                ? "border-indigo-500 text-indigo-400"
-                : "border-transparent text-zinc-500 hover:text-zinc-300"
-            }`}
+            className="px-4 py-2.5 text-sm font-medium transition-colors capitalize"
+            style={{
+              borderBottom: activeTab === tab ? "2px solid var(--accent)" : "2px solid transparent",
+              color: activeTab === tab ? "var(--accent)" : "var(--text-muted)",
+            }}
           >
             {tab}
           </button>
@@ -241,38 +264,46 @@ export default function DatasetDetailPage() {
           <div className="max-w-2xl space-y-5">
             {/* Name */}
             <div>
-              <label className="block text-xs font-medium text-zinc-400 mb-1.5">Name</label>
+              <label className="block text-xs font-medium mb-1.5" style={{ color: "var(--text-secondary)" }}>Name</label>
               <input
                 value={editName ?? dataset.name}
                 onChange={(e) => setEditName(e.target.value)}
-                className="w-full bg-zinc-800 text-zinc-200 text-sm rounded px-3 py-2 outline-none border border-zinc-700 focus:border-indigo-500 transition-colors"
+                className="w-full text-sm px-3 py-2 outline-none transition-colors"
+                style={inputStyle}
+                onFocus={(e) => (e.currentTarget.style.borderColor = "var(--accent)")}
+                onBlur={(e) => (e.currentTarget.style.borderColor = "var(--bg-border)")}
               />
             </div>
 
             {/* Description */}
             <div>
-              <label className="block text-xs font-medium text-zinc-400 mb-1.5">Description</label>
+              <label className="block text-xs font-medium mb-1.5" style={{ color: "var(--text-secondary)" }}>Description</label>
               <textarea
                 value={editDesc ?? (dataset.description ?? "")}
                 onChange={(e) => setEditDesc(e.target.value)}
                 rows={3}
                 placeholder="Optional description…"
-                className="w-full bg-zinc-800 text-zinc-200 text-sm rounded px-3 py-2 outline-none border border-zinc-700 focus:border-indigo-500 transition-colors resize-none placeholder:text-zinc-600"
+                className="w-full text-sm px-3 py-2 outline-none transition-colors resize-none"
+                style={inputStyle}
+                onFocus={(e) => (e.currentTarget.style.borderColor = "var(--accent)")}
+                onBlur={(e) => (e.currentTarget.style.borderColor = "var(--bg-border)")}
               />
             </div>
 
             {/* Connection */}
             <div>
-              <label className="block text-xs font-medium text-zinc-400 mb-1.5">Connection</label>
+              <label className="block text-xs font-medium mb-1.5" style={{ color: "var(--text-secondary)" }}>Connection</label>
               <div className="flex items-center gap-2">
-                <span className="text-sm text-zinc-300">{dataset.connectionName ?? "—"}</span>
+                <span className="text-sm" style={{ color: "var(--text-primary)" }}>{dataset.connectionName ?? "—"}</span>
                 {dataset.dialect && (
                   <span
-                    className={`inline-flex items-center rounded px-2 py-0.5 text-xs font-medium ${
-                      dataset.dialect === "mysql"
-                        ? "bg-orange-900/40 text-orange-300"
-                        : "bg-blue-900/40 text-blue-300"
-                    }`}
+                    className="inline-flex items-center px-2 py-0.5 text-xs font-medium"
+                    style={{
+                      borderRadius: "2px",
+                      background: dataset.dialect === "mysql" ? "rgba(234,88,12,0.1)" : "rgba(32,167,201,0.1)",
+                      color: dataset.dialect === "mysql" ? "#EA580C" : "var(--accent)",
+                      border: `1px solid ${dataset.dialect === "mysql" ? "rgba(234,88,12,0.2)" : "rgba(32,167,201,0.2)"}`,
+                    }}
                   >
                     {dataset.dialect}
                   </span>
@@ -283,14 +314,22 @@ export default function DatasetDetailPage() {
             {/* Table or SQL */}
             {dataset.tableName && !dataset.sqlDefinition && (
               <div>
-                <label className="block text-xs font-medium text-zinc-400 mb-1.5">Table</label>
-                <code className="text-sm text-zinc-300 font-mono">{dataset.tableName}</code>
+                <label className="block text-xs font-medium mb-1.5" style={{ color: "var(--text-secondary)" }}>Table</label>
+                <code className="text-sm font-mono" style={{ color: "var(--text-primary)" }}>{dataset.tableName}</code>
               </div>
             )}
             {dataset.sqlDefinition && (
               <div>
-                <label className="block text-xs font-medium text-zinc-400 mb-1.5">SQL Definition</label>
-                <pre className="bg-zinc-900 border border-zinc-700 rounded p-3 text-xs text-zinc-300 font-mono overflow-auto max-h-48">
+                <label className="block text-xs font-medium mb-1.5" style={{ color: "var(--text-secondary)" }}>SQL Definition</label>
+                <pre
+                  className="text-xs font-mono overflow-auto max-h-48 p-3"
+                  style={{
+                    background: "var(--bg-elevated)",
+                    border: "1px solid var(--bg-border)",
+                    color: "var(--text-primary)",
+                    borderRadius: "2px",
+                  }}
+                >
                   {dataset.sqlDefinition}
                 </pre>
               </div>
@@ -299,7 +338,7 @@ export default function DatasetDetailPage() {
             {/* Charts using this dataset */}
             {chartList.length > 0 && (
               <div>
-                <label className="block text-xs font-medium text-zinc-400 mb-1.5">
+                <label className="block text-xs font-medium mb-1.5" style={{ color: "var(--text-secondary)" }}>
                   Charts ({chartList.length})
                 </label>
                 <div className="space-y-1">
@@ -307,10 +346,11 @@ export default function DatasetDetailPage() {
                     <Link
                       key={c.id}
                       href={`/charts/${c.id}`}
-                      className="flex items-center gap-2 text-sm text-indigo-400 hover:text-indigo-300 transition-colors"
+                      className="flex items-center gap-2 text-sm transition-colors"
+                      style={{ color: "var(--accent)" }}
                     >
                       <span>{c.name}</span>
-                      <span className="text-xs text-zinc-600">({c.vizType})</span>
+                      <span className="text-xs" style={{ color: "var(--text-muted)" }}>({c.vizType})</span>
                     </Link>
                   ))}
                 </div>
@@ -321,7 +361,10 @@ export default function DatasetDetailPage() {
               <button
                 onClick={() => saveMeta.mutate()}
                 disabled={saveMeta.isPending}
-                className="flex items-center gap-1.5 px-4 py-2 text-sm font-medium rounded bg-indigo-600 hover:bg-indigo-500 text-white disabled:opacity-50 transition-colors"
+                className="flex items-center gap-1.5 px-4 py-2 text-sm font-medium text-white transition-colors disabled:opacity-50"
+                style={{ background: "var(--accent)", borderRadius: "2px" }}
+                onMouseEnter={(e) => ((e.currentTarget as HTMLButtonElement).style.background = "var(--accent-deep)")}
+                onMouseLeave={(e) => ((e.currentTarget as HTMLButtonElement).style.background = "var(--accent)")}
               >
                 <Save size={14} />
                 {saveMeta.isPending ? "Saving…" : "Save Changes"}
@@ -332,12 +375,25 @@ export default function DatasetDetailPage() {
           /* Columns tab */
           <div className="space-y-4">
             <div className="flex items-center justify-between">
-              <p className="text-sm text-zinc-400">{displayColumns.length} columns</p>
+              <p className="text-sm" style={{ color: "var(--text-secondary)" }}>{displayColumns.length} columns</p>
               <div className="flex items-center gap-2">
                 <button
                   onClick={handleSyncColumns}
                   disabled={isSyncing}
-                  className="flex items-center gap-1.5 px-3 py-1.5 text-xs rounded border border-zinc-700 text-zinc-300 hover:border-zinc-500 hover:text-zinc-100 disabled:opacity-50 transition-colors"
+                  className="flex items-center gap-1.5 px-3 py-1.5 text-xs transition-colors disabled:opacity-50"
+                  style={{
+                    border: "1px solid var(--bg-border)",
+                    color: "var(--text-secondary)",
+                    borderRadius: "2px",
+                  }}
+                  onMouseEnter={(e) => {
+                    (e.currentTarget as HTMLButtonElement).style.borderColor = "var(--accent)";
+                    (e.currentTarget as HTMLButtonElement).style.color = "var(--accent)";
+                  }}
+                  onMouseLeave={(e) => {
+                    (e.currentTarget as HTMLButtonElement).style.borderColor = "var(--bg-border)";
+                    (e.currentTarget as HTMLButtonElement).style.color = "var(--text-secondary)";
+                  }}
                 >
                   <RefreshCw size={12} className={isSyncing ? "animate-spin" : ""} />
                   Sync Columns
@@ -345,7 +401,10 @@ export default function DatasetDetailPage() {
                 <button
                   onClick={() => saveColumns.mutate()}
                   disabled={saveColumns.isPending || !localColumns}
-                  className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded bg-indigo-600 hover:bg-indigo-500 text-white disabled:opacity-50 transition-colors"
+                  className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-white transition-colors disabled:opacity-50"
+                  style={{ background: "var(--accent)", borderRadius: "2px" }}
+                  onMouseEnter={(e) => ((e.currentTarget as HTMLButtonElement).style.background = "var(--accent-deep)")}
+                  onMouseLeave={(e) => ((e.currentTarget as HTMLButtonElement).style.background = "var(--accent)")}
                 >
                   <Save size={12} />
                   {saveColumns.isPending ? "Saving…" : "Save Changes"}
@@ -354,39 +413,52 @@ export default function DatasetDetailPage() {
             </div>
 
             {displayColumns.length === 0 ? (
-              <div className="text-center py-12 text-zinc-500">
+              <div className="text-center py-12" style={{ color: "var(--text-muted)" }}>
                 <p>No columns found. Click Sync Columns to introspect from the database.</p>
               </div>
             ) : (
-              <div className="overflow-hidden rounded-lg border border-zinc-800">
+              <div style={{ border: "1px solid var(--bg-border)", borderRadius: "2px", overflow: "hidden" }}>
                 <table className="w-full text-sm">
-                  <thead className="bg-zinc-900 border-b border-zinc-800">
+                  <thead style={{ background: "var(--bg-elevated)", borderBottom: "1px solid var(--bg-border)" }}>
                     <tr>
-                      <th className="px-4 py-2.5 text-left text-xs font-medium text-zinc-400">Column</th>
-                      <th className="px-4 py-2.5 text-left text-xs font-medium text-zinc-400">Type</th>
-                      <th className="px-4 py-2.5 text-left text-xs font-medium text-zinc-400">Label</th>
-                      <th className="px-4 py-2.5 text-left text-xs font-medium text-zinc-400">Description</th>
-                      <th className="px-4 py-2.5 text-center text-xs font-medium text-zinc-400">Temporal</th>
-                      <th className="px-4 py-2.5 text-center text-xs font-medium text-zinc-400">Filterable</th>
-                      <th className="px-4 py-2.5 text-center text-xs font-medium text-zinc-400">Groupable</th>
+                      {["Column", "Type", "Label", "Description", "Temporal", "Filterable", "Groupable"].map((h) => (
+                        <th
+                          key={h}
+                          className={`px-4 py-2.5 text-xs font-semibold uppercase tracking-wide ${h === "Temporal" || h === "Filterable" || h === "Groupable" ? "text-center" : "text-left"}`}
+                          style={{ color: "var(--text-secondary)" }}
+                        >
+                          {h}
+                        </th>
+                      ))}
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-zinc-800">
+                  <tbody>
                     {displayColumns.map((col, idx) => (
-                      <tr key={col.name} className="hover:bg-zinc-800/30 transition-colors">
+                      <tr
+                        key={col.name}
+                        style={{ borderBottom: "1px solid var(--bg-border)", background: idx % 2 === 0 ? "var(--bg-surface)" : "var(--bg-elevated)" }}
+                        onMouseEnter={(e) => ((e.currentTarget as HTMLTableRowElement).style.background = "var(--bg-hover)")}
+                        onMouseLeave={(e) => ((e.currentTarget as HTMLTableRowElement).style.background = idx % 2 === 0 ? "var(--bg-surface)" : "var(--bg-elevated)")}
+                      >
                         <td className="px-4 py-2.5">
                           <div className="flex items-center gap-1.5">
-                            <code className="text-xs font-mono text-zinc-200">{col.name}</code>
+                            <code className="text-xs font-mono" style={{ color: "var(--text-primary)" }}>{col.name}</code>
                             {col.isPrimaryKey && (
-                              <span className="text-[10px] bg-amber-900/40 text-amber-300 rounded px-1">PK</span>
+                              <span
+                                className="text-[10px] px-1"
+                                style={{ background: "rgba(217,119,6,0.1)", color: "var(--warning)", borderRadius: "2px" }}
+                              >PK</span>
                             )}
                             {col.isForeignKey && (
-                              <span className="text-[10px] bg-blue-900/40 text-blue-300 rounded px-1">FK</span>
+                              <span
+                                className="text-[10px] px-1"
+                                style={{ background: "rgba(32,167,201,0.1)", color: "var(--accent)", borderRadius: "2px" }}
+                              >FK</span>
                             )}
                           </div>
                         </td>
                         <td className="px-4 py-2.5">
-                          <span className="text-xs font-mono text-zinc-500">
+                          <span className="text-xs font-mono" style={{ color: "var(--text-muted)" }}>
                             {col.dataType ?? col.type ?? "—"}
                           </span>
                         </td>
@@ -394,7 +466,15 @@ export default function DatasetDetailPage() {
                           <input
                             value={col.label ?? col.name}
                             onChange={(e) => updateColumn(idx, "label", e.target.value)}
-                            className="w-full bg-zinc-800/60 text-zinc-200 text-xs rounded px-2 py-1 outline-none border border-transparent focus:border-zinc-600 transition-colors"
+                            className="w-full text-xs px-2 py-1 outline-none transition-colors"
+                            style={{
+                              background: "var(--bg-elevated)",
+                              border: "1px solid transparent",
+                              color: "var(--text-primary)",
+                              borderRadius: "2px",
+                            }}
+                            onFocus={(e) => (e.currentTarget.style.borderColor = "var(--bg-border)")}
+                            onBlur={(e) => (e.currentTarget.style.borderColor = "transparent")}
                           />
                         </td>
                         <td className="px-4 py-2.5">
@@ -402,7 +482,15 @@ export default function DatasetDetailPage() {
                             value={col.description ?? ""}
                             onChange={(e) => updateColumn(idx, "description", e.target.value)}
                             placeholder="Optional…"
-                            className="w-full bg-zinc-800/60 text-zinc-300 text-xs rounded px-2 py-1 outline-none border border-transparent focus:border-zinc-600 transition-colors placeholder:text-zinc-700"
+                            className="w-full text-xs px-2 py-1 outline-none transition-colors"
+                            style={{
+                              background: "var(--bg-elevated)",
+                              border: "1px solid transparent",
+                              color: "var(--text-secondary)",
+                              borderRadius: "2px",
+                            }}
+                            onFocus={(e) => (e.currentTarget.style.borderColor = "var(--bg-border)")}
+                            onBlur={(e) => (e.currentTarget.style.borderColor = "transparent")}
                           />
                         </td>
                         <td className="px-4 py-2.5 text-center">
@@ -410,7 +498,7 @@ export default function DatasetDetailPage() {
                             type="checkbox"
                             checked={col.is_temporal ?? false}
                             onChange={(e) => updateColumn(idx, "is_temporal", e.target.checked)}
-                            className="accent-indigo-500"
+                            style={{ accentColor: "var(--accent)" }}
                           />
                         </td>
                         <td className="px-4 py-2.5 text-center">
@@ -418,7 +506,7 @@ export default function DatasetDetailPage() {
                             type="checkbox"
                             checked={col.is_filterable ?? true}
                             onChange={(e) => updateColumn(idx, "is_filterable", e.target.checked)}
-                            className="accent-indigo-500"
+                            style={{ accentColor: "var(--accent)" }}
                           />
                         </td>
                         <td className="px-4 py-2.5 text-center">
@@ -426,7 +514,7 @@ export default function DatasetDetailPage() {
                             type="checkbox"
                             checked={col.is_groupable ?? true}
                             onChange={(e) => updateColumn(idx, "is_groupable", e.target.checked)}
-                            className="accent-indigo-500"
+                            style={{ accentColor: "var(--accent)" }}
                           />
                         </td>
                       </tr>

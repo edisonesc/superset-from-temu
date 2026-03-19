@@ -77,10 +77,13 @@ export const PublicChartPanel = memo(function PublicChartPanel({
   }
 
   return (
-    <div className="flex h-full flex-col overflow-hidden rounded-lg border border-zinc-800 bg-zinc-900">
+    <div
+      className="flex h-full flex-col overflow-hidden"
+      style={{ border: "1px solid var(--bg-border)", background: "var(--bg-surface)" }}
+    >
       {/* Header */}
-      <div className="border-b border-zinc-800 px-4 py-2">
-        <span className="truncate text-sm font-medium text-zinc-200">
+      <div className="px-4 py-2" style={{ borderBottom: "1px solid var(--bg-border)" }}>
+        <span className="truncate text-sm font-medium" style={{ color: "var(--text-primary)" }}>
           {chartName}
         </span>
       </div>
@@ -89,14 +92,14 @@ export const PublicChartPanel = memo(function PublicChartPanel({
       <div className="relative flex-1 overflow-hidden p-2">
         {isLoading && (
           <div className="flex h-full flex-col gap-3 p-4">
-            <div className="h-4 w-32 animate-pulse rounded bg-zinc-800" />
-            <div className="flex-1 animate-pulse rounded bg-zinc-800/60" />
+            <div className="h-4 w-32 animate-pulse" style={{ background: "var(--bg-border)", borderRadius: "2px" }} />
+            <div className="flex-1 animate-pulse" style={{ background: "var(--bg-elevated)", borderRadius: "2px" }} />
           </div>
         )}
 
         {!isLoading && error && (
           <div className="flex h-full flex-col items-center justify-center gap-2 text-center">
-            <p className="text-sm text-zinc-500">Chart unavailable</p>
+            <p className="text-sm" style={{ color: "var(--text-muted)" }}>Chart unavailable</p>
           </div>
         )}
 

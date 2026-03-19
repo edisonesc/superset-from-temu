@@ -9,25 +9,12 @@ import {
 } from "@/components/ui/icons";
 
 const VIZ_ICONS: Record<string, React.ComponentType<{ className?: string }>> = {
-  bar: BarChart2,
-  line: TrendingUp,
-  pie: PieChart,
-  scatter: ScatterChart,
-  area: AreaChart,
-  heatmap: Grid3X3,
-  big_number: Hash,
-  big_number_total: Sigma,
-  table: Table2,
-  pivot_table: LayoutGrid,
+  bar: BarChart2, line: TrendingUp, pie: PieChart, scatter: ScatterChart,
+  area: AreaChart, heatmap: Grid3X3, big_number: Hash,
+  big_number_total: Sigma, table: Table2, pivot_table: LayoutGrid,
 };
 
-type ChartRow = {
-  id: string;
-  name: string;
-  vizType: string;
-  datasetName: string | null;
-  updatedAt: string;
-};
+type ChartRow = { id: string; name: string; vizType: string; datasetName: string | null; updatedAt: string };
 
 async function fetchCharts(q: string): Promise<{ data: ChartRow[]; total: number }> {
   const res = await fetch(`/api/charts?q=${encodeURIComponent(q)}`);
@@ -36,99 +23,129 @@ async function fetchCharts(q: string): Promise<{ data: ChartRow[]; total: number
   return json.data;
 }
 
-/** Chart list page — grid of chart cards with search. */
 export default function ChartsPage() {
   const [search, setSearch] = useState("");
-
   const { data, isLoading, isError } = useQuery({
     queryKey: ["charts", search],
     queryFn: () => fetchCharts(search),
   });
-
   const charts = data?.data ?? [];
 
   return (
-    <div className="flex flex-col h-full p-6 gap-4">
+    <div className="flex h-full flex-col" style={{ background: "var(--bg-base)" }}>
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <h1 className="text-xl font-bold text-zinc-100">Charts</h1>
+      <div
+        className="flex items-center justify-between px-6 py-4"
+        style={{ background: "var(--bg-surface)", borderBottom: "1px solid var(--bg-border)" }}
+      >
+        <h1 className="text-lg font-semibold" style={{ color: "var(--text-primary)" }}>Charts</h1>
         <Link
           href="/charts/new"
-          className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded bg-indigo-600 hover:bg-indigo-500 text-white transition-colors"
+          className="flex items-center gap-1.5 px-4 py-2 text-sm font-medium text-white transition-colors"
+          style={{ background: "var(--accent)", borderRadius: "2px" }}
+          onMouseEnter={(e) => ((e.currentTarget as HTMLAnchorElement).style.background = "var(--accent-deep)")}
+          onMouseLeave={(e) => ((e.currentTarget as HTMLAnchorElement).style.background = "var(--accent)")}
         >
           <Plus size={14} />
           New Chart
         </Link>
       </div>
 
-      {/* Search */}
-      <div className="relative">
-        <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-500 pointer-events-none" />
-        <input
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          placeholder="Search charts…"
-          className="w-full max-w-sm bg-zinc-800 text-zinc-200 text-sm rounded pl-8 pr-3 py-2 outline-none placeholder:text-zinc-600"
-        />
+      {/* Search bar */}
+      <div
+        className="px-6 py-3"
+        style={{ background: "var(--bg-surface)", borderBottom: "1px solid var(--bg-border)" }}
+      >
+        <div className="relative max-w-sm">
+          <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" style={{ color: "var(--text-muted)" }} />
+          <input
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Search charts…"
+            className="w-full pl-8 pr-3 py-1.5 text-sm outline-none"
+            style={{
+              background: "var(--bg-elevated)",
+              border: "1px solid var(--bg-border)",
+              color: "var(--text-primary)",
+              borderRadius: "2px",
+            }}
+            onFocus={(e) => (e.currentTarget.style.borderColor = "var(--accent)")}
+            onBlur={(e) => (e.currentTarget.style.borderColor = "var(--bg-border)")}
+          />
+        </div>
       </div>
 
       {/* Content */}
-      {isLoading ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-          {Array.from({ length: 8 }).map((_, i) => (
-            <div key={i} className="h-36 rounded-lg bg-zinc-800 animate-pulse" />
-          ))}
-        </div>
-      ) : isError ? (
-        <div className="text-red-400 text-sm">Failed to load charts.</div>
-      ) : charts.length === 0 ? (
-        <div className="flex flex-col items-center justify-center flex-1 gap-4 text-center">
-          <BarChart2 className="h-12 w-12 text-zinc-700" />
-          <div>
-            <p className="text-zinc-400 font-medium">No charts yet</p>
-            <p className="text-zinc-600 text-sm mt-1">
-              Create your first chart to visualise your data.
-            </p>
+      <div className="flex-1 overflow-auto p-6">
+        {isLoading ? (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+            {Array.from({ length: 8 }).map((_, i) => (
+              <div key={i} className="h-36 animate-pulse" style={{ background: "var(--bg-border)", borderRadius: "2px" }} />
+            ))}
           </div>
-          <Link
-            href="/charts/new"
-            className="px-4 py-2 text-sm rounded bg-indigo-600 hover:bg-indigo-500 text-white transition-colors"
-          >
-            Create Chart
-          </Link>
-        </div>
-      ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-          {charts.map((chart) => {
-            const Icon = VIZ_ICONS[chart.vizType] ?? BarChart2;
-            return (
-              <Link
-                key={chart.id}
-                href={`/charts/${chart.id}`}
-                className="group flex flex-col gap-3 rounded-lg border border-zinc-800 bg-zinc-900 p-4 hover:border-zinc-700 hover:bg-zinc-800/60 transition-colors"
-              >
-                <div className="flex items-start justify-between">
-                  <div className="rounded-md bg-zinc-800 p-2 group-hover:bg-zinc-700 transition-colors">
-                    <Icon className="h-5 w-5 text-indigo-400" />
+        ) : isError ? (
+          <p className="text-sm" style={{ color: "var(--error)" }}>Failed to load charts.</p>
+        ) : charts.length === 0 ? (
+          <div className="flex flex-col items-center justify-center flex-1 gap-4 py-20 text-center">
+            <span style={{ color: "var(--text-muted)" }}><BarChart2 className="h-12 w-12" /></span>
+            <div>
+              <p className="font-medium" style={{ color: "var(--text-primary)" }}>No charts yet</p>
+              <p className="text-sm mt-1" style={{ color: "var(--text-muted)" }}>
+                Create your first chart to visualise your data.
+              </p>
+            </div>
+            <Link
+              href="/charts/new"
+              className="px-4 py-2 text-sm font-medium text-white transition-colors"
+              style={{ background: "var(--accent)", borderRadius: "2px" }}
+            >
+              Create Chart
+            </Link>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+            {charts.map((chart) => {
+              const Icon = VIZ_ICONS[chart.vizType] ?? BarChart2;
+              return (
+                <Link
+                  key={chart.id}
+                  href={`/charts/${chart.id}`}
+                  className="group flex flex-col gap-3 p-4 transition-colors"
+                  style={{
+                    background: "var(--bg-surface)",
+                    border: "1px solid var(--bg-border)",
+                    borderRadius: "2px",
+                  }}
+                  onMouseEnter={(e) => ((e.currentTarget as HTMLAnchorElement).style.borderColor = "var(--accent)")}
+                  onMouseLeave={(e) => ((e.currentTarget as HTMLAnchorElement).style.borderColor = "var(--bg-border)")}
+                >
+                  <div className="flex items-start justify-between">
+                    <div className="p-2" style={{ background: "rgba(32,167,201,0.08)", borderRadius: "2px", color: "var(--accent)" }}>
+                      <Icon className="h-5 w-5" />
+                    </div>
+                    <span className="text-xs capitalize" style={{ color: "var(--text-muted)" }}>
+                      {chart.vizType.replace(/_/g, " ")}
+                    </span>
                   </div>
-                  <span className="text-xs text-zinc-600 capitalize">
-                    {chart.vizType.replace(/_/g, " ")}
-                  </span>
-                </div>
-                <div className="flex-1">
-                  <p className="text-sm font-medium text-zinc-200 line-clamp-1">{chart.name}</p>
-                  {chart.datasetName && (
-                    <p className="text-xs text-zinc-500 mt-0.5 line-clamp-1">{chart.datasetName}</p>
-                  )}
-                </div>
-                <p className="text-xs text-zinc-700">
-                  Updated {new Date(chart.updatedAt).toLocaleDateString()}
-                </p>
-              </Link>
-            );
-          })}
-        </div>
-      )}
+                  <div className="flex-1">
+                    <p className="text-sm font-medium line-clamp-1" style={{ color: "var(--text-primary)" }}>
+                      {chart.name}
+                    </p>
+                    {chart.datasetName && (
+                      <p className="text-xs mt-0.5 line-clamp-1" style={{ color: "var(--text-secondary)" }}>
+                        {chart.datasetName}
+                      </p>
+                    )}
+                  </div>
+                  <p className="text-xs" style={{ color: "var(--text-muted)" }}>
+                    Updated {new Date(chart.updatedAt).toLocaleDateString()}
+                  </p>
+                </Link>
+              );
+            })}
+          </div>
+        )}
+      </div>
     </div>
   );
 }

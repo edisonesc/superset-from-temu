@@ -3,8 +3,16 @@
 import ReactECharts from "echarts-for-react";
 import type { ChartComponentProps, ChartConfig, ChartConfigSchema, Row } from "@/types";
 
-const TEXT_COLOR = "#a1a1aa";
-const AXIS_LINE_COLOR = "#52525b";
+const TEXT_COLOR = "#9CA3AF";
+const AXIS_LINE_COLOR = "#E2E8F0";
+
+const TOOLTIP_STYLE = {
+  backgroundColor: "#FFFFFF",
+  borderColor: "#E2E8F0",
+  borderWidth: 1,
+  textStyle: { color: "#111827", fontSize: 12 },
+  extraCssText: "border-radius:2px;box-shadow:0 4px 16px rgba(0,0,0,0.10);padding:10px 14px;",
+};
 
 export const configSchema: ChartConfigSchema = {
   fields: [
@@ -28,7 +36,7 @@ export function transformer(rows: Row[], config: ChartConfig): ChartComponentPro
 export default function HeatmapChart({ data, config, onCrossFilter }: ChartComponentProps) {
   if (!data?.length) {
     return (
-      <div className="flex h-full items-center justify-center text-zinc-500 text-sm">
+      <div className="flex h-full items-center justify-center text-sm" style={{ color: "var(--text-muted)" }}>
         No data available
       </div>
     );
@@ -58,26 +66,26 @@ export default function HeatmapChart({ data, config, onCrossFilter }: ChartCompo
     backgroundColor: "transparent",
     tooltip: {
       position: "top",
-      backgroundColor: "#18181b",
-      borderColor: "#3f3f46",
-      textStyle: { color: "#e4e4e7" },
+      ...TOOLTIP_STYLE,
       formatter: (params: { value: number[] }) =>
-        `${xValues[params.value[0]]} / ${yValues[params.value[1]]}: ${params.value[2]}`,
+        `<span style="color:#94A3B8">${xValues[params.value[0]]} / ${yValues[params.value[1]]}</span><br/><span style="font-weight:600">${params.value[2]}</span>`,
     },
-    grid: { left: "3%", right: "4%", bottom: "3%", top: 16, containLabel: true },
+    grid: { left: "3%", right: "4%", bottom: "10%", top: 16, containLabel: true },
     xAxis: {
       type: "category",
       data: xValues,
-      splitArea: { show: true },
-      axisLabel: { color: TEXT_COLOR, rotate: 30 },
+      splitArea: { show: false },
+      axisLabel: { color: TEXT_COLOR, fontSize: 11, rotate: 30 },
       axisLine: { lineStyle: { color: AXIS_LINE_COLOR } },
+      axisTick: { show: false },
     },
     yAxis: {
       type: "category",
       data: yValues,
-      splitArea: { show: true },
-      axisLabel: { color: TEXT_COLOR },
+      splitArea: { show: false },
+      axisLabel: { color: TEXT_COLOR, fontSize: 11 },
       axisLine: { lineStyle: { color: AXIS_LINE_COLOR } },
+      axisTick: { show: false },
     },
     visualMap: {
       min: minVal,
@@ -86,15 +94,18 @@ export default function HeatmapChart({ data, config, onCrossFilter }: ChartCompo
       orient: "horizontal",
       left: "center",
       bottom: 0,
-      textStyle: { color: TEXT_COLOR },
-      inRange: { color: ["#1e1b4b", "#4338ca", "#6366f1", "#a5b4fc", "#e0e7ff"] },
+      textStyle: { color: TEXT_COLOR, fontSize: 11 },
+      // Sequential palette: bg-elevated → accent deep → accent → accent-bright → light
+      inRange: { color: ["#ECFEFF", "#A5F3FC", "#67E8F9", "#22D3EE", "#0E7490"] },
+      outOfRange: { color: ["#F1F5F9"] },
     },
     series: [
       {
         type: "heatmap",
         data: heatData,
+        itemStyle: { borderColor: "#FFFFFF", borderWidth: 1, borderRadius: 0 },
         label: { show: false },
-        emphasis: { itemStyle: { shadowBlur: 10, shadowColor: "rgba(0,0,0,0.5)" } },
+        emphasis: { itemStyle: { shadowBlur: 0 } },
       },
     ],
   };

@@ -55,8 +55,14 @@ async function fetchChartMeta(chartId: string) {
 function PanelSkeleton() {
   return (
     <div className="flex h-full flex-col gap-3 p-4">
-      <div className="h-4 w-32 animate-pulse rounded bg-zinc-800" />
-      <div className="flex-1 animate-pulse rounded bg-zinc-800/60" />
+      <div
+        className="h-4 w-32 animate-pulse rounded"
+        style={{ background: "var(--bg-elevated)" }}
+      />
+      <div
+        className="flex-1 animate-pulse rounded"
+        style={{ background: "var(--bg-border)" }}
+      />
     </div>
   );
 }
@@ -108,16 +114,37 @@ export const ChartPanel = memo(function ChartPanel({
   }
 
   return (
-    <div className="flex h-full flex-col overflow-hidden rounded-lg border border-zinc-800 bg-zinc-900">
+    <div
+      className="flex h-full flex-col overflow-hidden rounded-lg"
+      style={{
+        background: "var(--bg-surface)",
+        boxShadow: "0 1px 3px rgba(0,0,0,0.4), 0 1px 2px rgba(0,0,0,0.3)",
+      }}
+    >
       {/* Panel header */}
-      <div className="flex items-center justify-between border-b border-zinc-800 px-4 py-2">
-        <span className="truncate text-sm font-medium text-zinc-200">
+      <div
+        className="flex items-center justify-between px-4 py-2"
+        style={{ borderBottom: "1px solid var(--bg-border)" }}
+      >
+        <span
+          className="truncate text-sm font-medium"
+          style={{ color: "var(--text-primary)" }}
+        >
           {chartName}
         </span>
         {isEditMode && onRemove && (
           <button
             onClick={() => onRemove(panelId)}
-            className="ml-2 flex-shrink-0 rounded p-1 text-zinc-500 transition-colors hover:bg-zinc-800 hover:text-red-400"
+            className="ml-2 shrink-0 rounded p-1 transition-colors"
+            style={{ color: "var(--text-muted)" }}
+            onMouseEnter={(e) => {
+              (e.currentTarget as HTMLButtonElement).style.color = "var(--error)";
+              (e.currentTarget as HTMLButtonElement).style.background = "var(--bg-elevated)";
+            }}
+            onMouseLeave={(e) => {
+              (e.currentTarget as HTMLButtonElement).style.color = "var(--text-muted)";
+              (e.currentTarget as HTMLButtonElement).style.background = "";
+            }}
             title="Remove panel"
           >
             <svg
@@ -143,7 +170,7 @@ export const ChartPanel = memo(function ChartPanel({
 
         {!isLoading && error && (
           <div className="flex h-full flex-col items-center justify-center gap-2 text-center">
-            <p className="text-sm text-red-400">
+            <p className="text-sm" style={{ color: "var(--error)" }}>
               {error instanceof Error ? error.message : "Failed to load chart"}
             </p>
             <button
@@ -151,7 +178,12 @@ export const ChartPanel = memo(function ChartPanel({
                 metaQuery.refetch();
                 dataQuery.refetch();
               }}
-              className="rounded bg-zinc-800 px-3 py-1.5 text-xs text-zinc-300 hover:bg-zinc-700"
+              className="rounded px-3 py-1.5 text-xs transition-colors"
+              style={{
+                background: "var(--bg-elevated)",
+                color: "var(--text-secondary)",
+                border: "1px solid var(--bg-border)",
+              }}
             >
               Retry
             </button>
@@ -167,7 +199,7 @@ export const ChartPanel = memo(function ChartPanel({
         )}
 
         {!isLoading && !error && !ChartComponent && vizType && (
-          <div className="flex h-full items-center justify-center text-sm text-zinc-500">
+          <div className="flex h-full items-center justify-center text-sm" style={{ color: "var(--text-muted)" }}>
             Unknown chart type: {vizType}
           </div>
         )}

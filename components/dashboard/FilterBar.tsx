@@ -28,12 +28,24 @@ function FilterChip({
   onClear: (column: string) => void;
 }) {
   return (
-    <div className="flex items-center gap-1 rounded-full border border-blue-700/50 bg-blue-900/30 px-3 py-1 text-xs text-blue-300">
-      <span className="font-medium">{label}:</span>
-      <span className="max-w-32 truncate">{String(value)}</span>
+    <div
+      className="flex items-center gap-1 rounded-full px-3 py-1 text-xs"
+      style={{
+        background: "var(--bg-elevated)",
+        border: "1px solid var(--bg-border)",
+        borderLeft: "2px solid var(--accent)",
+        color: "var(--text-secondary)",
+        boxShadow: "0 0 12px rgba(99,102,241,0.12)",
+      }}
+    >
+      <span className="font-medium" style={{ color: "var(--accent-bright)" }}>{label}:</span>
+      <span className="max-w-32 truncate" style={{ color: "var(--text-primary)" }}>{String(value)}</span>
       <button
         onClick={() => onClear(column)}
-        className="ml-1 rounded-full p-0.5 hover:bg-blue-800/50"
+        className="ml-1 rounded-full p-0.5 transition-colors"
+        style={{ color: "var(--text-muted)" }}
+        onMouseEnter={(e) => ((e.currentTarget as HTMLButtonElement).style.color = "var(--error)")}
+        onMouseLeave={(e) => ((e.currentTarget as HTMLButtonElement).style.color = "var(--text-muted)")}
         title={`Remove filter: ${label}`}
       >
         <svg
@@ -73,10 +85,15 @@ export function FilterBar({ filterConfig, isEditMode }: FilterBarProps) {
   const hasFilters = activeEntries.length > 0;
 
   return (
-    <div className="flex min-h-10 flex-wrap items-center gap-2 border-b border-zinc-800 bg-zinc-900 px-4 py-2">
+    <div
+      className="flex min-h-12 flex-wrap items-center gap-2 px-4 py-2"
+      style={{
+        background: "var(--bg-surface)",
+        borderBottom: "1px solid var(--bg-border)",
+      }}
+    >
       {/* Active filter chips */}
       {activeEntries.map(([column, value]) => {
-        // Look up label from filterConfig; fall back to column name
         const configItem = filterConfig.find((f) => f.column === column);
         const label = configItem?.label ?? column;
         return (
@@ -92,14 +109,23 @@ export function FilterBar({ filterConfig, isEditMode }: FilterBarProps) {
 
       {/* Empty state */}
       {!hasFilters && !isEditMode && (
-        <span className="text-xs text-zinc-600">No active filters</span>
+        <span className="text-xs" style={{ color: "var(--text-muted)" }}>
+          No active filters
+        </span>
       )}
 
       {/* Clear All */}
       {hasFilters && (
         <button
           onClick={clearAllFilters}
-          className="ml-1 rounded px-2 py-1 text-xs text-zinc-500 hover:bg-zinc-800 hover:text-zinc-300"
+          className="ml-1 rounded px-2 py-1 text-xs transition-colors"
+          style={{ color: "var(--text-muted)" }}
+          onMouseEnter={(e) => {
+            (e.currentTarget as HTMLButtonElement).style.color = "var(--error)";
+          }}
+          onMouseLeave={(e) => {
+            (e.currentTarget as HTMLButtonElement).style.color = "var(--text-muted)";
+          }}
         >
           Clear all
         </button>
@@ -108,7 +134,19 @@ export function FilterBar({ filterConfig, isEditMode }: FilterBarProps) {
       {/* Edit mode: Add Filter placeholder */}
       {isEditMode && (
         <button
-          className="flex items-center gap-1 rounded border border-dashed border-zinc-700 px-2 py-1 text-xs text-zinc-500 hover:border-zinc-500 hover:text-zinc-400"
+          className="flex items-center gap-1 rounded px-2 py-1 text-xs transition-colors"
+          style={{
+            border: "1px dashed var(--bg-border)",
+            color: "var(--text-muted)",
+          }}
+          onMouseEnter={(e) => {
+            (e.currentTarget as HTMLButtonElement).style.borderColor = "var(--accent)";
+            (e.currentTarget as HTMLButtonElement).style.color = "var(--text-secondary)";
+          }}
+          onMouseLeave={(e) => {
+            (e.currentTarget as HTMLButtonElement).style.borderColor = "var(--bg-border)";
+            (e.currentTarget as HTMLButtonElement).style.color = "var(--text-muted)";
+          }}
           onClick={() =>
             alert(
               "Filter builder coming in Phase 5. Cross-filtering via chart clicks is fully functional.",

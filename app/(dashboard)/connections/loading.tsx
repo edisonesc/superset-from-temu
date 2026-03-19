@@ -1,19 +1,19 @@
 export default function ConnectionsLoading() {
   return (
-    <div className="flex flex-col h-full p-6 gap-4">
+    <div className="flex flex-col h-full p-6 gap-4" style={{ background: "var(--bg-base)" }}>
       <div className="flex items-center justify-between">
-        <div className="h-7 w-32 bg-zinc-800 animate-pulse rounded" />
-        <div className="h-7 w-32 bg-zinc-800 animate-pulse rounded" />
+        <div className="h-7 w-32 animate-pulse" style={{ background: "var(--bg-border)", borderRadius: "2px" }} />
+        <div className="h-7 w-32 animate-pulse" style={{ background: "var(--bg-border)", borderRadius: "2px" }} />
       </div>
-      <div className="overflow-hidden rounded-lg border border-zinc-800">
-        <div className="h-10 bg-zinc-900 border-b border-zinc-800" />
+      <div style={{ border: "1px solid var(--bg-border)", borderRadius: "2px", overflow: "hidden" }}>
+        <div className="h-10" style={{ background: "var(--bg-elevated)", borderBottom: "1px solid var(--bg-border)" }} />
         {Array.from({ length: 4 }).map((_, i) => (
-          <div key={i} className="flex items-center gap-4 px-4 py-3 border-b border-zinc-800 last:border-0">
-            <div className="h-4 w-36 bg-zinc-800 animate-pulse rounded" />
-            <div className="h-5 w-16 bg-zinc-800 animate-pulse rounded" />
-            <div className="h-4 w-28 bg-zinc-800 animate-pulse rounded" />
-            <div className="h-4 w-24 bg-zinc-800 animate-pulse rounded" />
-            <div className="h-4 w-16 bg-zinc-800 animate-pulse rounded ml-auto" />
+          <div key={i} className="flex items-center gap-4 px-4 py-3" style={{ borderBottom: "1px solid var(--bg-border)", background: i % 2 === 0 ? "var(--bg-surface)" : "var(--bg-elevated)" }}>
+            <div className="h-4 w-36 animate-pulse" style={{ background: "var(--bg-border)", borderRadius: "2px" }} />
+            <div className="h-5 w-16 animate-pulse" style={{ background: "var(--bg-border)", borderRadius: "2px" }} />
+            <div className="h-4 w-28 animate-pulse" style={{ background: "var(--bg-border)", borderRadius: "2px" }} />
+            <div className="h-4 w-24 animate-pulse" style={{ background: "var(--bg-border)", borderRadius: "2px" }} />
+            <div className="h-4 w-16 animate-pulse ml-auto" style={{ background: "var(--bg-border)", borderRadius: "2px" }} />
           </div>
         ))}
       </div>

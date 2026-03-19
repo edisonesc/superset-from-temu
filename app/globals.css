@@ -1,18 +1,43 @@
 @import "tailwindcss";
 
 /* ---------------------------------------------------------------------------
-   Dark-mode CSS variables — the app is always in dark mode (html.dark class).
+   Design System — Supaset (Corporate Light Mode)
+   White surfaces, slate neutrals, blue-600 primary.
+   Sharp edges — minimal border-radius throughout.
    --------------------------------------------------------------------------- */
 :root {
-  --background: #09090b;      /* zinc-950 */
-  --foreground: #f4f4f5;      /* zinc-100 */
-  --sidebar-bg: #18181b;      /* zinc-900 */
-  --border: #27272a;          /* zinc-800 */
-  --muted: #71717a;           /* zinc-500 */
-  --accent: #3b82f6;          /* blue-500 */
-  --accent-hover: #2563eb;    /* blue-600 */
-  --destructive: #ef4444;     /* red-500 */
-  --success: #22c55e;         /* green-500 */
+  /* Backgrounds */
+  --bg-base:     #F5F7FA;
+  --bg-surface:  #FFFFFF;
+  --bg-elevated: #F8FAFC;
+  --bg-border:   #E2E8F0;
+  --bg-hover:    #F1F5F9;
+
+  /* Primary accent — Superset teal-cyan */
+  --accent:        #20A7C9;
+  --accent-bright: #38BDF8;
+  --accent-deep:   #0E7490;
+  --accent-cyan:   #06B6D4;
+
+  /* Text */
+  --text-primary:   #111827;
+  --text-secondary: #6B7280;
+  --text-muted:     #9CA3AF;
+
+  /* Semantic */
+  --success:  #16A34A;
+  --warning:  #D97706;
+  --error:    #DC2626;
+  --info:     #20A7C9;
+
+  /* Legacy aliases */
+  --background:   var(--bg-base);
+  --foreground:   var(--text-primary);
+  --sidebar-bg:   var(--bg-surface);
+  --border:       var(--bg-border);
+  --muted:        var(--text-muted);
+  --accent-hover: var(--accent-deep);
+  --destructive:  var(--error);
 }
 
 @theme inline {
@@ -23,24 +48,118 @@
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
+  background: var(--bg-base);
+  color: var(--text-primary);
   font-family: var(--font-geist-sans), system-ui, sans-serif;
 }
 
-/* Scrollbar styling for dark theme */
+/* ---------------------------------------------------------------------------
+   Scrollbar — subtle on light backgrounds
+   --------------------------------------------------------------------------- */
 * {
   scrollbar-width: thin;
-  scrollbar-color: #3f3f46 transparent;
+  scrollbar-color: #CBD5E1 transparent;
 }
 *::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+  width: 5px;
+  height: 5px;
 }
 *::-webkit-scrollbar-track {
   background: transparent;
 }
 *::-webkit-scrollbar-thumb {
-  background-color: #3f3f46;
+  background-color: #CBD5E1;
   border-radius: 3px;
+}
+*::-webkit-scrollbar-thumb:hover {
+  background-color: #94A3B8;
+}
+
+/* ---------------------------------------------------------------------------
+   Sidebar nav items — light mode
+   --------------------------------------------------------------------------- */
+.nav-item {
+  display: flex;
+  align-items: center;
+  border-radius: 2px;
+  padding: 7px 10px;
+  font-size: 13.5px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  border-left: 3px solid transparent;
+  transition: background 100ms ease, color 100ms ease;
+}
+.nav-item:hover {
+  background: var(--bg-hover);
+  color: var(--text-primary);
+}
+.nav-item-active {
+  display: flex;
+  align-items: center;
+  border-radius: 2px;
+  padding: 7px 10px;
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--accent);
+  background: rgba(32, 167, 201, 0.08);
+  border-left: 3px solid var(--accent);
+}
+
+/* ---------------------------------------------------------------------------
+   Panel — chart container (sharp, border-based, no rounding)
+   --------------------------------------------------------------------------- */
+.panel {
+  background: var(--bg-surface);
+  border: 1px solid var(--bg-border);
+  box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+}
+
+/* ---------------------------------------------------------------------------
+   KPI card background — very subtle blue tint
+   --------------------------------------------------------------------------- */
+.kpi-bg {
+  background: linear-gradient(135deg, rgba(37,99,235,0.04) 0%, rgba(14,165,233,0.03) 100%);
+}
+
+/* ---------------------------------------------------------------------------
+   Primary button gradient
+   --------------------------------------------------------------------------- */
+.btn-primary {
+  background: var(--accent);
+  color: #FFFFFF;
+  border: none;
+  transition: background 120ms ease;
+}
+.btn-primary:hover {
+  background: var(--accent-deep);
+}
+
+/* ---------------------------------------------------------------------------
+   Home page cards — hover border accent
+   --------------------------------------------------------------------------- */
+.home-card {
+  background: var(--bg-surface);
+  border: 1px solid var(--bg-border);
+  border-radius: 2px;
+  transition: border-color 120ms ease;
+}
+.home-card:hover {
+  border-color: var(--accent);
+}
+
+/* ---------------------------------------------------------------------------
+   Focus visible
+   --------------------------------------------------------------------------- */
+*:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* ---------------------------------------------------------------------------
+   Transitions — global defaults
+   --------------------------------------------------------------------------- */
+button, a, [role="button"] {
+  transition-property: color, background-color, border-color, box-shadow, opacity;
+  transition-duration: 120ms;
+  transition-timing-function: ease;
 }

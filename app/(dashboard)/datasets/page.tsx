@@ -22,25 +22,28 @@ async function fetchDatasets(q: string): Promise<{ data: Dataset[]; total: numbe
   return json.data;
 }
 
-/** Datasets list page — shows all datasets with type and connection info. */
 export default function DatasetsPage() {
   const [search, setSearch] = useState("");
-
   const { data, isLoading, isError } = useQuery({
     queryKey: ["datasets", search],
     queryFn: () => fetchDatasets(search),
   });
-
   const datasets = data?.data ?? [];
 
   return (
-    <div className="flex flex-col h-full p-6 gap-4">
+    <div className="flex h-full flex-col" style={{ background: "var(--bg-base)" }}>
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <h1 className="text-xl font-bold text-zinc-100">Datasets</h1>
+      <div
+        className="flex items-center justify-between px-6 py-4"
+        style={{ background: "var(--bg-surface)", borderBottom: "1px solid var(--bg-border)" }}
+      >
+        <h1 className="text-lg font-semibold" style={{ color: "var(--text-primary)" }}>Datasets</h1>
         <Link
           href="/datasets/new"
-          className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded bg-indigo-600 hover:bg-indigo-500 text-white transition-colors"
+          className="flex items-center gap-1.5 px-4 py-2 text-sm font-medium text-white transition-colors"
+          style={{ background: "var(--accent)", borderRadius: "2px" }}
+          onMouseEnter={(e) => ((e.currentTarget as HTMLAnchorElement).style.background = "var(--accent-deep)")}
+          onMouseLeave={(e) => ((e.currentTarget as HTMLAnchorElement).style.background = "var(--accent)")}
         >
           <Plus size={14} />
           New Dataset
@@ -48,88 +51,106 @@ export default function DatasetsPage() {
       </div>
 
       {/* Search */}
-      <div className="relative">
-        <Database
-          size={14}
-          className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-500 pointer-events-none"
-        />
-        <input
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          placeholder="Search datasets…"
-          className="w-full max-w-sm bg-zinc-800 text-zinc-200 text-sm rounded pl-8 pr-3 py-2 outline-none placeholder:text-zinc-600"
-        />
+      <div
+        className="px-6 py-3"
+        style={{ background: "var(--bg-surface)", borderBottom: "1px solid var(--bg-border)" }}
+      >
+        <div className="relative max-w-sm">
+          <Database size={14} className="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" style={{ color: "var(--text-muted)" }} />
+          <input
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Search datasets…"
+            className="w-full pl-8 pr-3 py-1.5 text-sm outline-none"
+            style={{
+              background: "var(--bg-elevated)",
+              border: "1px solid var(--bg-border)",
+              color: "var(--text-primary)",
+              borderRadius: "2px",
+            }}
+            onFocus={(e) => (e.currentTarget.style.borderColor = "var(--accent)")}
+            onBlur={(e) => (e.currentTarget.style.borderColor = "var(--bg-border)")}
+          />
+        </div>
       </div>
 
       {/* Content */}
-      {isLoading ? (
-        <div className="space-y-2">
-          {Array.from({ length: 5 }).map((_, i) => (
-            <div key={i} className="h-14 rounded-lg bg-zinc-800 animate-pulse" />
-          ))}
-        </div>
-      ) : isError ? (
-        <div className="text-red-400 text-sm">Failed to load datasets.</div>
-      ) : datasets.length === 0 ? (
-        <div className="flex flex-col items-center justify-center flex-1 gap-4 text-center">
-          <Table className="h-12 w-12 text-zinc-700" />
-          <div>
-            <p className="text-zinc-400 font-medium">No datasets yet</p>
-            <p className="text-zinc-600 text-sm mt-1">
-              Create a dataset from a database table to start building charts.
-            </p>
+      <div className="flex-1 overflow-auto p-6">
+        {isLoading ? (
+          <div className="space-y-2">
+            {Array.from({ length: 5 }).map((_, i) => (
+              <div key={i} className="h-12 animate-pulse" style={{ background: "var(--bg-border)", borderRadius: "2px" }} />
+            ))}
           </div>
-          <Link
-            href="/datasets/new"
-            className="px-4 py-2 text-sm rounded bg-indigo-600 hover:bg-indigo-500 text-white transition-colors"
-          >
-            New Dataset
-          </Link>
-        </div>
-      ) : (
-        <div className="overflow-hidden rounded-lg border border-zinc-800">
-          <table className="w-full text-sm">
-            <thead className="bg-zinc-900 border-b border-zinc-800">
-              <tr>
-                <th className="px-4 py-3 text-left text-xs font-medium text-zinc-400">Name</th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-zinc-400">Type</th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-zinc-400">Connection</th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-zinc-400">Table / SQL</th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-zinc-400">Updated</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-zinc-800">
-              {datasets.map((ds) => (
-                <tr
-                  key={ds.id}
-                  className="hover:bg-zinc-800/40 transition-colors cursor-pointer"
-                  onClick={() => (window.location.href = `/datasets/${ds.id}`)}
-                >
-                  <td className="px-4 py-3 font-medium text-zinc-200">{ds.name}</td>
-                  <td className="px-4 py-3">
-                    <span
-                      className={`inline-flex items-center rounded px-2 py-0.5 text-xs font-medium ${
-                        ds.sqlDefinition
-                          ? "bg-purple-900/40 text-purple-300"
-                          : "bg-zinc-700/60 text-zinc-300"
-                      }`}
-                    >
-                      {ds.sqlDefinition ? "Virtual" : "Physical"}
-                    </span>
-                  </td>
-                  <td className="px-4 py-3 text-zinc-400">{ds.connectionName ?? "—"}</td>
-                  <td className="px-4 py-3 text-zinc-500 font-mono text-xs">
-                    {ds.tableName ?? (ds.sqlDefinition ? "<SQL>" : "—")}
-                  </td>
-                  <td className="px-4 py-3 text-zinc-600 text-xs">
-                    {new Date(ds.updatedAt).toLocaleDateString()}
-                  </td>
+        ) : isError ? (
+          <p className="text-sm" style={{ color: "var(--error)" }}>Failed to load datasets.</p>
+        ) : datasets.length === 0 ? (
+          <div className="flex flex-col items-center justify-center flex-1 gap-4 py-20 text-center">
+            <span style={{ color: "var(--text-muted)" }}><Table className="h-12 w-12" /></span>
+            <div>
+              <p className="font-medium" style={{ color: "var(--text-primary)" }}>No datasets yet</p>
+              <p className="text-sm mt-1" style={{ color: "var(--text-muted)" }}>
+                Create a dataset from a database table to start building charts.
+              </p>
+            </div>
+            <Link
+              href="/datasets/new"
+              className="px-4 py-2 text-sm font-medium text-white"
+              style={{ background: "var(--accent)", borderRadius: "2px" }}
+            >
+              New Dataset
+            </Link>
+          </div>
+        ) : (
+          <div style={{ border: "1px solid var(--bg-border)", borderRadius: "2px", overflow: "hidden" }}>
+            <table className="w-full text-sm">
+              <thead style={{ background: "var(--bg-elevated)", borderBottom: "1px solid var(--bg-border)" }}>
+                <tr>
+                  {["Name", "Type", "Connection", "Table / SQL", "Updated"].map((h) => (
+                    <th key={h} className="px-4 py-2.5 text-left text-xs font-semibold uppercase tracking-wide" style={{ color: "var(--text-secondary)" }}>
+                      {h}
+                    </th>
+                  ))}
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      )}
+              </thead>
+              <tbody>
+                {datasets.map((ds, i) => (
+                  <tr
+                    key={ds.id}
+                    className="cursor-pointer transition-colors"
+                    style={{ background: i % 2 === 0 ? "var(--bg-surface)" : "var(--bg-elevated)", borderBottom: "1px solid var(--bg-border)" }}
+                    onClick={() => (window.location.href = `/datasets/${ds.id}`)}
+                    onMouseEnter={(e) => ((e.currentTarget as HTMLTableRowElement).style.background = "var(--bg-hover)")}
+                    onMouseLeave={(e) => ((e.currentTarget as HTMLTableRowElement).style.background = i % 2 === 0 ? "var(--bg-surface)" : "var(--bg-elevated)")}
+                  >
+                    <td className="px-4 py-3 font-medium" style={{ color: "var(--text-primary)" }}>{ds.name}</td>
+                    <td className="px-4 py-3">
+                      <span
+                        className="inline-flex items-center px-2 py-0.5 text-xs font-medium"
+                        style={{
+                          borderRadius: "2px",
+                          background: ds.sqlDefinition ? "rgba(124,58,237,0.1)" : "var(--bg-elevated)",
+                          color: ds.sqlDefinition ? "#7C3AED" : "var(--text-secondary)",
+                          border: `1px solid ${ds.sqlDefinition ? "rgba(124,58,237,0.2)" : "var(--bg-border)"}`,
+                        }}
+                      >
+                        {ds.sqlDefinition ? "Virtual" : "Physical"}
+                      </span>
+                    </td>
+                    <td className="px-4 py-3 text-sm" style={{ color: "var(--text-secondary)" }}>{ds.connectionName ?? "—"}</td>
+                    <td className="px-4 py-3 font-mono text-xs" style={{ color: "var(--text-muted)" }}>
+                      {ds.tableName ?? (ds.sqlDefinition ? "<SQL>" : "—")}
+                    </td>
+                    <td className="px-4 py-3 text-xs" style={{ color: "var(--text-muted)" }}>
+                      {new Date(ds.updatedAt).toLocaleDateString()}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
     </div>
   );
 }

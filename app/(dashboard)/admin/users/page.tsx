@@ -59,82 +59,110 @@ export default function AdminUsersPage() {
     return (
       <div className="p-6 space-y-2">
         {Array.from({ length: 5 }).map((_, i) => (
-          <div key={i} className="h-12 bg-zinc-800 animate-pulse rounded" />
+          <div key={i} className="h-12 animate-pulse" style={{ background: "var(--bg-border)", borderRadius: "2px" }} />
         ))}
       </div>
     );
   }
 
   return (
-    <div className="flex flex-col h-full p-6 gap-4">
+    <div className="flex flex-col h-full" style={{ background: "var(--bg-base)" }}>
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div
+        className="flex items-center justify-between px-6 py-4"
+        style={{ background: "var(--bg-surface)", borderBottom: "1px solid var(--bg-border)" }}
+      >
         <div>
-          <h1 className="text-xl font-bold text-zinc-100">User Management</h1>
-          <p className="text-xs text-zinc-500 mt-0.5">Admin only — manage user roles</p>
+          <h1 className="text-lg font-semibold" style={{ color: "var(--text-primary)" }}>User Management</h1>
+          <p className="text-xs mt-0.5" style={{ color: "var(--text-muted)" }}>Admin only — manage user roles</p>
         </div>
       </div>
 
       {/* Content */}
-      {isLoading ? (
-        <div className="space-y-2">
-          {Array.from({ length: 5 }).map((_, i) => (
-            <div key={i} className="h-12 bg-zinc-800 animate-pulse rounded" />
-          ))}
-        </div>
-      ) : isError ? (
-        <div className="text-red-400 text-sm">Failed to load users.</div>
-      ) : users.length === 0 ? (
-        <div className="text-zinc-500 text-sm">No users found.</div>
-      ) : (
-        <div className="overflow-hidden rounded-lg border border-zinc-800">
-          <table className="w-full text-sm">
-            <thead className="bg-zinc-900 border-b border-zinc-800">
-              <tr>
-                <th className="px-4 py-3 text-left text-xs font-medium text-zinc-400">Name</th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-zinc-400">Email</th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-zinc-400">Role</th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-zinc-400">Joined</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-zinc-800">
-              {users.map((user) => {
-                const isSelf = user.id === session?.user?.id;
-                return (
-                  <tr key={user.id} className="hover:bg-zinc-800/30 transition-colors">
-                    <td className="px-4 py-3 font-medium text-zinc-200">
-                      {user.name}
-                      {isSelf && (
-                        <span className="ml-2 text-[10px] bg-indigo-900/40 text-indigo-300 rounded px-1.5 py-0.5">
-                          you
-                        </span>
-                      )}
-                    </td>
-                    <td className="px-4 py-3 text-zinc-400">{user.email}</td>
-                    <td className="px-4 py-3">
-                      <select
-                        value={user.role}
-                        disabled={isSelf || updateRole.isPending}
-                        onChange={(e) => updateRole.mutate({ id: user.id, role: e.target.value })}
-                        className="bg-zinc-800 text-zinc-200 text-xs rounded px-2 py-1 outline-none border border-zinc-700 focus:border-indigo-500 transition-colors disabled:opacity-50"
-                      >
-                        {USER_ROLES.map((r) => (
-                          <option key={r} value={r}>
-                            {r}
-                          </option>
-                        ))}
-                      </select>
-                    </td>
-                    <td className="px-4 py-3 text-zinc-600 text-xs">
-                      {new Date(user.createdAt).toLocaleDateString()}
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
-      )}
+      <div className="flex-1 overflow-auto p-6">
+        {isLoading ? (
+          <div className="space-y-2">
+            {Array.from({ length: 5 }).map((_, i) => (
+              <div key={i} className="h-12 animate-pulse" style={{ background: "var(--bg-border)", borderRadius: "2px" }} />
+            ))}
+          </div>
+        ) : isError ? (
+          <p className="text-sm" style={{ color: "var(--error)" }}>Failed to load users.</p>
+        ) : users.length === 0 ? (
+          <p className="text-sm" style={{ color: "var(--text-muted)" }}>No users found.</p>
+        ) : (
+          <div style={{ border: "1px solid var(--bg-border)", borderRadius: "2px", overflow: "hidden" }}>
+            <table className="w-full text-sm">
+              <thead style={{ background: "var(--bg-elevated)", borderBottom: "1px solid var(--bg-border)" }}>
+                <tr>
+                  {["Name", "Email", "Role", "Joined"].map((h) => (
+                    <th key={h} className="px-4 py-2.5 text-left text-xs font-semibold uppercase tracking-wide" style={{ color: "var(--text-secondary)" }}>
+                      {h}
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {users.map((user, i) => {
+                  const isSelf = user.id === session?.user?.id;
+                  return (
+                    <tr
+                      key={user.id}
+                      style={{
+                        background: i % 2 === 0 ? "var(--bg-surface)" : "var(--bg-elevated)",
+                        borderBottom: "1px solid var(--bg-border)",
+                      }}
+                      onMouseEnter={(e) => ((e.currentTarget as HTMLTableRowElement).style.background = "var(--bg-hover)")}
+                      onMouseLeave={(e) => ((e.currentTarget as HTMLTableRowElement).style.background = i % 2 === 0 ? "var(--bg-surface)" : "var(--bg-elevated)")}
+                    >
+                      <td className="px-4 py-3 font-medium" style={{ color: "var(--text-primary)" }}>
+                        {user.name}
+                        {isSelf && (
+                          <span
+                            className="ml-2 text-[10px] px-1.5 py-0.5"
+                            style={{
+                              background: "rgba(32,167,201,0.1)",
+                              color: "var(--accent)",
+                              borderRadius: "2px",
+                              border: "1px solid rgba(32,167,201,0.2)",
+                            }}
+                          >
+                            you
+                          </span>
+                        )}
+                      </td>
+                      <td className="px-4 py-3" style={{ color: "var(--text-secondary)" }}>{user.email}</td>
+                      <td className="px-4 py-3">
+                        <select
+                          value={user.role}
+                          disabled={isSelf || updateRole.isPending}
+                          onChange={(e) => updateRole.mutate({ id: user.id, role: e.target.value })}
+                          className="text-xs px-2 py-1 outline-none transition-colors disabled:opacity-50"
+                          style={{
+                            background: "var(--bg-elevated)",
+                            border: "1px solid var(--bg-border)",
+                            color: "var(--text-primary)",
+                            borderRadius: "2px",
+                          }}
+                          onFocus={(e) => (e.currentTarget.style.borderColor = "var(--accent)")}
+                          onBlur={(e) => (e.currentTarget.style.borderColor = "var(--bg-border)")}
+                        >
+                          {USER_ROLES.map((r) => (
+                            <option key={r} value={r}>{r}</option>
+                          ))}
+                        </select>
+                      </td>
+                      <td className="px-4 py-3 text-xs" style={{ color: "var(--text-muted)" }}>
+                        {new Date(user.createdAt).toLocaleDateString()}
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
     </div>
   );
 }

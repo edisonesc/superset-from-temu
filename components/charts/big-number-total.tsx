@@ -33,7 +33,7 @@ function formatNumber(n: number): string {
 export default function BigNumberTotalChart({ data, config }: ChartComponentProps) {
   if (!data?.length) {
     return (
-      <div className="flex h-full items-center justify-center text-zinc-500 text-sm">
+      <div className="flex h-full items-center justify-center text-sm" style={{ color: "var(--text-muted)" }}>
         No data available
       </div>
     );
@@ -44,9 +44,20 @@ export default function BigNumberTotalChart({ data, config }: ChartComponentProp
   const value = typeof rawVal === "number" ? rawVal : parseFloat(String(rawVal ?? 0));
 
   return (
-    <div className="flex h-full flex-col items-center justify-center gap-2">
-      <p className="text-xs uppercase tracking-widest text-zinc-500">{metricField}</p>
-      <p className="text-6xl font-bold tabular-nums text-zinc-100">
+    <div
+      className="flex h-full flex-col items-center justify-center gap-2 rounded-lg kpi-bg"
+      style={{ padding: "16px" }}
+    >
+      <p
+        className="text-xs uppercase tracking-widest"
+        style={{ color: "var(--text-muted)", letterSpacing: "0.1em" }}
+      >
+        {metricField}
+      </p>
+      <p
+        className="tabular-nums font-bold"
+        style={{ fontSize: "clamp(2.5rem,6vw,3.5rem)", color: "var(--text-primary)", lineHeight: 1.1 }}
+      >
         {config.prefix}
         {formatNumber(value)}
         {config.suffix}

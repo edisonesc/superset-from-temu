@@ -6,36 +6,45 @@ import { EditorState } from "@codemirror/state";
 import { sql } from "@codemirror/lang-sql";
 
 // ---------------------------------------------------------------------------
-// Dark theme matching the app's zinc palette
+// Light theme matching the app's corporate palette
 // ---------------------------------------------------------------------------
 
-const darkTheme = EditorView.theme(
+const lightTheme = EditorView.theme(
   {
     "&": {
-      backgroundColor: "#09090b",
-      color: "#e4e4e7",
+      backgroundColor: "#FFFFFF",
+      color: "#111827",
       height: "100%",
       fontSize: "13px",
     },
     ".cm-content": {
-      fontFamily: "var(--font-geist-mono), monospace",
-      caretColor: "#a1a1aa",
+      fontFamily: "var(--font-geist-mono), 'JetBrains Mono', monospace",
+      caretColor: "#20A7C9",
       padding: "8px 0",
     },
-    ".cm-cursor": { borderLeftColor: "#a1a1aa" },
-    ".cm-activeLine": { backgroundColor: "#18181b" },
-    ".cm-selectionBackground, ::selection": { backgroundColor: "#3f3f46 !important" },
+    ".cm-cursor": { borderLeftColor: "#20A7C9" },
+    ".cm-activeLine": { backgroundColor: "#F8FAFC" },
+    ".cm-selectionBackground, ::selection": { backgroundColor: "rgba(32,167,201,0.15) !important" },
     ".cm-gutters": {
-      backgroundColor: "#09090b",
-      borderRight: "1px solid #27272a",
-      color: "#52525b",
+      backgroundColor: "#F8FAFC",
+      borderRight: "1px solid #E2E8F0",
+      color: "#9CA3AF",
     },
-    ".cm-lineNumbers .cm-gutterElement": { paddingLeft: "8px", paddingRight: "8px" },
-    ".cm-focused .cm-selectionBackground": { backgroundColor: "#3f3f46" },
-    ".cm-tooltip": { backgroundColor: "#18181b", border: "1px solid #3f3f46", color: "#e4e4e7" },
-    ".cm-tooltip-autocomplete ul li[aria-selected]": { backgroundColor: "#3f3f46" },
+    ".cm-lineNumbers .cm-gutterElement": { paddingLeft: "8px", paddingRight: "12px" },
+    ".cm-focused .cm-selectionBackground": { backgroundColor: "rgba(32,167,201,0.15)" },
+    ".cm-tooltip": {
+      backgroundColor: "#FFFFFF",
+      border: "1px solid #E2E8F0",
+      color: "#111827",
+      boxShadow: "0 4px 12px rgba(0,0,0,0.08)",
+    },
+    ".cm-tooltip-autocomplete ul li[aria-selected]": {
+      backgroundColor: "rgba(32,167,201,0.1)",
+      color: "#111827",
+    },
+    ".cm-placeholder": { color: "#9CA3AF" },
   },
-  { dark: true },
+  { dark: false },
 );
 
 // ---------------------------------------------------------------------------
@@ -54,7 +63,7 @@ type SqlEditorProps = {
 // ---------------------------------------------------------------------------
 
 /**
- * CodeMirror 6 SQL editor with dark theme, line numbers, and Ctrl/Cmd+Enter to run.
+ * CodeMirror 6 SQL editor with light theme, line numbers, and Ctrl/Cmd+Enter to run.
  * Manages its own EditorView instance and syncs value externally via props.
  */
 export default function SqlEditor({ value, onChange, onRun, className }: SqlEditorProps) {
@@ -80,7 +89,7 @@ export default function SqlEditor({ value, onChange, onRun, className }: SqlEdit
           drawSelection(),
           highlightActiveLine(),
           placeholder("Write SQL here…  Ctrl+Enter to run"),
-          darkTheme,
+          lightTheme,
           keymap.of([
             {
               key: "Ctrl-Enter",

@@ -9,69 +9,40 @@ import { DashboardCanvas } from "@/components/dashboard/DashboardCanvas";
 import { FilterBar } from "@/components/dashboard/FilterBar";
 import type { FilterConfigItem } from "@/stores/dashboard-store";
 
-// ---------------------------------------------------------------------------
-// DashboardViewerPage
-// ---------------------------------------------------------------------------
-
 export default function DashboardViewerPage() {
   const { id } = useParams<{ id: string }>();
   const router = useRouter();
   const { data: session } = useSession();
 
   const {
-    dashboard,
-    layout,
-    filters,
-    isEditMode,
-    isDirty,
-    loadDashboard,
-    setEditMode,
-    setFilter,
-    clearFilter,
-    clearAllFilters,
-    saveDashboard,
-    publishDashboard,
-    reset,
+    dashboard, layout, filters, isEditMode, isDirty,
+    loadDashboard, setEditMode, setFilter, clearFilter,
+    clearAllFilters, saveDashboard, publishDashboard, reset,
   } = useDashboardStore();
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
 
-  const canEdit =
-    session?.user.role === "admin" || session?.user.role === "alpha";
+  const canEdit = session?.user.role === "admin" || session?.user.role === "alpha";
 
-  // Load dashboard on mount
   useEffect(() => {
     setLoading(true);
     loadDashboard(id)
-      .catch((err) =>
-        setError(err instanceof Error ? err.message : "Failed to load dashboard"),
-      )
+      .catch((err) => setError(err instanceof Error ? err.message : "Failed to load dashboard"))
       .finally(() => setLoading(false));
-
     return () => reset();
   }, [id, loadDashboard, reset]);
 
-  // Warn on navigate away if dirty
   useEffect(() => {
-    const handler = (e: BeforeUnloadEvent) => {
-      if (isDirty) {
-        e.preventDefault();
-        e.returnValue = "";
-      }
-    };
+    const handler = (e: BeforeUnloadEvent) => { if (isDirty) { e.preventDefault(); e.returnValue = ""; } };
     window.addEventListener("beforeunload", handler);
     return () => window.removeEventListener("beforeunload", handler);
   }, [isDirty]);
 
-  // Keyboard shortcut: Ctrl+S / Cmd+S to save
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
-      if ((e.ctrlKey || e.metaKey) && e.key === "s" && isEditMode) {
-        e.preventDefault();
-        handleSave();
-      }
+      if ((e.ctrlKey || e.metaKey) && e.key === "s" && isEditMode) { e.preventDefault(); handleSave(); }
     };
     window.addEventListener("keydown", handler);
     return () => window.removeEventListener("keydown", handler);
@@ -79,14 +50,9 @@ export default function DashboardViewerPage() {
 
   const handleSave = useCallback(async () => {
     setSaving(true);
-    try {
-      await saveDashboard();
-      toast.success("Dashboard saved");
-    } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Save failed");
-    } finally {
-      setSaving(false);
-    }
+    try { await saveDashboard(); toast.success("Dashboard saved"); }
+    catch (err) { toast.error(err instanceof Error ? err.message : "Save failed"); }
+    finally { setSaving(false); }
   }, [saveDashboard]);
 
   const handleDiscard = useCallback(() => {
@@ -100,32 +66,24 @@ export default function DashboardViewerPage() {
       const wasPublished = dashboard?.isPublished;
       await publishDashboard();
       toast.success(wasPublished ? "Unpublished" : "Dashboard published");
-    } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Publish failed");
-    }
+    } catch (err) { toast.error(err instanceof Error ? err.message : "Publish failed"); }
   }, [publishDashboard, dashboard?.isPublished]);
 
-  // Cross-filter handler — sets filter in store (ChartPanel components re-fetch)
   const handleCrossFilter = useCallback(
     (column: string, value: unknown) => {
-      // Toggle: clicking the same value clears the filter
-      if (filters[column] === value) {
-        clearFilter(column);
-      } else {
-        setFilter(column, value);
-      }
+      if (filters[column] === value) clearFilter(column);
+      else setFilter(column, value);
     },
     [filters, setFilter, clearFilter],
   );
 
-  // ---------------------------------------------------------------------------
-  // Render
-  // ---------------------------------------------------------------------------
-
   if (loading) {
     return (
       <div className="flex h-full items-center justify-center">
-        <div className="h-6 w-6 animate-spin rounded-full border-2 border-zinc-700 border-t-blue-500" />
+        <div
+          className="h-5 w-5 animate-spin"
+          style={{ borderRadius: "50%", border: "2px solid var(--bg-border)", borderTopColor: "var(--accent)" }}
+        />
       </div>
     );
   }
@@ -133,10 +91,11 @@ export default function DashboardViewerPage() {
   if (error) {
     return (
       <div className="flex h-full flex-col items-center justify-center gap-3">
-        <p className="text-sm text-red-400">{error}</p>
+        <p className="text-sm" style={{ color: "var(--error)" }}>{error}</p>
         <button
           onClick={() => router.back()}
-          className="rounded bg-zinc-800 px-3 py-1.5 text-sm text-zinc-300 hover:bg-zinc-700"
+          className="px-3 py-1.5 text-sm transition-colors"
+          style={{ background: "var(--bg-elevated)", border: "1px solid var(--bg-border)", color: "var(--text-secondary)", borderRadius: "2px" }}
         >
           Go back
         </button>
@@ -149,58 +108,72 @@ export default function DashboardViewerPage() {
   const filterConfig = (dashboard.filterConfig as FilterConfigItem[]) ?? [];
 
   return (
-    <div className="flex h-full flex-col">
+    <div className="flex h-full flex-col" style={{ background: "var(--bg-base)" }}>
       {/* Top bar */}
-      <div className="flex items-center justify-between border-b border-zinc-800 bg-zinc-900 px-6 py-3">
+      <div
+        className="flex items-center justify-between px-6 py-3"
+        style={{ background: "var(--bg-surface)", borderBottom: "1px solid var(--bg-border)" }}
+      >
         <div className="min-w-0 flex-1">
-          <h1 className="truncate text-lg font-semibold text-zinc-100">
+          <h1 className="truncate text-base font-semibold" style={{ color: "var(--text-primary)" }}>
             {dashboard.name}
           </h1>
           {dashboard.description && (
-            <p className="truncate text-sm text-zinc-500">
+            <p className="truncate text-sm" style={{ color: "var(--text-muted)" }}>
               {dashboard.description}
             </p>
           )}
         </div>
 
         <div className="ml-4 flex items-center gap-2">
-          {/* Published badge */}
           {dashboard.isPublished && !isEditMode && (
             <a
               href={`/public/dashboard/${dashboard.slug}`}
               target="_blank"
               rel="noreferrer"
-              className="flex items-center gap-1 rounded-full bg-green-900/40 px-2.5 py-1 text-xs text-green-400 hover:bg-green-900/60"
-              title="View public URL"
+              className="flex items-center gap-1 px-2.5 py-1 text-xs font-medium transition-colors"
+              style={{
+                background: "rgba(22,163,74,0.1)",
+                color: "var(--success)",
+                border: "1px solid rgba(22,163,74,0.2)",
+                borderRadius: "2px",
+              }}
             >
-              <span className="h-1.5 w-1.5 rounded-full bg-green-400" />
+              <span className="h-1.5 w-1.5 rounded-full" style={{ background: "var(--success)" }} />
               Published
             </a>
           )}
 
-          {/* Edit mode controls */}
           {isEditMode ? (
             <>
               <button
                 onClick={handlePublish}
-                className={`rounded px-3 py-1.5 text-xs font-medium transition-colors ${
-                  dashboard.isPublished
-                    ? "bg-zinc-700 text-zinc-300 hover:bg-zinc-600"
-                    : "bg-green-700 text-white hover:bg-green-600"
-                }`}
+                className="px-3 py-1.5 text-xs font-medium transition-colors"
+                style={{
+                  background: dashboard.isPublished ? "var(--bg-elevated)" : "rgba(22,163,74,0.1)",
+                  color: dashboard.isPublished ? "var(--text-secondary)" : "var(--success)",
+                  border: `1px solid ${dashboard.isPublished ? "var(--bg-border)" : "rgba(22,163,74,0.25)"}`,
+                  borderRadius: "2px",
+                }}
               >
                 {dashboard.isPublished ? "Unpublish" : "Publish"}
               </button>
               <button
                 onClick={handleDiscard}
-                className="rounded px-3 py-1.5 text-xs text-zinc-400 hover:bg-zinc-800"
+                className="px-3 py-1.5 text-xs transition-colors"
+                style={{ color: "var(--text-secondary)", borderRadius: "2px" }}
+                onMouseEnter={(e) => ((e.currentTarget as HTMLButtonElement).style.background = "var(--bg-hover)")}
+                onMouseLeave={(e) => ((e.currentTarget as HTMLButtonElement).style.background = "")}
               >
                 Discard
               </button>
               <button
                 onClick={handleSave}
                 disabled={saving}
-                className="rounded bg-blue-600 px-4 py-1.5 text-xs font-medium text-white hover:bg-blue-500 disabled:opacity-50"
+                className="px-4 py-1.5 text-xs font-medium text-white transition-colors disabled:opacity-50"
+                style={{ background: "var(--accent)", borderRadius: "2px" }}
+                onMouseEnter={(e) => ((e.currentTarget as HTMLButtonElement).style.background = "var(--accent-deep)")}
+                onMouseLeave={(e) => ((e.currentTarget as HTMLButtonElement).style.background = "var(--accent)")}
               >
                 {saving ? "Saving…" : isDirty ? "Save*" : "Save"}
               </button>
@@ -209,7 +182,20 @@ export default function DashboardViewerPage() {
             canEdit && (
               <button
                 onClick={() => setEditMode(true)}
-                className="rounded border border-zinc-700 px-3 py-1.5 text-xs text-zinc-400 hover:border-zinc-500 hover:text-zinc-300"
+                className="px-3 py-1.5 text-xs transition-colors"
+                style={{
+                  border: "1px solid var(--bg-border)",
+                  color: "var(--text-secondary)",
+                  borderRadius: "2px",
+                }}
+                onMouseEnter={(e) => {
+                  (e.currentTarget as HTMLButtonElement).style.borderColor = "var(--accent)";
+                  (e.currentTarget as HTMLButtonElement).style.color = "var(--accent)";
+                }}
+                onMouseLeave={(e) => {
+                  (e.currentTarget as HTMLButtonElement).style.borderColor = "var(--bg-border)";
+                  (e.currentTarget as HTMLButtonElement).style.color = "var(--text-secondary)";
+                }}
               >
                 Edit
               </button>
@@ -218,15 +204,8 @@ export default function DashboardViewerPage() {
         </div>
       </div>
 
-      {/* Filter bar */}
       <FilterBar filterConfig={filterConfig} isEditMode={isEditMode} />
-
-      {/* Canvas */}
-      <DashboardCanvas
-        isEditMode={isEditMode}
-        filters={filters}
-        onCrossFilter={handleCrossFilter}
-      />
+      <DashboardCanvas isEditMode={isEditMode} filters={filters} onCrossFilter={handleCrossFilter} />
     </div>
   );
 }

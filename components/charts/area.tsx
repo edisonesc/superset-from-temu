@@ -3,10 +3,18 @@
 import ReactECharts from "echarts-for-react";
 import type { ChartComponentProps, ChartConfig, ChartConfigSchema, Row } from "@/types";
 
-const COLORS = ["#6366f1", "#22d3ee", "#f59e0b", "#10b981", "#f43f5e", "#8b5cf6", "#14b8a6", "#fb923c"];
-const TEXT_COLOR = "#a1a1aa";
-const SPLIT_LINE_COLOR = "#27272a";
-const AXIS_LINE_COLOR = "#52525b";
+const COLORS = ["#20A7C9", "#7C3AED", "#16A34A", "#D97706", "#DC2626", "#0E7490", "#EA580C"];
+const TEXT_COLOR = "#9CA3AF";
+const SPLIT_LINE_COLOR = "#F1F5F9";
+const AXIS_LINE_COLOR = "#E2E8F0";
+
+const TOOLTIP_STYLE = {
+  backgroundColor: "#FFFFFF",
+  borderColor: "#E2E8F0",
+  borderWidth: 1,
+  textStyle: { color: "#111827", fontSize: 12 },
+  extraCssText: "border-radius:2px;box-shadow:0 4px 16px rgba(0,0,0,0.10);padding:10px 14px;",
+};
 
 export const configSchema: ChartConfigSchema = {
   fields: [
@@ -34,7 +42,7 @@ export function transformer(rows: Row[], config: ChartConfig): ChartComponentPro
 export default function AreaChart({ data, config, onCrossFilter }: ChartComponentProps) {
   if (!data?.length) {
     return (
-      <div className="flex h-full items-center justify-center text-zinc-500 text-sm">
+      <div className="flex h-full items-center justify-center text-sm" style={{ color: "var(--text-muted)" }}>
         No data available
       </div>
     );
@@ -52,12 +60,15 @@ export default function AreaChart({ data, config, onCrossFilter }: ChartComponen
     name: m,
     type: "line" as const,
     smooth: true,
+    lineStyle: { width: 2 },
+    symbol: "none",
     stack: config.stacked ? "total" : undefined,
     data: data.map((r) => {
       const val = r[m] ?? r[`__metric_${i}__`];
       return typeof val === "number" ? val : parseFloat(String(val ?? 0));
     }),
-    areaStyle: { opacity: config.stacked ? 0.8 : 0.2 },
+    // Per design spec: flat transparent fill — no gradient
+    areaStyle: { opacity: config.stacked ? 0.10 : 0.12 },
   }));
 
   const option = {
@@ -65,26 +76,33 @@ export default function AreaChart({ data, config, onCrossFilter }: ChartComponen
     color: COLORS,
     tooltip: {
       trigger: "axis",
-      backgroundColor: "#18181b",
-      borderColor: "#3f3f46",
-      textStyle: { color: "#e4e4e7" },
+      axisPointer: { lineStyle: { color: "#1E293B", width: 1 } },
+      ...TOOLTIP_STYLE,
     },
     legend: config.showLegend !== false
-      ? { textStyle: { color: TEXT_COLOR }, top: 0 }
+      ? {
+          textStyle: { color: TEXT_COLOR, fontSize: 12 },
+          top: 0,
+          icon: "circle",
+          itemWidth: 8,
+          itemHeight: 8,
+        }
       : undefined,
     grid: { left: "3%", right: "4%", bottom: "3%", top: config.showLegend !== false ? 36 : 16, containLabel: true },
     xAxis: {
       type: "category",
       data: categories,
-      axisLabel: { color: TEXT_COLOR },
+      axisLabel: { color: TEXT_COLOR, fontSize: 11 },
       axisLine: { lineStyle: { color: AXIS_LINE_COLOR } },
+      axisTick: { show: false },
       boundaryGap: false,
     },
     yAxis: {
       type: "value",
-      axisLabel: { color: TEXT_COLOR },
+      axisLabel: { color: TEXT_COLOR, fontSize: 11 },
       splitLine: { lineStyle: { color: SPLIT_LINE_COLOR } },
-      axisLine: { lineStyle: { color: AXIS_LINE_COLOR } },
+      axisLine: { show: false },
+      axisTick: { show: false },
     },
     series,
   };

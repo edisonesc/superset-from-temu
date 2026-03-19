@@ -24,14 +24,15 @@ export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en" className="dark">
+    <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} min-h-screen bg-zinc-950 text-zinc-100 antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} min-h-screen antialiased`}
+        style={{ background: "var(--bg-base)", color: "var(--text-primary)" }}
       >
         <ReactQueryProvider>
           <SessionProvider>{children}</SessionProvider>
         </ReactQueryProvider>
-        <Toaster theme="dark" position="bottom-right" />
+        <Toaster theme="light" position="bottom-right" />
       </body>
     </html>
   );

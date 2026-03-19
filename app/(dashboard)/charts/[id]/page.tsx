@@ -57,7 +57,7 @@ export default function ChartPage({ params }: { params: Promise<{ id: string }> 
 
   if (chartLoading) {
     return (
-      <div className="flex h-full items-center justify-center text-zinc-500 text-sm animate-pulse">
+      <div className="flex h-full items-center justify-center text-sm animate-pulse" style={{ color: "var(--text-muted)" }}>
         Loading…
       </div>
     );
@@ -66,8 +66,8 @@ export default function ChartPage({ params }: { params: Promise<{ id: string }> 
   if (isError || !chart) {
     return (
       <div className="flex h-full flex-col items-center justify-center gap-4">
-        <p className="text-red-400">Chart not found or failed to load.</p>
-        <Link href="/charts" className="text-sm text-indigo-400 hover:underline">
+        <p className="text-sm" style={{ color: "var(--error)" }}>Chart not found or failed to load.</p>
+        <Link href="/charts" className="text-sm transition-colors" style={{ color: "var(--accent)" }}>
           ← Back to Charts
         </Link>
       </div>
@@ -77,10 +77,16 @@ export default function ChartPage({ params }: { params: Promise<{ id: string }> 
   if (isEditMode) {
     return (
       <div className="flex flex-col h-full">
-        <div className="flex items-center gap-3 border-b border-zinc-800 px-4 py-2 text-sm shrink-0">
+        <div
+          className="flex items-center gap-3 px-4 py-2 text-sm shrink-0"
+          style={{ background: "var(--bg-surface)", borderBottom: "1px solid var(--bg-border)" }}
+        >
           <button
             onClick={() => setIsEditMode(false)}
-            className="flex items-center gap-1.5 text-zinc-400 hover:text-zinc-200"
+            className="flex items-center gap-1.5 transition-colors"
+            style={{ color: "var(--text-secondary)" }}
+            onMouseEnter={(e) => ((e.currentTarget as HTMLButtonElement).style.color = "var(--text-primary)")}
+            onMouseLeave={(e) => ((e.currentTarget as HTMLButtonElement).style.color = "var(--text-secondary)")}
           >
             <Eye size={14} />
             Exit Edit Mode
@@ -102,21 +108,41 @@ export default function ChartPage({ params }: { params: Promise<{ id: string }> 
   }
 
   return (
-    <div className="flex flex-col h-full overflow-hidden">
+    <div className="flex flex-col h-full overflow-hidden" style={{ background: "var(--bg-base)" }}>
       {/* Header */}
-      <div className="flex items-center gap-3 border-b border-zinc-800 px-4 py-3 shrink-0">
-        <Link href="/charts" className="text-zinc-500 hover:text-zinc-300 transition-colors">
+      <div
+        className="flex items-center gap-3 px-4 py-3 shrink-0"
+        style={{ background: "var(--bg-surface)", borderBottom: "1px solid var(--bg-border)" }}
+      >
+        <Link
+          href="/charts"
+          className="transition-colors"
+          style={{ color: "var(--text-muted)" }}
+        >
           <ArrowLeft size={16} />
         </Link>
         <div className="flex-1">
-          <h1 className="text-sm font-semibold text-zinc-100">{chart.name}</h1>
+          <h1 className="text-sm font-semibold" style={{ color: "var(--text-primary)" }}>{chart.name}</h1>
           {chart.datasetName && (
-            <p className="text-xs text-zinc-500">{chart.datasetName}</p>
+            <p className="text-xs" style={{ color: "var(--text-muted)" }}>{chart.datasetName}</p>
           )}
         </div>
         <button
           onClick={handleShare}
-          className="flex items-center gap-1.5 px-3 py-1.5 text-xs text-zinc-400 hover:text-zinc-200 border border-zinc-700 rounded transition-colors"
+          className="flex items-center gap-1.5 px-3 py-1.5 text-xs transition-colors"
+          style={{
+            color: "var(--text-secondary)",
+            border: "1px solid var(--bg-border)",
+            borderRadius: "2px",
+          }}
+          onMouseEnter={(e) => {
+            (e.currentTarget as HTMLButtonElement).style.borderColor = "var(--accent)";
+            (e.currentTarget as HTMLButtonElement).style.color = "var(--accent)";
+          }}
+          onMouseLeave={(e) => {
+            (e.currentTarget as HTMLButtonElement).style.borderColor = "var(--bg-border)";
+            (e.currentTarget as HTMLButtonElement).style.color = "var(--text-secondary)";
+          }}
         >
           <Share2 size={12} />
           Share
@@ -124,7 +150,10 @@ export default function ChartPage({ params }: { params: Promise<{ id: string }> 
         {canEdit && (
           <button
             onClick={() => setIsEditMode(true)}
-            className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded bg-indigo-600 hover:bg-indigo-500 text-white transition-colors"
+            className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-white transition-colors"
+            style={{ background: "var(--accent)", borderRadius: "2px" }}
+            onMouseEnter={(e) => ((e.currentTarget as HTMLButtonElement).style.background = "var(--accent-deep)")}
+            onMouseLeave={(e) => ((e.currentTarget as HTMLButtonElement).style.background = "var(--accent)")}
           >
             <Edit2 size={12} />
             Edit
@@ -135,11 +164,11 @@ export default function ChartPage({ params }: { params: Promise<{ id: string }> 
       {/* Chart area */}
       <div className="flex-1 p-6 overflow-hidden">
         {dataLoading ? (
-          <div className="flex h-full items-center justify-center text-zinc-500 text-sm animate-pulse">
+          <div className="flex h-full items-center justify-center text-sm animate-pulse" style={{ color: "var(--text-muted)" }}>
             Loading chart data…
           </div>
         ) : !chartData || !ChartComponent ? (
-          <div className="flex h-full items-center justify-center text-zinc-500 text-sm">
+          <div className="flex h-full items-center justify-center text-sm" style={{ color: "var(--text-muted)" }}>
             {!ChartComponent ? `Unknown chart type: ${chart.vizType}` : "No data available"}
           </div>
         ) : (

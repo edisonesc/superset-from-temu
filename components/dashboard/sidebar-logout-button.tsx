@@ -10,7 +10,19 @@ export function SidebarLogoutButton() {
   return (
     <button
       onClick={() => signOut({ callbackUrl: "/login" })}
-      className="w-full rounded-lg px-3 py-2 text-left text-sm text-zinc-400 transition-colors hover:bg-zinc-800 hover:text-zinc-100"
+      className="w-full px-3 py-2 text-left text-xs font-medium transition-colors"
+      style={{
+        color: "var(--text-muted)",
+        borderRadius: "2px",
+      }}
+      onMouseEnter={(e) => {
+        (e.currentTarget as HTMLButtonElement).style.background = "var(--bg-hover)";
+        (e.currentTarget as HTMLButtonElement).style.color = "var(--error)";
+      }}
+      onMouseLeave={(e) => {
+        (e.currentTarget as HTMLButtonElement).style.background = "";
+        (e.currentTarget as HTMLButtonElement).style.color = "var(--text-muted)";
+      }}
     >
       Sign out
     </button>

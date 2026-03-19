@@ -3,10 +3,18 @@
 import ReactECharts from "echarts-for-react";
 import type { ChartComponentProps, ChartConfig, ChartConfigSchema, Row } from "@/types";
 
-const COLORS = ["#6366f1", "#22d3ee", "#f59e0b", "#10b981", "#f43f5e", "#8b5cf6", "#14b8a6", "#fb923c"];
-const TEXT_COLOR = "#a1a1aa";
-const SPLIT_LINE_COLOR = "#27272a";
-const AXIS_LINE_COLOR = "#52525b";
+const COLORS = ["#2563EB", "#0891B2", "#16A34A", "#D97706", "#DC2626"];
+const TEXT_COLOR = "#9CA3AF";
+const SPLIT_LINE_COLOR = "#F1F5F9";
+const AXIS_LINE_COLOR = "#E2E8F0";
+
+const TOOLTIP_STYLE = {
+  backgroundColor: "#FFFFFF",
+  borderColor: "#E2E8F0",
+  borderWidth: 1,
+  textStyle: { color: "#111827", fontSize: 12 },
+  extraCssText: "border-radius:2px;box-shadow:0 4px 16px rgba(0,0,0,0.10);padding:10px 14px;",
+};
 
 export const configSchema: ChartConfigSchema = {
   fields: [
@@ -34,7 +42,7 @@ export function transformer(rows: Row[], config: ChartConfig): ChartComponentPro
 export default function ScatterChart({ data, config, onCrossFilter }: ChartComponentProps) {
   if (!data?.length) {
     return (
-      <div className="flex h-full items-center justify-center text-zinc-500 text-sm">
+      <div className="flex h-full items-center justify-center text-sm" style={{ color: "var(--text-muted)" }}>
         No data available
       </div>
     );
@@ -61,7 +69,16 @@ export default function ScatterChart({ data, config, onCrossFilter }: ChartCompo
     name,
     type: "scatter" as const,
     data: pts,
-    symbolSize: sizeField ? (v: number[]) => Math.max(5, Math.min(50, v[2] / 10)) : 8,
+    // Points: 6px solid, 0.7 opacity to show density
+    symbolSize: sizeField ? (v: number[]) => Math.max(5, Math.min(50, v[2] / 10)) : 6,
+    itemStyle: { opacity: 0.7 },
+    emphasis: {
+      itemStyle: {
+        opacity: 1,
+        shadowBlur: 4,
+        shadowColor: "rgba(99,102,241,0.4)",
+      },
+    },
   }));
 
   const option = {
@@ -69,31 +86,37 @@ export default function ScatterChart({ data, config, onCrossFilter }: ChartCompo
     color: COLORS,
     tooltip: {
       trigger: "item",
-      backgroundColor: "#18181b",
-      borderColor: "#3f3f46",
-      textStyle: { color: "#e4e4e7" },
+      ...TOOLTIP_STYLE,
       formatter: (params: { seriesName: string; value: number[] }) =>
-        `${params.seriesName}<br/>${xField}: ${params.value[0]}<br/>${yField}: ${params.value[1]}`,
+        `<span style="font-weight:600">${params.seriesName}</span><br/>${xField}: ${params.value[0]}<br/>${yField}: ${params.value[1]}`,
     },
     legend: config.showLegend !== false && colorField
-      ? { textStyle: { color: TEXT_COLOR }, top: 0 }
+      ? {
+          textStyle: { color: TEXT_COLOR, fontSize: 12 },
+          top: 0,
+          icon: "circle",
+          itemWidth: 8,
+          itemHeight: 8,
+        }
       : undefined,
     grid: { left: "3%", right: "4%", bottom: "3%", top: 16, containLabel: true },
     xAxis: {
       type: "value",
       name: xField,
-      nameTextStyle: { color: TEXT_COLOR },
-      axisLabel: { color: TEXT_COLOR },
+      nameTextStyle: { color: TEXT_COLOR, fontSize: 11 },
+      axisLabel: { color: TEXT_COLOR, fontSize: 11 },
       splitLine: { lineStyle: { color: SPLIT_LINE_COLOR } },
-      axisLine: { lineStyle: { color: AXIS_LINE_COLOR } },
+      axisLine: { show: false },
+      axisTick: { show: false },
     },
     yAxis: {
       type: "value",
       name: yField,
-      nameTextStyle: { color: TEXT_COLOR },
-      axisLabel: { color: TEXT_COLOR },
+      nameTextStyle: { color: TEXT_COLOR, fontSize: 11 },
+      axisLabel: { color: TEXT_COLOR, fontSize: 11 },
       splitLine: { lineStyle: { color: SPLIT_LINE_COLOR } },
-      axisLine: { lineStyle: { color: AXIS_LINE_COLOR } },
+      axisLine: { show: false },
+      axisTick: { show: false },
     },
     series,
   };

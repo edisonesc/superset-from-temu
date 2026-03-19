@@ -181,19 +181,26 @@ export default function ChartBuilder({ initialChartId }: Props) {
   const ChartComponent = chartDef.component;
 
   return (
-    <div className="flex h-full flex-col overflow-hidden">
+    <div className="flex h-full flex-col overflow-hidden" style={{ background: "var(--bg-base)" }}>
       {/* Top bar */}
-      <div className="flex items-center gap-3 border-b border-zinc-800 px-4 py-3 shrink-0">
+      <div
+        className="flex items-center gap-3 px-4 py-3 shrink-0"
+        style={{ background: "var(--bg-surface)", borderBottom: "1px solid var(--bg-border)" }}
+      >
         <input
           value={chartName}
           onChange={(e) => setChartName(e.target.value)}
-          className="flex-1 bg-transparent text-zinc-100 text-sm font-medium outline-none placeholder:text-zinc-600"
+          className="flex-1 text-sm font-medium outline-none"
+          style={{ background: "transparent", color: "var(--text-primary)" }}
           placeholder="Chart name..."
         />
         <button
           onClick={() => saveChart()}
           disabled={isSaving || !datasetId}
-          className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded bg-indigo-600 hover:bg-indigo-500 text-white disabled:opacity-50 transition-colors"
+          className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-white disabled:opacity-50 transition-colors"
+          style={{ background: "var(--accent)", borderRadius: "2px" }}
+          onMouseEnter={(e) => ((e.currentTarget as HTMLButtonElement).style.background = "var(--accent-deep)")}
+          onMouseLeave={(e) => ((e.currentTarget as HTMLButtonElement).style.background = "var(--accent)")}
         >
           <Save size={14} />
           {isSaving ? "Saving…" : "Save Chart"}
@@ -201,19 +208,30 @@ export default function ChartBuilder({ initialChartId }: Props) {
       </div>
 
       {/* Chart type picker */}
-      <div className="flex gap-1 overflow-x-auto border-b border-zinc-800 px-4 py-2 shrink-0">
+      <div
+        className="flex gap-1 overflow-x-auto px-4 py-2 shrink-0"
+        style={{ background: "var(--bg-surface)", borderBottom: "1px solid var(--bg-border)" }}
+      >
         {chartList.map((def) => {
           const Icon = ICON_MAP[def.icon];
+          const isActive = vizType === def.vizType;
           return (
             <button
               key={def.vizType}
               onClick={() => setVizType(def.vizType)}
               title={def.label}
-              className={`flex flex-col items-center gap-1 rounded px-2.5 py-1.5 text-xs transition-colors min-w-max ${
-                vizType === def.vizType
-                  ? "bg-indigo-600 text-white"
-                  : "text-zinc-400 hover:bg-zinc-800 hover:text-zinc-200"
-              }`}
+              className="flex flex-col items-center gap-1 px-2.5 py-1.5 text-xs transition-colors min-w-max"
+              style={{
+                borderRadius: "2px",
+                background: isActive ? "var(--accent)" : "transparent",
+                color: isActive ? "#fff" : "var(--text-secondary)",
+              }}
+              onMouseEnter={(e) => {
+                if (!isActive) (e.currentTarget as HTMLButtonElement).style.background = "var(--bg-hover)";
+              }}
+              onMouseLeave={(e) => {
+                if (!isActive) (e.currentTarget as HTMLButtonElement).style.background = "transparent";
+              }}
             >
               {Icon && <Icon className="h-4 w-4" />}
               <span>{def.label.split(" ")[0]}</span>
@@ -225,18 +243,21 @@ export default function ChartBuilder({ initialChartId }: Props) {
       {/* Main layout */}
       <div className="flex flex-1 overflow-hidden">
         {/* Left panel */}
-        <div className="w-72 shrink-0 border-r border-zinc-800 flex flex-col overflow-hidden">
+        <div
+          className="w-72 shrink-0 flex flex-col overflow-hidden"
+          style={{ borderRight: "1px solid var(--bg-border)", background: "var(--bg-surface)" }}
+        >
           {/* Tabs */}
-          <div className="flex border-b border-zinc-800 text-xs">
+          <div className="flex text-xs" style={{ borderBottom: "1px solid var(--bg-border)" }}>
             {(["data", "customize"] as const).map((tab) => (
               <button
                 key={tab}
                 onClick={() => setLeftTab(tab)}
-                className={`flex-1 py-2 font-medium capitalize transition-colors ${
-                  leftTab === tab
-                    ? "border-b-2 border-indigo-500 text-zinc-100"
-                    : "text-zinc-500 hover:text-zinc-300"
-                }`}
+                className="flex-1 py-2 font-medium capitalize transition-colors"
+                style={{
+                  borderBottom: leftTab === tab ? "2px solid var(--accent)" : "2px solid transparent",
+                  color: leftTab === tab ? "var(--text-primary)" : "var(--text-muted)",
+                }}
               >
                 {tab}
               </button>
@@ -248,12 +269,20 @@ export default function ChartBuilder({ initialChartId }: Props) {
               <>
                 {/* Dataset selector */}
                 <section>
-                  <label className="block text-xs font-medium text-zinc-400 mb-1.5">Dataset</label>
+                  <label className="block text-xs font-medium mb-1.5" style={{ color: "var(--text-secondary)" }}>Dataset</label>
                   <input
                     value={datasetSearch}
                     onChange={(e) => setDatasetSearch(e.target.value)}
                     placeholder="Search datasets…"
-                    className="w-full bg-zinc-800 text-zinc-200 text-xs rounded px-2.5 py-1.5 outline-none placeholder:text-zinc-600 mb-1.5"
+                    className="w-full text-xs px-2.5 py-1.5 outline-none mb-1.5"
+                    style={{
+                      background: "var(--bg-elevated)",
+                      border: "1px solid var(--bg-border)",
+                      color: "var(--text-primary)",
+                      borderRadius: "2px",
+                    }}
+                    onFocus={(e) => (e.currentTarget.style.borderColor = "var(--accent)")}
+                    onBlur={(e) => (e.currentTarget.style.borderColor = "var(--bg-border)")}
                   />
                   <select
                     value={datasetId ?? ""}
@@ -261,13 +290,17 @@ export default function ChartBuilder({ initialChartId }: Props) {
                       setDatasetId(e.target.value || null);
                       setConfig({});
                     }}
-                    className="w-full bg-zinc-800 text-zinc-200 text-xs rounded px-2.5 py-1.5 outline-none"
+                    className="w-full text-xs px-2.5 py-1.5 outline-none"
+                    style={{
+                      background: "var(--bg-elevated)",
+                      border: "1px solid var(--bg-border)",
+                      color: "var(--text-primary)",
+                      borderRadius: "2px",
+                    }}
                   >
                     <option value="">— select dataset —</option>
                     {datasets.map((d) => (
-                      <option key={d.id} value={d.id}>
-                        {d.name}
-                      </option>
+                      <option key={d.id} value={d.id}>{d.name}</option>
                     ))}
                   </select>
                 </section>
@@ -275,17 +308,18 @@ export default function ChartBuilder({ initialChartId }: Props) {
                 {/* Columns list */}
                 {columns.length > 0 && (
                   <section>
-                    <label className="block text-xs font-medium text-zinc-400 mb-1.5">
+                    <label className="block text-xs font-medium mb-1.5" style={{ color: "var(--text-secondary)" }}>
                       Available Columns
                     </label>
                     <div className="space-y-1">
                       {columns.map((col) => (
                         <div
                           key={col.name}
-                          className="flex items-center justify-between rounded bg-zinc-800/60 px-2 py-1 text-xs"
+                          className="flex items-center justify-between px-2 py-1 text-xs"
+                          style={{ background: "var(--bg-elevated)", borderRadius: "2px" }}
                         >
-                          <span className="text-zinc-300 font-mono">{col.name}</span>
-                          <span className="text-zinc-600">{col.type}</span>
+                          <span className="font-mono" style={{ color: "var(--text-primary)" }}>{col.name}</span>
+                          <span style={{ color: "var(--text-muted)" }}>{col.type}</span>
                         </div>
                       ))}
                     </div>
@@ -297,9 +331,9 @@ export default function ChartBuilder({ initialChartId }: Props) {
                   .filter((f) => ["dimension", "metric", "metrics"].includes(f.type))
                   .map((field) => (
                     <section key={String(field.name)}>
-                      <label className="block text-xs font-medium text-zinc-400 mb-1.5">
+                      <label className="block text-xs font-medium mb-1.5" style={{ color: "var(--text-secondary)" }}>
                         {field.label}
-                        {field.required && <span className="text-red-400 ml-1">*</span>}
+                        {field.required && <span className="ml-1" style={{ color: "var(--error)" }}>*</span>}
                       </label>
                       {field.type === "metrics" ? (
                         <div className="space-y-1">
@@ -312,13 +346,17 @@ export default function ChartBuilder({ initialChartId }: Props) {
                                   next[i] = e.target.value;
                                   setConfigField("metrics", next);
                                 }}
-                                className="flex-1 bg-zinc-800 text-zinc-200 text-xs rounded px-2 py-1 outline-none"
+                                className="flex-1 text-xs px-2 py-1 outline-none"
+                                style={{
+                                  background: "var(--bg-elevated)",
+                                  border: "1px solid var(--bg-border)",
+                                  color: "var(--text-primary)",
+                                  borderRadius: "2px",
+                                }}
                               >
                                 <option value="">— column —</option>
                                 {columns.map((c) => (
-                                  <option key={c.name} value={c.name}>
-                                    {c.name}
-                                  </option>
+                                  <option key={c.name} value={c.name}>{c.name}</option>
                                 ))}
                               </select>
                               <button
@@ -328,7 +366,10 @@ export default function ChartBuilder({ initialChartId }: Props) {
                                     (config.metrics ?? []).filter((_, j) => j !== i),
                                   )
                                 }
-                                className="px-1.5 text-zinc-600 hover:text-red-400"
+                                className="px-1.5 transition-colors"
+                                style={{ color: "var(--text-muted)" }}
+                                onMouseEnter={(e) => ((e.currentTarget as HTMLButtonElement).style.color = "var(--error)")}
+                                onMouseLeave={(e) => ((e.currentTarget as HTMLButtonElement).style.color = "var(--text-muted)")}
                               >
                                 ×
                               </button>
@@ -338,7 +379,8 @@ export default function ChartBuilder({ initialChartId }: Props) {
                             onClick={() =>
                               setConfigField("metrics", [...(config.metrics ?? []), ""])
                             }
-                            className="text-xs text-indigo-400 hover:text-indigo-300"
+                            className="text-xs transition-colors"
+                            style={{ color: "var(--accent)" }}
                           >
                             + Add metric
                           </button>
@@ -347,13 +389,17 @@ export default function ChartBuilder({ initialChartId }: Props) {
                         <select
                           value={String(config[field.name as keyof ChartConfig] ?? "")}
                           onChange={(e) => setConfigField(field.name as keyof ChartConfig, e.target.value)}
-                          className="w-full bg-zinc-800 text-zinc-200 text-xs rounded px-2.5 py-1.5 outline-none"
+                          className="w-full text-xs px-2.5 py-1.5 outline-none"
+                          style={{
+                            background: "var(--bg-elevated)",
+                            border: "1px solid var(--bg-border)",
+                            color: "var(--text-primary)",
+                            borderRadius: "2px",
+                          }}
                         >
                           <option value="">— column —</option>
                           {columns.map((c) => (
-                            <option key={c.name} value={c.name}>
-                              {c.name}
-                            </option>
+                            <option key={c.name} value={c.name}>{c.name}</option>
                           ))}
                         </select>
                       )}
@@ -368,7 +414,7 @@ export default function ChartBuilder({ initialChartId }: Props) {
                   .filter((f) => !["dimension", "metric", "metrics"].includes(f.type))
                   .map((field) => (
                     <section key={String(field.name)}>
-                      <label className="block text-xs font-medium text-zinc-400 mb-1.5">
+                      <label className="block text-xs font-medium mb-1.5" style={{ color: "var(--text-secondary)" }}>
                         {field.label}
                       </label>
                       {field.type === "boolean" ? (
@@ -377,27 +423,37 @@ export default function ChartBuilder({ initialChartId }: Props) {
                             type="checkbox"
                             checked={Boolean(config[field.name as keyof ChartConfig] ?? field.defaultValue)}
                             onChange={(e) => setConfigField(field.name as keyof ChartConfig, e.target.checked)}
-                            className="rounded border-zinc-700 bg-zinc-800 text-indigo-600"
+                            style={{ accentColor: "var(--accent)" }}
                           />
-                          <span className="text-xs text-zinc-300">Enabled</span>
+                          <span className="text-xs" style={{ color: "var(--text-primary)" }}>Enabled</span>
                         </label>
                       ) : field.type === "select" ? (
                         <select
                           value={String(config[field.name as keyof ChartConfig] ?? field.defaultValue ?? "")}
                           onChange={(e) => setConfigField(field.name as keyof ChartConfig, e.target.value)}
-                          className="w-full bg-zinc-800 text-zinc-200 text-xs rounded px-2.5 py-1.5 outline-none"
+                          className="w-full text-xs px-2.5 py-1.5 outline-none"
+                          style={{
+                            background: "var(--bg-elevated)",
+                            border: "1px solid var(--bg-border)",
+                            color: "var(--text-primary)",
+                            borderRadius: "2px",
+                          }}
                         >
                           {field.choices?.map((c) => (
-                            <option key={c} value={c}>
-                              {c}
-                            </option>
+                            <option key={c} value={c}>{c}</option>
                           ))}
                         </select>
                       ) : (
                         <input
                           value={String(config[field.name as keyof ChartConfig] ?? field.defaultValue ?? "")}
                           onChange={(e) => setConfigField(field.name as keyof ChartConfig, e.target.value)}
-                          className="w-full bg-zinc-800 text-zinc-200 text-xs rounded px-2.5 py-1.5 outline-none"
+                          className="w-full text-xs px-2.5 py-1.5 outline-none"
+                          style={{
+                            background: "var(--bg-elevated)",
+                            border: "1px solid var(--bg-border)",
+                            color: "var(--text-primary)",
+                            borderRadius: "2px",
+                          }}
                         />
                       )}
                     </section>
@@ -405,21 +461,37 @@ export default function ChartBuilder({ initialChartId }: Props) {
 
                 {/* Common options */}
                 <section>
-                  <label className="block text-xs font-medium text-zinc-400 mb-1.5">Title</label>
+                  <label className="block text-xs font-medium mb-1.5" style={{ color: "var(--text-secondary)" }}>Title</label>
                   <input
                     value={String(config.title ?? "")}
                     onChange={(e) => setConfigField("title", e.target.value)}
                     placeholder="Chart title override…"
-                    className="w-full bg-zinc-800 text-zinc-200 text-xs rounded px-2.5 py-1.5 outline-none placeholder:text-zinc-600"
+                    className="w-full text-xs px-2.5 py-1.5 outline-none"
+                    style={{
+                      background: "var(--bg-elevated)",
+                      border: "1px solid var(--bg-border)",
+                      color: "var(--text-primary)",
+                      borderRadius: "2px",
+                    }}
+                    onFocus={(e) => (e.currentTarget.style.borderColor = "var(--accent)")}
+                    onBlur={(e) => (e.currentTarget.style.borderColor = "var(--bg-border)")}
                   />
                 </section>
                 <section>
-                  <label className="block text-xs font-medium text-zinc-400 mb-1.5">Description</label>
+                  <label className="block text-xs font-medium mb-1.5" style={{ color: "var(--text-secondary)" }}>Description</label>
                   <textarea
                     value={String(config.description ?? "")}
                     onChange={(e) => setConfigField("description", e.target.value)}
                     rows={2}
-                    className="w-full bg-zinc-800 text-zinc-200 text-xs rounded px-2.5 py-1.5 outline-none resize-none placeholder:text-zinc-600"
+                    className="w-full text-xs px-2.5 py-1.5 outline-none resize-none"
+                    style={{
+                      background: "var(--bg-elevated)",
+                      border: "1px solid var(--bg-border)",
+                      color: "var(--text-primary)",
+                      borderRadius: "2px",
+                    }}
+                    onFocus={(e) => (e.currentTarget.style.borderColor = "var(--accent)")}
+                    onBlur={(e) => (e.currentTarget.style.borderColor = "var(--bg-border)")}
                   />
                 </section>
                 <section>
@@ -428,9 +500,9 @@ export default function ChartBuilder({ initialChartId }: Props) {
                       type="checkbox"
                       checked={config.showLegend !== false}
                       onChange={(e) => setConfigField("showLegend", e.target.checked)}
-                      className="rounded border-zinc-700 bg-zinc-800 text-indigo-600"
+                      style={{ accentColor: "var(--accent)" }}
                     />
-                    <span className="text-xs text-zinc-400">Show Legend</span>
+                    <span className="text-xs" style={{ color: "var(--text-secondary)" }}>Show Legend</span>
                   </label>
                 </section>
               </>
@@ -439,26 +511,29 @@ export default function ChartBuilder({ initialChartId }: Props) {
         </div>
 
         {/* Center preview */}
-        <div className="flex-1 flex flex-col overflow-hidden bg-zinc-950">
-          <div className="flex items-center gap-2 border-b border-zinc-800 px-4 py-2 text-xs text-zinc-500">
+        <div className="flex-1 flex flex-col overflow-hidden" style={{ background: "var(--bg-base)" }}>
+          <div
+            className="flex items-center gap-2 px-4 py-2 text-xs"
+            style={{ borderBottom: "1px solid var(--bg-border)", background: "var(--bg-surface)", color: "var(--text-muted)" }}
+          >
             <span>Live Preview</span>
             {isPreviewLoading && (
-              <RefreshCw size={12} className="animate-spin text-indigo-400" />
+              <span style={{ color: "var(--accent)" }}><RefreshCw size={12} className="animate-spin" /></span>
             )}
-            {!datasetId && <span className="text-zinc-600">— select a dataset to preview</span>}
+            {!datasetId && <span style={{ color: "var(--text-muted)" }}>— select a dataset to preview</span>}
           </div>
 
           <div className="flex-1 p-6">
             {previewError ? (
-              <div className="flex h-full items-center justify-center text-red-400 text-sm">
+              <div className="flex h-full items-center justify-center text-sm" style={{ color: "var(--error)" }}>
                 {previewError}
               </div>
             ) : isPreviewLoading || !previewData ? (
               <div className="flex h-full items-center justify-center">
                 {isPreviewLoading ? (
-                  <div className="text-zinc-600 text-sm animate-pulse">Loading preview…</div>
+                  <div className="text-sm animate-pulse" style={{ color: "var(--text-muted)" }}>Loading preview…</div>
                 ) : (
-                  <div className="text-zinc-700 text-sm">
+                  <div className="text-sm" style={{ color: "var(--text-muted)" }}>
                     {datasetId ? "Configure the chart to see a preview" : "Select a dataset to get started"}
                   </div>
                 )}

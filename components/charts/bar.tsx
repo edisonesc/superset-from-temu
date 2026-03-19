@@ -7,10 +7,19 @@ import type { ChartComponentProps, ChartConfig, ChartConfigSchema, Row } from "@
 // Constants
 // ---------------------------------------------------------------------------
 
-const COLORS = ["#6366f1", "#22d3ee", "#f59e0b", "#10b981", "#f43f5e", "#8b5cf6", "#14b8a6", "#fb923c"];
-const TEXT_COLOR = "#a1a1aa";
-const SPLIT_LINE_COLOR = "#27272a";
-const AXIS_LINE_COLOR = "#52525b";
+// Corporate light mode palette
+const COLORS = ["#20A7C9", "#7C3AED", "#16A34A", "#D97706", "#DC2626", "#0E7490", "#EA580C"];
+const TEXT_COLOR = "#9CA3AF";
+const SPLIT_LINE_COLOR = "#F1F5F9";
+const AXIS_LINE_COLOR = "#E2E8F0";
+
+const TOOLTIP_STYLE = {
+  backgroundColor: "#FFFFFF",
+  borderColor: "#E2E8F0",
+  borderWidth: 1,
+  textStyle: { color: "#111827", fontSize: 12 },
+  extraCssText: "border-radius:2px;box-shadow:0 4px 16px rgba(0,0,0,0.10);padding:10px 14px;",
+};
 
 // ---------------------------------------------------------------------------
 // Config schema
@@ -58,7 +67,7 @@ export function transformer(rows: Row[], config: ChartConfig): ChartComponentPro
 export default function BarChart({ data, config, onCrossFilter }: ChartComponentProps) {
   if (!data?.length) {
     return (
-      <div className="flex h-full items-center justify-center text-zinc-500 text-sm">
+      <div className="flex h-full items-center justify-center text-sm" style={{ color: "var(--text-muted)" }}>
         No data available
       </div>
     );
@@ -86,34 +95,52 @@ export default function BarChart({ data, config, onCrossFilter }: ChartComponent
   const axisCategory = {
     type: "category" as const,
     data: categories,
-    axisLabel: { color: TEXT_COLOR, rotate: isHorizontal ? 0 : 30 },
+    axisLabel: { color: TEXT_COLOR, fontSize: 11, rotate: isHorizontal ? 0 : 30 },
     axisLine: { lineStyle: { color: AXIS_LINE_COLOR } },
-    axisTick: { lineStyle: { color: AXIS_LINE_COLOR } },
+    axisTick: { show: false },
   };
 
   const axisValue = {
     type: "value" as const,
-    axisLabel: { color: TEXT_COLOR },
+    axisLabel: { color: TEXT_COLOR, fontSize: 11 },
     splitLine: { lineStyle: { color: SPLIT_LINE_COLOR } },
-    axisLine: { lineStyle: { color: AXIS_LINE_COLOR } },
+    axisLine: { show: false },
+    axisTick: { show: false },
   };
+
+  // Apply solid fills with 2px top border-radius (design system spec)
+  const seriesWithStyle = series.map((s) => ({
+    ...s,
+    itemStyle: { borderRadius: isHorizontal ? [0, 2, 2, 0] : [2, 2, 0, 0] },
+    emphasis: {
+      focus: "series" as const,
+      itemStyle: { opacity: 1 },
+      // other items fade on hover
+    },
+    select: { itemStyle: { opacity: 1 } },
+    barMaxWidth: 48,
+  }));
 
   const option = {
     backgroundColor: "transparent",
     color: COLORS,
     tooltip: {
       trigger: "axis",
-      backgroundColor: "#18181b",
-      borderColor: "#3f3f46",
-      textStyle: { color: "#e4e4e7" },
+      ...TOOLTIP_STYLE,
     },
     legend: config.showLegend !== false
-      ? { textStyle: { color: TEXT_COLOR }, top: 0 }
+      ? {
+          textStyle: { color: TEXT_COLOR, fontSize: 12 },
+          top: 0,
+          icon: "circle",
+          itemWidth: 8,
+          itemHeight: 8,
+        }
       : undefined,
     grid: { left: "3%", right: "4%", bottom: "3%", top: config.showLegend !== false ? 36 : 16, containLabel: true },
     xAxis: isHorizontal ? axisValue : axisCategory,
     yAxis: isHorizontal ? axisCategory : axisValue,
-    series,
+    series: seriesWithStyle,
   };
 
   const onEvents = onCrossFilter

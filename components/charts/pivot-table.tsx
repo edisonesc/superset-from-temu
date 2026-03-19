@@ -51,11 +51,8 @@ export default function PivotTable({ data, config }: ChartComponentProps) {
     const metrics = config.metrics?.length ? config.metrics : [Object.keys(data[0]).slice(-1)[0]];
     const agg = config.aggregation ?? "SUM";
 
-    // Build unique row/col keys
     const rowKeySet = new Set<string>();
     const colKeySet = new Set<string>();
-
-    // pivotData: Map<rowKey, Map<colKey, Map<metric, number[]>>>
     const pivotMap = new Map<string, Map<string, Map<string, number[]>>>();
 
     for (const row of data) {
@@ -76,7 +73,6 @@ export default function PivotTable({ data, config }: ChartComponentProps) {
       }
     }
 
-    // Aggregate
     const result = new Map<string, Map<string, Map<string, number>>>();
     for (const [rk, colMap] of pivotMap) {
       result.set(rk, new Map());
@@ -98,7 +94,7 @@ export default function PivotTable({ data, config }: ChartComponentProps) {
 
   if (!data?.length) {
     return (
-      <div className="flex h-full items-center justify-center text-zinc-500 text-sm">
+      <div className="flex h-full items-center justify-center text-sm" style={{ color: "var(--text-muted)" }}>
         No data available
       </div>
     );
@@ -109,15 +105,20 @@ export default function PivotTable({ data, config }: ChartComponentProps) {
   return (
     <div className="h-full overflow-auto">
       <table className="w-full text-xs border-collapse">
-        <thead className="sticky top-0 bg-zinc-900">
+        <thead className="sticky top-0" style={{ background: "var(--bg-elevated)" }}>
           {showColHeaders && (
             <tr>
-              <th className="px-3 py-2 border border-zinc-800 text-zinc-500" />
+              <th style={{ padding: "8px 12px", border: "1px solid var(--bg-border)" }} />
               {colKeys.map((ck) => (
                 <th
                   key={ck}
                   colSpan={metricFields.length}
-                  className="px-3 py-2 border border-zinc-800 text-center text-zinc-300 font-medium"
+                  className="text-center font-semibold"
+                  style={{
+                    padding: "8px 12px",
+                    border: "1px solid var(--bg-border)",
+                    color: "var(--text-primary)",
+                  }}
                 >
                   {ck}
                 </th>
@@ -125,14 +126,26 @@ export default function PivotTable({ data, config }: ChartComponentProps) {
             </tr>
           )}
           <tr>
-            <th className="px-3 py-2 border border-zinc-800 text-left text-zinc-400 font-medium">
+            <th
+              className="text-left font-semibold uppercase tracking-wide"
+              style={{
+                padding: "8px 12px",
+                border: "1px solid var(--bg-border)",
+                color: "var(--text-secondary)",
+              }}
+            >
               Row
             </th>
             {colKeys.flatMap((ck) =>
               metricFields.map((m) => (
                 <th
                   key={`${ck}-${m}`}
-                  className="px-3 py-2 border border-zinc-800 text-right text-zinc-400 font-medium whitespace-nowrap"
+                  className="text-right font-semibold uppercase tracking-wide whitespace-nowrap"
+                  style={{
+                    padding: "8px 12px",
+                    border: "1px solid var(--bg-border)",
+                    color: "var(--text-secondary)",
+                  }}
                 >
                   {m}
                 </th>
@@ -141,9 +154,21 @@ export default function PivotTable({ data, config }: ChartComponentProps) {
           </tr>
         </thead>
         <tbody>
-          {rowKeys.map((rk) => (
-            <tr key={rk} className="hover:bg-zinc-800/40">
-              <td className="px-3 py-1.5 border border-zinc-800 text-zinc-300 font-medium whitespace-nowrap">
+          {rowKeys.map((rk, i) => (
+            <tr
+              key={rk}
+              style={{ background: i % 2 === 0 ? "var(--bg-surface)" : "var(--bg-elevated)" }}
+              onMouseEnter={(e) => ((e.currentTarget as HTMLTableRowElement).style.background = "var(--bg-hover)")}
+              onMouseLeave={(e) => ((e.currentTarget as HTMLTableRowElement).style.background = i % 2 === 0 ? "var(--bg-surface)" : "var(--bg-elevated)")}
+            >
+              <td
+                className="font-medium whitespace-nowrap"
+                style={{
+                  padding: "6px 12px",
+                  border: "1px solid var(--bg-border)",
+                  color: "var(--text-primary)",
+                }}
+              >
                 {rk}
               </td>
               {colKeys.flatMap((ck) =>
@@ -152,7 +177,12 @@ export default function PivotTable({ data, config }: ChartComponentProps) {
                   return (
                     <td
                       key={`${ck}-${m}`}
-                      className="px-3 py-1.5 border border-zinc-800 text-right text-zinc-300 tabular-nums"
+                      className="text-right tabular-nums"
+                      style={{
+                        padding: "6px 12px",
+                        border: "1px solid var(--bg-border)",
+                        color: "var(--text-primary)",
+                      }}
                     >
                       {val !== undefined ? val.toLocaleString(undefined, { maximumFractionDigits: 2 }) : "—"}
                     </td>

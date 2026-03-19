@@ -24,13 +24,26 @@ export default async function DashboardLayout({
   const pathname = headersList.get("x-pathname") ?? "";
 
   return (
-    <div className="flex min-h-screen bg-zinc-950">
+    <div className="flex min-h-screen" style={{ background: "var(--bg-base)" }}>
       {/* ── Sidebar ─────────────────────────────────────────────────────── */}
-      <aside className="flex w-56 flex-shrink-0 flex-col border-r border-zinc-800 bg-zinc-900">
+      <aside
+        className="flex w-56 flex-shrink-0 flex-col"
+        style={{
+          background: "var(--bg-surface)",
+          borderRight: "1px solid var(--bg-border)",
+        }}
+      >
         {/* Brand */}
-        <div className="flex h-14 items-center border-b border-zinc-800 px-4">
-          <Link href="/" className="text-sm font-bold tracking-wide text-zinc-100 hover:text-white transition-colors">
-            Supaset
+        <div
+          className="flex h-14 items-center px-5"
+          style={{ borderBottom: "1px solid var(--bg-border)" }}
+        >
+          <Link
+            href="/"
+            className="text-sm font-bold tracking-widest uppercase transition-colors"
+            style={{ color: "var(--text-primary)", letterSpacing: "0.08em" }}
+          >
+            <span style={{ color: "var(--accent)" }}>S</span>UPASET
           </Link>
         </div>
 
@@ -40,12 +53,17 @@ export default async function DashboardLayout({
         </nav>
 
         {/* Footer — user info + logout */}
-        <div className="border-t border-zinc-800 p-3">
-          <div className="mb-1 px-3">
-            <p className="truncate text-sm font-medium text-zinc-200">
+        <div className="p-3" style={{ borderTop: "1px solid var(--bg-border)" }}>
+          <div className="mb-2 px-2">
+            <p className="truncate text-sm font-medium" style={{ color: "var(--text-primary)" }}>
               {user.name}
             </p>
-            <p className="truncate text-xs text-zinc-500">{user.role}</p>
+            <p
+              className="truncate text-xs capitalize"
+              style={{ color: "var(--text-muted)" }}
+            >
+              {user.role}
+            </p>
           </div>
           <SidebarLogoutButton />
         </div>
@@ -82,11 +100,7 @@ function SidebarNav({ pathname, isAdmin }: { pathname: string; isAdmin: boolean 
           <li key={href}>
             <Link
               href={href}
-              className={`flex items-center rounded-lg px-3 py-2 text-sm transition-colors ${
-                isActive
-                  ? "bg-zinc-800 text-zinc-100 font-medium"
-                  : "text-zinc-400 hover:bg-zinc-800 hover:text-zinc-100"
-              }`}
+              className={isActive ? "nav-item-active" : "nav-item"}
             >
               {label}
             </Link>
