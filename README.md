@@ -1,3 +1,10 @@
+# Superset from Temu
+
+<img width="959" height="413" alt="image" src="https://github.com/user-attachments/assets/59be4aa8-4630-4c25-b1ff-ff50a849d9b3" />
+<img width="1834" height="1991" alt="image" src="https://github.com/user-attachments/assets/7c1c395a-bcf3-4b13-9a56-f3690a858f04" />
+<img width="1546" height="301" alt="image" src="https://github.com/user-attachments/assets/06e86f76-fc8d-4386-a22a-05b9722aaba6" />
+<img width="1808" height="529" alt="image" src="https://github.com/user-attachments/assets/61fa62a7-7650-4966-a515-a63750da9611" />
+
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
 ## Getting Started
