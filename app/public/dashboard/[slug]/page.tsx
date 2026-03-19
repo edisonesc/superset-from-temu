@@ -67,17 +67,20 @@ export default function PublicDashboardPage() {
 
   if (isLoading) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-zinc-950">
-        <div className="h-6 w-6 animate-spin rounded-full border-2 border-zinc-700 border-t-blue-500" />
+      <div className="flex min-h-screen items-center justify-center" style={{ background: "var(--bg-base)" }}>
+        <div
+          className="h-5 w-5 animate-spin"
+          style={{ borderRadius: "50%", border: "2px solid var(--bg-border)", borderTopColor: "var(--accent)" }}
+        />
       </div>
     );
   }
 
   if (error || !data) {
     return (
-      <div className="flex min-h-screen flex-col items-center justify-center gap-3 bg-zinc-950 text-center">
-        <p className="text-lg font-medium text-zinc-300">Dashboard not found</p>
-        <p className="text-sm text-zinc-500">
+      <div className="flex min-h-screen flex-col items-center justify-center gap-3 text-center" style={{ background: "var(--bg-base)" }}>
+        <p className="text-base font-medium" style={{ color: "var(--text-primary)" }}>Dashboard not found</p>
+        <p className="text-sm" style={{ color: "var(--text-muted)" }}>
           This dashboard may not exist or is not publicly available.
         </p>
       </div>
@@ -93,25 +96,37 @@ export default function PublicDashboardPage() {
   // ---------------------------------------------------------------------------
 
   return (
-    <div className="flex min-h-screen flex-col bg-zinc-950 text-zinc-100">
+    <div className="flex min-h-screen flex-col" style={{ background: "var(--bg-base)", color: "var(--text-primary)" }}>
       {/* Header — hidden in embed mode */}
       {!isEmbed && (
-        <header className="border-b border-zinc-800 bg-zinc-900 px-6 py-4">
-          <h1 className="text-xl font-semibold text-zinc-100">{data.name}</h1>
+        <header
+          className="px-6 py-3"
+          style={{ background: "var(--bg-surface)", borderBottom: "1px solid var(--bg-border)" }}
+        >
+          <h1 className="text-base font-semibold" style={{ color: "var(--text-primary)" }}>{data.name}</h1>
           {data.description && (
-            <p className="mt-0.5 text-sm text-zinc-500">{data.description}</p>
+            <p className="mt-0.5 text-sm" style={{ color: "var(--text-muted)" }}>{data.description}</p>
           )}
         </header>
       )}
 
       {/* Active cross-filter chips — hidden in embed mode */}
       {!isEmbed && activeFilters.length > 0 && (
-        <div className="flex flex-wrap items-center gap-2 border-b border-zinc-800 bg-zinc-900 px-6 py-2">
+        <div
+          className="flex flex-wrap items-center gap-2 px-6 py-2"
+          style={{ background: "var(--bg-surface)", borderBottom: "1px solid var(--bg-border)" }}
+        >
           {activeFilters.map(([col, val]) => (
             <button
               key={col}
               onClick={() => handleCrossFilter(col, val)}
-              className="flex items-center gap-1 rounded-full border border-blue-700/50 bg-blue-900/30 px-3 py-1 text-xs text-blue-300 hover:bg-blue-900/50"
+              className="flex items-center gap-1 px-3 py-1 text-xs"
+              style={{
+                border: "1px solid rgba(32,167,201,0.3)",
+                background: "rgba(32,167,201,0.08)",
+                color: "var(--accent)",
+                borderRadius: "2px",
+              }}
             >
               <span className="font-medium">{col}:</span>
               <span>{String(val)}</span>
@@ -120,7 +135,8 @@ export default function PublicDashboardPage() {
           ))}
           <button
             onClick={() => setFilters({})}
-            className="text-xs text-zinc-500 hover:text-zinc-400"
+            className="text-xs"
+            style={{ color: "var(--text-muted)" }}
           >
             Clear all
           </button>
@@ -131,7 +147,7 @@ export default function PublicDashboardPage() {
       <main className="flex-1 overflow-auto p-4">
         {layout.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-20 text-center">
-            <p className="text-sm text-zinc-500">This dashboard has no charts.</p>
+            <p className="text-sm" style={{ color: "var(--text-muted)" }}>This dashboard has no charts.</p>
           </div>
         ) : (
           <div
@@ -159,7 +175,10 @@ export default function PublicDashboardPage() {
 
       {/* Footer — hidden in embed mode */}
       {!isEmbed && (
-        <footer className="border-t border-zinc-800 px-6 py-3 text-center text-xs text-zinc-600">
+        <footer
+          className="px-6 py-3 text-center text-xs"
+          style={{ borderTop: "1px solid var(--bg-border)", color: "var(--text-muted)" }}
+        >
           Powered by Supaset
         </footer>
       )}
