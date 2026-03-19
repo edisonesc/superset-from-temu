@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { toast } from "sonner";
 import { ArrowLeft, Loader, Save, Database, Table } from "@/components/ui/icons";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 
 type Connection = { id: string; name: string; dialect: string };
 type SchemaTable = { name: string; columns: { name: string; type: string }[] };
@@ -25,6 +25,7 @@ const DIALECT_COLORS: Record<string, { bg: string; color: string; border: string
 /** Create dataset form — pick connection, pick table, name it, save. */
 export default function NewDatasetPage() {
   const router = useRouter();
+  const queryClient = useQueryClient();
 
   const [connectionId, setConnectionId] = useState("");
   const [datasetType, setDatasetType] = useState<"physical" | "virtual">("physical");
@@ -76,6 +77,7 @@ export default function NewDatasetPage() {
       const json = await res.json();
       if (json.error) throw new Error(json.error);
       toast.success("Dataset created");
+      await queryClient.invalidateQueries({ queryKey: ["datasets"] });
       router.push("/datasets");
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Save failed");

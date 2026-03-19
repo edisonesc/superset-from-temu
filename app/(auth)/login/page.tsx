@@ -45,17 +45,21 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="relative flex min-h-screen items-center justify-center px-4" style={{ background: "var(--login-bg)" }}>
-      {/* <div className="absolute inset-0 -z-10">
+    <div
+      className="relative flex min-h-screen items-center justify-center px-4"
+      // style={{ background: "var(--login-bg)" }}
+    >
+      <div className="absolute inset-0 -z-10">
         <Image
-          src="/team.jpg"
+          src="/team2.jpg"
           alt="Background"
           fill
           priority
           className="object-cover"
         />
-        <div className="absolute inset-0 bg-black/60" />
-      </div> */}
+        <div className="absolute inset-0  bg-black/20" />
+        {/* bg-black/60 */}
+      </div>
 
       <div className="w-full max-w-sm">
         {/* Logo / title */}
