@@ -115,10 +115,11 @@ export const ChartPanel = memo(function ChartPanel({
 
   return (
     <div
-      className="flex h-full flex-col overflow-hidden rounded-lg"
+      className="flex h-full flex-col overflow-hidden"
       style={{
         background: "var(--bg-surface)",
-        boxShadow: "0 1px 3px rgba(0,0,0,0.4), 0 1px 2px rgba(0,0,0,0.3)",
+        border: "1px solid var(--bg-border)",
+        borderRadius: "2px",
       }}
     >
       {/* Panel header */}
