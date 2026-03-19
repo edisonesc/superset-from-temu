@@ -80,3 +80,82 @@ npx dotenv -e .env.local -- npx drizzle-kit migrate
 - **Redis cache invalidation is manual**: chart data is cached by `chart:{id}:{filterHash}`. If you change how `buildChartQuery` works, old cache keys won't auto-expire for 5 minutes.
 - **Tailwind v4**: no `tailwind.config.js`. Config lives entirely in [app/globals.css](app/globals.css) via `@import "tailwindcss"`.
 - **`x-pathname` header**: middleware injects the current path so server components can highlight the active sidebar link — read from `headers()` in [app/(dashboard)/layout.tsx](app/(dashboard)/layout.tsx).
+
+---
+
+## 7. Styling System
+
+All colours and typography tokens are centralized. **Never hardcode hex values or `rgba()` strings directly in components.**
+
+### Two files, one rule
+
+| Context | File | Format |
+|---|---|---|
+| CSS / Tailwind / inline `style={{}}` | [app/globals.css](app/globals.css) | `var(--token-name)` |
+| ECharts options / CodeMirror themes | [lib/theme.ts](lib/theme.ts) | imported JS constant |
+
+ECharts and CodeMirror require resolved hex strings at construction time and cannot consume CSS variables. `lib/theme.ts` bridges this gap — every constant maps 1-to-1 to a CSS variable in `globals.css`. Both files must be kept in sync when changing a colour.
+
+### Token groups (`app/globals.css`)
+
+```
+Backgrounds       --bg-base · --bg-surface · --bg-elevated · --bg-border · --bg-hover
+Accent            --accent · --accent-bright · --accent-deep · --accent-cyan
+Accent opacity    --accent-10 · --accent-15
+Text              --text-primary · --text-secondary · --text-muted
+Semantic          --success · --warning · --error · --info
+Error opacity     --error-bg · --error-border
+Chart palette     --chart-1 … --chart-7
+Heatmap gradient  --heatmap-0 … --heatmap-4
+Neutrals          --slate-400 · --slate-900 · --gray-300
+Login overlays    --login-bg · --login-card-bg · --login-card-border
+                  --login-text-dim · --login-footer-text
+Fonts             --font-geist-sans · --font-geist-mono  (set by next/font in layout.tsx)
+```
+
+### JS constants (`lib/theme.ts`)
+
+```ts
+CHART_COLORS          // 7-colour categorical array  →  --chart-1 … --chart-7
+SCATTER_COLORS        // 5-colour blue-anchored array
+HEATMAP_GRADIENT      // 5-step sequential cyan      →  --heatmap-0 … --heatmap-4
+TEXT_COLOR            // →  --text-muted
+SPLIT_LINE_COLOR      // →  --bg-hover
+AXIS_LINE_COLOR       // →  --bg-border
+AXIS_POINTER_COLOR    // →  --slate-900
+TOOLTIP_STYLE         // drop-in ECharts tooltip object
+PIE_LABEL_COLOR       // →  --text-secondary
+PIE_LABEL_LINE_COLOR  // →  --gray-300
+SCATTER_EMPHASIS_SHADOW
+HEATMAP_TOOLTIP_DIM   // →  --slate-400
+EDITOR_*              // 12 CodeMirror/SqlEditor constants
+```
+
+### How to change a colour
+
+1. Update the hex in `app/globals.css`
+2. Update the matching constant in `lib/theme.ts`
+3. No component files need touching
+
+### Usage examples
+
+**Component (CSS context):**
+```tsx
+<div style={{ color: "var(--text-secondary)", background: "var(--bg-surface)" }} />
+```
+
+**ECharts option (JS context):**
+```ts
+import { CHART_COLORS, TOOLTIP_STYLE, TEXT_COLOR } from "@/lib/theme";
+
+const option = {
+  color: CHART_COLORS,
+  tooltip: { trigger: "axis", ...TOOLTIP_STYLE },
+  xAxis: { axisLabel: { color: TEXT_COLOR } },
+};
+```
+
+**New chart component — one import covers the full shared surface:**
+```ts
+import { CHART_COLORS, TEXT_COLOR, AXIS_LINE_COLOR, SPLIT_LINE_COLOR, TOOLTIP_STYLE } from "@/lib/theme";
+```

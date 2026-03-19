@@ -2,17 +2,7 @@
 
 import ReactECharts from "echarts-for-react";
 import type { ChartComponentProps, ChartConfig, ChartConfigSchema, Row } from "@/types";
-
-const TEXT_COLOR = "#9CA3AF";
-const AXIS_LINE_COLOR = "#E2E8F0";
-
-const TOOLTIP_STYLE = {
-  backgroundColor: "#FFFFFF",
-  borderColor: "#E2E8F0",
-  borderWidth: 1,
-  textStyle: { color: "#111827", fontSize: 12 },
-  extraCssText: "border-radius:2px;box-shadow:0 4px 16px rgba(0,0,0,0.10);padding:10px 14px;",
-};
+import { TEXT_COLOR, AXIS_LINE_COLOR, TOOLTIP_STYLE, HEATMAP_GRADIENT, HEATMAP_TOOLTIP_DIM } from "@/lib/theme";
 
 export const configSchema: ChartConfigSchema = {
   fields: [
@@ -68,7 +58,7 @@ export default function HeatmapChart({ data, config, onCrossFilter }: ChartCompo
       position: "top",
       ...TOOLTIP_STYLE,
       formatter: (params: { value: number[] }) =>
-        `<span style="color:#94A3B8">${xValues[params.value[0]]} / ${yValues[params.value[1]]}</span><br/><span style="font-weight:600">${params.value[2]}</span>`,
+        `<span style="color:${HEATMAP_TOOLTIP_DIM}">${xValues[params.value[0]]} / ${yValues[params.value[1]]}</span><br/><span style="font-weight:600">${params.value[2]}</span>`,
     },
     grid: { left: "3%", right: "4%", bottom: "10%", top: 16, containLabel: true },
     xAxis: {
@@ -96,14 +86,14 @@ export default function HeatmapChart({ data, config, onCrossFilter }: ChartCompo
       bottom: 0,
       textStyle: { color: TEXT_COLOR, fontSize: 11 },
       // Sequential palette: bg-elevated → accent deep → accent → accent-bright → light
-      inRange: { color: ["#ECFEFF", "#A5F3FC", "#67E8F9", "#22D3EE", "#0E7490"] },
+      inRange: { color: HEATMAP_GRADIENT },
       outOfRange: { color: ["#F1F5F9"] },
     },
     series: [
       {
         type: "heatmap",
         data: heatData,
-        itemStyle: { borderColor: "#FFFFFF", borderWidth: 1, borderRadius: 0 },
+        itemStyle: { borderColor: "var(--bg-surface)", borderWidth: 1, borderRadius: 0 },
         label: { show: false },
         emphasis: { itemStyle: { shadowBlur: 0 } },
       },

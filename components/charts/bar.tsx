@@ -2,24 +2,7 @@
 
 import ReactECharts from "echarts-for-react";
 import type { ChartComponentProps, ChartConfig, ChartConfigSchema, Row } from "@/types";
-
-// ---------------------------------------------------------------------------
-// Constants
-// ---------------------------------------------------------------------------
-
-// Corporate light mode palette
-const COLORS = ["#20A7C9", "#7C3AED", "#16A34A", "#D97706", "#DC2626", "#0E7490", "#EA580C"];
-const TEXT_COLOR = "#9CA3AF";
-const SPLIT_LINE_COLOR = "#F1F5F9";
-const AXIS_LINE_COLOR = "#E2E8F0";
-
-const TOOLTIP_STYLE = {
-  backgroundColor: "#FFFFFF",
-  borderColor: "#E2E8F0",
-  borderWidth: 1,
-  textStyle: { color: "#111827", fontSize: 12 },
-  extraCssText: "border-radius:2px;box-shadow:0 4px 16px rgba(0,0,0,0.10);padding:10px 14px;",
-};
+import { CHART_COLORS, TEXT_COLOR, SPLIT_LINE_COLOR, AXIS_LINE_COLOR, TOOLTIP_STYLE } from "@/lib/theme";
 
 // ---------------------------------------------------------------------------
 // Config schema
@@ -123,7 +106,7 @@ export default function BarChart({ data, config, onCrossFilter }: ChartComponent
 
   const option = {
     backgroundColor: "transparent",
-    color: COLORS,
+    color: CHART_COLORS,
     tooltip: {
       trigger: "axis",
       ...TOOLTIP_STYLE,

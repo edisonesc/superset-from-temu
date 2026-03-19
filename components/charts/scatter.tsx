@@ -2,19 +2,7 @@
 
 import ReactECharts from "echarts-for-react";
 import type { ChartComponentProps, ChartConfig, ChartConfigSchema, Row } from "@/types";
-
-const COLORS = ["#2563EB", "#0891B2", "#16A34A", "#D97706", "#DC2626"];
-const TEXT_COLOR = "#9CA3AF";
-const SPLIT_LINE_COLOR = "#F1F5F9";
-const AXIS_LINE_COLOR = "#E2E8F0";
-
-const TOOLTIP_STYLE = {
-  backgroundColor: "#FFFFFF",
-  borderColor: "#E2E8F0",
-  borderWidth: 1,
-  textStyle: { color: "#111827", fontSize: 12 },
-  extraCssText: "border-radius:2px;box-shadow:0 4px 16px rgba(0,0,0,0.10);padding:10px 14px;",
-};
+import { SCATTER_COLORS, TEXT_COLOR, SPLIT_LINE_COLOR, AXIS_LINE_COLOR, TOOLTIP_STYLE, SCATTER_EMPHASIS_SHADOW } from "@/lib/theme";
 
 export const configSchema: ChartConfigSchema = {
   fields: [
@@ -76,14 +64,14 @@ export default function ScatterChart({ data, config, onCrossFilter }: ChartCompo
       itemStyle: {
         opacity: 1,
         shadowBlur: 4,
-        shadowColor: "rgba(99,102,241,0.4)",
+        shadowColor: SCATTER_EMPHASIS_SHADOW,
       },
     },
   }));
 
   const option = {
     backgroundColor: "transparent",
-    color: COLORS,
+    color: SCATTER_COLORS,
     tooltip: {
       trigger: "item",
       ...TOOLTIP_STYLE,

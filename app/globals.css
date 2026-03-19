@@ -38,6 +38,42 @@
   --muted:        var(--text-muted);
   --accent-hover: var(--accent-deep);
   --destructive:  var(--error);
+
+  /* Chart categorical palette — 7 colours, matches lib/theme.ts CHART_COLORS */
+  --chart-1: #20A7C9;
+  --chart-2: #7C3AED;
+  --chart-3: #16A34A;
+  --chart-4: #D97706;
+  --chart-5: #DC2626;
+  --chart-6: #0E7490;
+  --chart-7: #EA580C;
+
+  /* Heatmap sequential palette (light → --accent-deep) */
+  --heatmap-0: #ECFEFF;
+  --heatmap-1: #A5F3FC;
+  --heatmap-2: #67E8F9;
+  --heatmap-3: #22D3EE;
+  /* --heatmap-4 = --accent-deep */
+
+  /* Accent opacity variants — used by SqlEditor selection & autocomplete */
+  --accent-10: rgba(32,167,201,0.10);
+  --accent-15: rgba(32,167,201,0.15);
+
+  /* Error opacity variants — used by form error states */
+  --error-bg:     rgba(220,38,38,0.07);
+  --error-border: rgba(220,38,38,0.15);
+
+  /* Additional neutrals */
+  --slate-400: #94A3B8;
+  --slate-900: #1E293B;
+  --gray-300:  #D1D5DB;
+
+  /* Login page — dark overlay */
+  --login-bg:          #000000;
+  --login-card-bg:     rgba(255,255,255,0.97);
+  --login-card-border: rgba(255,255,255,0.20);
+  --login-text-dim:    rgba(255,255,255,0.65);
+  --login-footer-text: rgba(255,255,255,0.45);
 }
 
 @theme inline {

@@ -2,17 +2,7 @@
 
 import ReactECharts from "echarts-for-react";
 import type { ChartComponentProps, ChartConfig, ChartConfigSchema, Row } from "@/types";
-
-const COLORS = ["#20A7C9", "#7C3AED", "#16A34A", "#D97706", "#DC2626", "#0E7490", "#EA580C"];
-const TEXT_COLOR = "#9CA3AF";
-
-const TOOLTIP_STYLE = {
-  backgroundColor: "#FFFFFF",
-  borderColor: "#E2E8F0",
-  borderWidth: 1,
-  textStyle: { color: "#111827", fontSize: 12 },
-  extraCssText: "border-radius:2px;box-shadow:0 4px 16px rgba(0,0,0,0.10);padding:10px 14px;",
-};
+import { CHART_COLORS, TEXT_COLOR, TOOLTIP_STYLE, PIE_LABEL_COLOR, PIE_LABEL_LINE_COLOR } from "@/lib/theme";
 
 export const configSchema: ChartConfigSchema = {
   fields: [
@@ -64,7 +54,7 @@ export default function PieChart({ data, config, onCrossFilter }: ChartComponent
 
   const option = {
     backgroundColor: "transparent",
-    color: COLORS,
+    color: CHART_COLORS,
     tooltip: {
       trigger: "item",
       ...TOOLTIP_STYLE,
@@ -87,14 +77,14 @@ export default function PieChart({ data, config, onCrossFilter }: ChartComponent
         radius,
         data: pieData,
         // 1px surface-color border between segments for separation
-        itemStyle: { borderColor: "#FFFFFF", borderWidth: 2 },
+        itemStyle: { borderColor: "var(--bg-surface)", borderWidth: 2 },
         label: {
           show: config.show_labels !== false,
-          color: "#6B7280",
+          color: PIE_LABEL_COLOR,
           fontSize: 11,
           formatter: "{b}: {d}%",
         },
-        labelLine: { lineStyle: { color: "#D1D5DB" } },
+        labelLine: { lineStyle: { color: PIE_LABEL_LINE_COLOR } },
         emphasis: {
           scale: true,
           scaleSize: 4,

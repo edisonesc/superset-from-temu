@@ -45,7 +45,7 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="relative flex min-h-screen items-center justify-center px-4 bg-black">
+    <div className="relative flex min-h-screen items-center justify-center px-4" style={{ background: "var(--login-bg)" }}>
       {/* <div className="absolute inset-0 -z-10">
         <Image
           src="/team.jpg"
@@ -65,7 +65,7 @@ export default function LoginPage() {
           </h1>
           <p
             className="mt-1 text-sm"
-            style={{ color: "rgba(255,255,255,0.65)" }}
+            style={{ color: "var(--login-text-dim)" }}
           >
             Sign in to your account
           </p>
@@ -75,9 +75,9 @@ export default function LoginPage() {
         <div
           className="p-6 shadow-2xl"
           style={{
-            background: "rgba(255,255,255,0.97)",
+            background: "var(--login-card-bg)",
             borderRadius: "2px",
-            border: "1px solid rgba(255,255,255,0.2)",
+            border: "1px solid var(--login-card-border)",
           }}
         >
           <form onSubmit={handleSubmit} className="space-y-4">
@@ -152,10 +152,10 @@ export default function LoginPage() {
               <p
                 className="px-3 py-2 text-sm"
                 style={{
-                  background: "rgba(220,38,38,0.07)",
+                  background: "var(--error-bg)",
                   color: "var(--error)",
                   borderRadius: "2px",
-                  border: "1px solid rgba(220,38,38,0.15)",
+                  border: "1px solid var(--error-border)",
                 }}
               >
                 {error}
@@ -185,7 +185,7 @@ export default function LoginPage() {
 
         <p
           className="mt-4 text-center text-xs"
-          style={{ color: "rgba(255,255,255,0.45)" }}
+          style={{ color: "var(--login-footer-text)" }}
         >
           Don&apos;t have an account? Ask your administrator.
         </p>

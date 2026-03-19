@@ -4,6 +4,11 @@ import { useEffect, useRef } from "react";
 import { EditorView, lineNumbers, drawSelection, highlightActiveLine, keymap, placeholder } from "@codemirror/view";
 import { EditorState } from "@codemirror/state";
 import { sql } from "@codemirror/lang-sql";
+import {
+  EDITOR_BG, EDITOR_TEXT, EDITOR_CARET, EDITOR_ACTIVE_LINE, EDITOR_SELECTION,
+  EDITOR_GUTTER_BG, EDITOR_GUTTER_BORDER, EDITOR_GUTTER_TEXT,
+  EDITOR_TOOLTIP_BG, EDITOR_TOOLTIP_BORDER, EDITOR_AUTOCOMPLETE_HOVER, EDITOR_PLACEHOLDER,
+} from "@/lib/theme";
 
 // ---------------------------------------------------------------------------
 // Light theme matching the app's corporate palette
@@ -12,37 +17,37 @@ import { sql } from "@codemirror/lang-sql";
 const lightTheme = EditorView.theme(
   {
     "&": {
-      backgroundColor: "#FFFFFF",
-      color: "#111827",
+      backgroundColor: EDITOR_BG,
+      color: EDITOR_TEXT,
       height: "100%",
       fontSize: "13px",
     },
     ".cm-content": {
       fontFamily: "var(--font-geist-mono), 'JetBrains Mono', monospace",
-      caretColor: "#20A7C9",
+      caretColor: EDITOR_CARET,
       padding: "8px 0",
     },
-    ".cm-cursor": { borderLeftColor: "#20A7C9" },
-    ".cm-activeLine": { backgroundColor: "#F8FAFC" },
-    ".cm-selectionBackground, ::selection": { backgroundColor: "rgba(32,167,201,0.15) !important" },
+    ".cm-cursor": { borderLeftColor: EDITOR_CARET },
+    ".cm-activeLine": { backgroundColor: EDITOR_ACTIVE_LINE },
+    ".cm-selectionBackground, ::selection": { backgroundColor: `${EDITOR_SELECTION} !important` },
     ".cm-gutters": {
-      backgroundColor: "#F8FAFC",
-      borderRight: "1px solid #E2E8F0",
-      color: "#9CA3AF",
+      backgroundColor: EDITOR_GUTTER_BG,
+      borderRight: `1px solid ${EDITOR_GUTTER_BORDER}`,
+      color: EDITOR_GUTTER_TEXT,
     },
     ".cm-lineNumbers .cm-gutterElement": { paddingLeft: "8px", paddingRight: "12px" },
-    ".cm-focused .cm-selectionBackground": { backgroundColor: "rgba(32,167,201,0.15)" },
+    ".cm-focused .cm-selectionBackground": { backgroundColor: EDITOR_SELECTION },
     ".cm-tooltip": {
-      backgroundColor: "#FFFFFF",
-      border: "1px solid #E2E8F0",
-      color: "#111827",
+      backgroundColor: EDITOR_TOOLTIP_BG,
+      border: `1px solid ${EDITOR_TOOLTIP_BORDER}`,
+      color: EDITOR_TEXT,
       boxShadow: "0 4px 12px rgba(0,0,0,0.08)",
     },
     ".cm-tooltip-autocomplete ul li[aria-selected]": {
-      backgroundColor: "rgba(32,167,201,0.1)",
-      color: "#111827",
+      backgroundColor: EDITOR_AUTOCOMPLETE_HOVER,
+      color: EDITOR_TEXT,
     },
-    ".cm-placeholder": { color: "#9CA3AF" },
+    ".cm-placeholder": { color: EDITOR_PLACEHOLDER },
   },
   { dark: false },
 );
