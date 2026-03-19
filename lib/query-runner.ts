@@ -7,6 +7,7 @@ import { eq } from "drizzle-orm";
 import { createId } from "@paralleldrive/cuid2";
 import { createHash } from "crypto";
 import type { FieldPacket } from "mysql2";
+import type { QueryResult as PgQueryResult } from "pg";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -142,7 +143,7 @@ export async function runQuery(
       });
 
       await client.connect();
-      let pgResult!: Awaited<ReturnType<typeof client.query>>;
+      let pgResult!: PgQueryResult<Record<string, unknown>>;
       try {
         pgResult = await client.query(limitedSql);
       } finally {
