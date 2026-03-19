@@ -1,0 +1,56 @@
+services:
+  db:
+    image: mysql:8
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: secret
+      MYSQL_DATABASE: superset_meta
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-usecret", "-psecret"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    environment:
+      NEXTAUTH_URL: http://localhost:3001
+      # ── Secrets: set these via a .env file or your secrets manager ──────────
+      # NEXTAUTH_SECRET: <openssl rand -base64 32>
+      # ENCRYPTION_KEY:  <openssl rand -hex 32>
+      # ────────────────────────────────────────────────────────────────────────
+      DATABASE_URL: mysql://root:secret@db:3306/superset_meta
+      REDIS_URL: redis://redis:6379
+    env_file:
+      - .env.local   # mount secrets from .env.local (gitignored)
+
+volumes:
+  mysql_data:
+  redis_data:
