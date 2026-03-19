@@ -75,9 +75,11 @@ npx dotenv -e .env.local -- npx drizzle-kit migrate
 npx dotenv -e .env.local -- npx tsx db/seeds/seed-connection.ts
 ```
 
+```
 generate: creates the migration SQL files from the schema.
 migrate: applies them to your database.
 seed: add and promote 1 admin user
+```
 
 ### 6. Run
 
