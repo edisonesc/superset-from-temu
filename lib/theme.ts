@@ -40,22 +40,22 @@
 
 /** 7-colour categorical palette for all series-based charts. */
 export const CHART_COLORS = [
-  "#20A7C9", // --chart-1 / --accent
-  "#7C3AED", // --chart-2
-  "#16A34A", // --chart-3 / --success
-  "#D97706", // --chart-4 / --warning
-  "#DC2626", // --chart-5 / --error
-  "#0E7490", // --chart-6 / --accent-deep
-  "#EA580C", // --chart-7
+  "#5B8AF5", // --chart-1  cornflower blue
+  "#EE6B82", // --chart-2  salmon rose
+  "#2CC8A4", // --chart-3  seafoam
+  "#F5B731", // --chart-4  golden
+  "#9F6CF7", // --chart-5  soft violet
+  "#3DBDE8", // --chart-6  azure
+  "#F47A4A", // --chart-7  terracotta
 ] as const;
 
 /** Scatter chart uses a tighter, blue-anchored palette. */
 export const SCATTER_COLORS = [
-  "#20A7C9", // --accent
-  "#0E7490", // --accent-deep
-  "#16A34A", // --success
-  "#D97706", // --warning
-  "#DC2626", // --error
+  "#5B8AF5", // cornflower blue
+  "#9F6CF7", // soft violet
+  "#2CC8A4", // seafoam
+  "#F5B731", // golden
+  "#EE6B82", // salmon rose
 ] as const;
 
 /** Sequential palette for heatmap (light → dark cyan). */

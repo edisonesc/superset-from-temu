@@ -40,13 +40,13 @@
   --destructive:  var(--error);
 
   /* Chart categorical palette — 7 colours, matches lib/theme.ts CHART_COLORS */
-  --chart-1: #20A7C9;
-  --chart-2: #7C3AED;
-  --chart-3: #16A34A;
-  --chart-4: #D97706;
-  --chart-5: #DC2626;
-  --chart-6: #0E7490;
-  --chart-7: #EA580C;
+  --chart-1: #5B8AF5;
+  --chart-2: #EE6B82;
+  --chart-3: #2CC8A4;
+  --chart-4: #F5B731;
+  --chart-5: #9F6CF7;
+  --chart-6: #3DBDE8;
+  --chart-7: #F47A4A;
 
   /* Heatmap sequential palette (light → --accent-deep) */
   --heatmap-0: #ECFEFF;

@@ -41,11 +41,12 @@ export default function PieChart({ data, config, onCrossFilter }: ChartComponent
   const dimField = config.dimension ?? Object.keys(data[0])[0];
   const metricField = config.metric ?? Object.keys(data[0])[1] ?? Object.keys(data[0])[0];
 
-  const pieData = data.map((r) => {
+  const pieData = data.map((r, i) => {
     const val = r[metricField] ?? r["__metric_0__"];
     return {
       name: String(r[dimField] ?? ""),
       value: typeof val === "number" ? val : parseFloat(String(val ?? 0)),
+      itemStyle: { color: CHART_COLORS[i % CHART_COLORS.length] },
     };
   });
 
