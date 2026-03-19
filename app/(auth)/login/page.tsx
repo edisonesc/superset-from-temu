@@ -1,15 +1,14 @@
 "use client";
 
-import { useState } from "react";
+import { Suspense, useState } from "react";
 import { signIn } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Image from "next/image";
 
 /**
- * Login page — email + password form that calls NextAuth's Credentials provider.
- * Redirects to the callbackUrl (or /dashboards) on successful sign-in.
+ * Inner login form — uses useSearchParams, must be wrapped in Suspense.
  */
-export default function LoginPage() {
+function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const callbackUrl = searchParams.get("callbackUrl") ?? "/dashboards";
@@ -195,5 +194,16 @@ export default function LoginPage() {
         </p>
       </div>
     </div>
+  );
+}
+
+/**
+ * Login page — wraps LoginForm in Suspense because useSearchParams requires it.
+ */
+export default function LoginPage() {
+  return (
+    <Suspense>
+      <LoginForm />
+    </Suspense>
   );
 }

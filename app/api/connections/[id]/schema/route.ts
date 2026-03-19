@@ -6,6 +6,7 @@ import { cache } from "@/lib/redis";
 import { auth } from "@/lib/auth";
 import { eq } from "drizzle-orm";
 import type { ApiResponse } from "@/types";
+import type { RowDataPacket } from "mysql2";
 
 type Params = { params: Promise<{ id: string }> };
 
@@ -70,7 +71,7 @@ export async function GET(_req: NextRequest, { params }: Params): Promise<NextRe
         connectTimeout: 5_000,
       });
 
-      const [tableRows] = await conn.execute<mysql.RowDataPacket[]>(
+      const [tableRows] = await conn.execute<RowDataPacket[]>(
         `SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES
          WHERE TABLE_SCHEMA = ? AND TABLE_TYPE = 'BASE TABLE'
          ORDER BY TABLE_NAME`,
@@ -80,7 +81,7 @@ export async function GET(_req: NextRequest, { params }: Params): Promise<NextRe
       tables = await Promise.all(
         tableRows.map(async (t) => {
           const tableName = t.TABLE_NAME as string;
-          const [colRows] = await conn.execute<mysql.RowDataPacket[]>(
+          const [colRows] = await conn.execute<RowDataPacket[]>(
             `SELECT COLUMN_NAME, DATA_TYPE, IS_NULLABLE
              FROM INFORMATION_SCHEMA.COLUMNS
              WHERE TABLE_SCHEMA = ? AND TABLE_NAME = ?

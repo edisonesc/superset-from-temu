@@ -8,7 +8,7 @@ import type { ApiResponse, UserRole } from "@/types";
 import { USER_ROLES } from "@/lib/constants";
 
 const updateRoleSchema = z.object({
-  role: z.enum(USER_ROLES as [string, ...string[]]),
+  role: z.enum([...USER_ROLES]),
 });
 
 /**

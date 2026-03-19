@@ -6,6 +6,7 @@ import { MAX_QUERY_ROWS, QUERY_CACHE_TTL_SECONDS } from "@/lib/constants";
 import { eq } from "drizzle-orm";
 import { createId } from "@paralleldrive/cuid2";
 import { createHash } from "crypto";
+import type { FieldPacket } from "mysql2";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -114,7 +115,7 @@ export async function runQuery(
       await conn.end();
 
       const durationMs = Date.now() - start;
-      const columns: ColumnDefinition[] = (fields as mysql.FieldPacket[]).map((f) => ({
+      const columns: ColumnDefinition[] = (fields as FieldPacket[]).map((f) => ({
         name: f.name,
         type: String(f.type ?? "unknown"),
       }));

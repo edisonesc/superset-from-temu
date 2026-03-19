@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -64,19 +64,25 @@ export default function DatasetDetailPage() {
 
   const { data: dataset, isLoading, isError } = useQuery<Dataset>({
     queryKey: ["dataset", id],
-    queryFn: () => fetchJson(`/api/datasets/${id}`),
-    onSuccess: (d) => {
-      setEditName(d.name);
-      setEditDesc(d.description ?? "");
-    },
-  } as Parameters<typeof useQuery>[0]);
+    queryFn: () => fetchJson<Dataset>(`/api/datasets/${id}`),
+  });
+
+  useEffect(() => {
+    if (dataset) {
+      setEditName(dataset.name);
+      setEditDesc(dataset.description ?? "");
+    }
+  }, [dataset]);
 
   const { data: columns = [] } = useQuery<ColumnMeta[]>({
     queryKey: ["dataset-columns", id],
-    queryFn: () => fetchJson(`/api/datasets/${id}/columns`),
+    queryFn: () => fetchJson<ColumnMeta[]>(`/api/datasets/${id}/columns`),
     enabled: activeTab === "columns",
-    onSuccess: (cols) => setLocalColumns(cols),
-  } as Parameters<typeof useQuery>[0]);
+  });
+
+  useEffect(() => {
+    if (columns.length > 0) setLocalColumns(columns);
+  }, [columns]);
 
   const { data: chartList = [] } = useQuery<Chart[]>({
     queryKey: ["dataset-charts", id],

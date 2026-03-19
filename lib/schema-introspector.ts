@@ -3,6 +3,7 @@ import { databaseConnections } from "@/db/schema";
 import { decryptPassword } from "@/lib/crypto";
 import { cache } from "@/lib/redis";
 import { eq } from "drizzle-orm";
+import type { RowDataPacket } from "mysql2";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -72,7 +73,7 @@ export async function getTables(connectionId: string): Promise<TableInfo[]> {
       connectTimeout: 10_000,
     });
 
-    const [rows] = await conn.execute<mysql.RowDataPacket[]>(
+    const [rows] = await conn.execute<RowDataPacket[]>(
       `SELECT TABLE_NAME as name, TABLE_SCHEMA as \`schema\`, TABLE_ROWS as rowCount
        FROM INFORMATION_SCHEMA.TABLES
        WHERE TABLE_SCHEMA = ? AND TABLE_TYPE = 'BASE TABLE'
@@ -158,7 +159,7 @@ export async function getColumns(
     });
 
     // Get columns
-    const [colRows] = await conn.execute<mysql.RowDataPacket[]>(
+    const [colRows] = await conn.execute<RowDataPacket[]>(
       `SELECT COLUMN_NAME, DATA_TYPE, IS_NULLABLE, COLUMN_KEY
        FROM INFORMATION_SCHEMA.COLUMNS
        WHERE TABLE_SCHEMA = ? AND TABLE_NAME = ?
@@ -167,7 +168,7 @@ export async function getColumns(
     );
 
     // Get foreign key columns
-    const [fkRows] = await conn.execute<mysql.RowDataPacket[]>(
+    const [fkRows] = await conn.execute<RowDataPacket[]>(
       `SELECT COLUMN_NAME
        FROM INFORMATION_SCHEMA.KEY_COLUMN_USAGE
        WHERE TABLE_SCHEMA = ? AND TABLE_NAME = ? AND REFERENCED_TABLE_NAME IS NOT NULL`,
@@ -273,7 +274,7 @@ export async function getRowCount(
       connectTimeout: 10_000,
     });
 
-    const [rows] = await conn.execute<mysql.RowDataPacket[]>(
+    const [rows] = await conn.execute<RowDataPacket[]>(
       `SELECT TABLE_ROWS FROM INFORMATION_SCHEMA.TABLES
        WHERE TABLE_SCHEMA = ? AND TABLE_NAME = ?`,
       [connection.databaseName, tableName],

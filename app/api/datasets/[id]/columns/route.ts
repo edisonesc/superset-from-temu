@@ -7,6 +7,7 @@ import { cache } from "@/lib/redis";
 import { getColumns } from "@/lib/schema-introspector";
 import { decryptPassword } from "@/lib/crypto";
 import type { ApiResponse } from "@/types";
+import type { FieldPacket } from "mysql2";
 
 type ColumnInfo = {
   name: string;
@@ -99,7 +100,7 @@ export async function GET(
         });
         const [, fields] = await conn.execute(limitZeroSql);
         await conn.end();
-        cols = (fields as mysql.FieldPacket[]).map((f) => ({
+        cols = (fields as FieldPacket[]).map((f) => ({
           name: f.name,
           type: String(f.type ?? "unknown"),
           nullable: true,

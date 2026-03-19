@@ -26,13 +26,6 @@ declare module "next-auth" {
   }
 }
 
-declare module "next-auth/jwt" {
-  interface JWT {
-    id: string;
-    role: UserRole;
-  }
-}
-
 // ---------------------------------------------------------------------------
 // NextAuth v5 configuration — server-only (imports DB + bcrypt).
 // Do NOT import this file from middleware.ts; use auth.config.ts there instead.
@@ -113,8 +106,8 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
      * Exposes the custom JWT fields on the client-accessible session object.
      */
     session({ session, token }) {
-      session.user.id = token.id;
-      session.user.role = token.role;
+      session.user.id = token.id as string;
+      session.user.role = token.role as UserRole;
       return session;
     },
   },

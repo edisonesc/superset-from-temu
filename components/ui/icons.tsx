@@ -4,9 +4,9 @@
  * All icons accept className and size props.
  */
 
-type IconProps = { className?: string; size?: number };
+type IconProps = { className?: string; size?: number; style?: React.CSSProperties };
 
-const props = (size = 16, cls?: string) => ({
+const props = (size = 16, cls?: string, style?: React.CSSProperties) => ({
   xmlns: "http://www.w3.org/2000/svg",
   width: size,
   height: size,
@@ -17,11 +17,12 @@ const props = (size = 16, cls?: string) => ({
   strokeLinecap: "round" as const,
   strokeLinejoin: "round" as const,
   className: cls,
+  style,
 });
 
-export function BarChart2({ size = 16, className }: IconProps) {
+export function BarChart2({ size = 16, className, style }: IconProps) {
   return (
-    <svg {...props(size, className)}>
+    <svg {...props(size, className, style)}>
       <line x1="18" y1="20" x2="18" y2="10" />
       <line x1="12" y1="20" x2="12" y2="4" />
       <line x1="6" y1="20" x2="6" y2="14" />
@@ -30,27 +31,27 @@ export function BarChart2({ size = 16, className }: IconProps) {
   );
 }
 
-export function TrendingUp({ size = 16, className }: IconProps) {
+export function TrendingUp({ size = 16, className, style }: IconProps) {
   return (
-    <svg {...props(size, className)}>
+    <svg {...props(size, className, style)}>
       <polyline points="23 6 13.5 15.5 8.5 10.5 1 18" />
       <polyline points="17 6 23 6 23 12" />
     </svg>
   );
 }
 
-export function PieChart({ size = 16, className }: IconProps) {
+export function PieChart({ size = 16, className, style }: IconProps) {
   return (
-    <svg {...props(size, className)}>
+    <svg {...props(size, className, style)}>
       <path d="M21.21 15.89A10 10 0 1 1 8 2.83" />
       <path d="M22 12A10 10 0 0 0 12 2v10z" />
     </svg>
   );
 }
 
-export function ScatterChart({ size = 16, className }: IconProps) {
+export function ScatterChart({ size = 16, className, style }: IconProps) {
   return (
-    <svg {...props(size, className)}>
+    <svg {...props(size, className, style)}>
       <circle cx="7.5" cy="7.5" r="1.5" />
       <circle cx="17" cy="14" r="1.5" />
       <circle cx="12" cy="10" r="1.5" />
@@ -60,9 +61,9 @@ export function ScatterChart({ size = 16, className }: IconProps) {
   );
 }
 
-export function AreaChart({ size = 16, className }: IconProps) {
+export function AreaChart({ size = 16, className, style }: IconProps) {
   return (
-    <svg {...props(size, className)}>
+    <svg {...props(size, className, style)}>
       <path d="M3 3v18h18" />
       <path d="M3 15l5-5 4 4 5-7 4 4" />
       <path d="M3 15l5-5 4 4 5-7 4 4V18H3z" fill="currentColor" fillOpacity="0.15" />
@@ -70,9 +71,9 @@ export function AreaChart({ size = 16, className }: IconProps) {
   );
 }
 
-export function Grid3X3({ size = 16, className }: IconProps) {
+export function Grid3X3({ size = 16, className, style }: IconProps) {
   return (
-    <svg {...props(size, className)}>
+    <svg {...props(size, className, style)}>
       <rect x="3" y="3" width="7" height="7" />
       <rect x="14" y="3" width="7" height="7" />
       <rect x="3" y="14" width="7" height="7" />
@@ -81,9 +82,9 @@ export function Grid3X3({ size = 16, className }: IconProps) {
   );
 }
 
-export function Hash({ size = 16, className }: IconProps) {
+export function Hash({ size = 16, className, style }: IconProps) {
   return (
-    <svg {...props(size, className)}>
+    <svg {...props(size, className, style)}>
       <line x1="4" y1="9" x2="20" y2="9" />
       <line x1="4" y1="15" x2="20" y2="15" />
       <line x1="10" y1="3" x2="8" y2="21" />
@@ -92,25 +93,25 @@ export function Hash({ size = 16, className }: IconProps) {
   );
 }
 
-export function Sigma({ size = 16, className }: IconProps) {
+export function Sigma({ size = 16, className, style }: IconProps) {
   return (
-    <svg {...props(size, className)}>
+    <svg {...props(size, className, style)}>
       <path d="M18 7V5H7l6 7-6 7h11v-2" />
     </svg>
   );
 }
 
-export function Table2({ size = 16, className }: IconProps) {
+export function Table2({ size = 16, className, style }: IconProps) {
   return (
-    <svg {...props(size, className)}>
+    <svg {...props(size, className, style)}>
       <path d="M9 3H5a2 2 0 0 0-2 2v4m6-6h10a2 2 0 0 1 2 2v4M9 3v18m0 0h10a2 2 0 0 0 2-2v-4M9 21H5a2 2 0 0 1-2-2v-4m0 0h18" />
     </svg>
   );
 }
 
-export function LayoutGrid({ size = 16, className }: IconProps) {
+export function LayoutGrid({ size = 16, className, style }: IconProps) {
   return (
-    <svg {...props(size, className)}>
+    <svg {...props(size, className, style)}>
       <rect x="3" y="3" width="7" height="7" />
       <rect x="14" y="3" width="7" height="7" />
       <rect x="14" y="14" width="7" height="7" />
@@ -119,9 +120,9 @@ export function LayoutGrid({ size = 16, className }: IconProps) {
   );
 }
 
-export function Save({ size = 16, className }: IconProps) {
+export function Save({ size = 16, className, style }: IconProps) {
   return (
-    <svg {...props(size, className)}>
+    <svg {...props(size, className, style)}>
       <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z" />
       <polyline points="17 21 17 13 7 13 7 21" />
       <polyline points="7 3 7 8 15 8" />
@@ -129,9 +130,9 @@ export function Save({ size = 16, className }: IconProps) {
   );
 }
 
-export function RefreshCw({ size = 16, className }: IconProps) {
+export function RefreshCw({ size = 16, className, style }: IconProps) {
   return (
-    <svg {...props(size, className)}>
+    <svg {...props(size, className, style)}>
       <polyline points="23 4 23 10 17 10" />
       <polyline points="1 20 1 14 7 14" />
       <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15" />
@@ -139,35 +140,35 @@ export function RefreshCw({ size = 16, className }: IconProps) {
   );
 }
 
-export function Plus({ size = 16, className }: IconProps) {
+export function Plus({ size = 16, className, style }: IconProps) {
   return (
-    <svg {...props(size, className)}>
+    <svg {...props(size, className, style)}>
       <line x1="12" y1="5" x2="12" y2="19" />
       <line x1="5" y1="12" x2="19" y2="12" />
     </svg>
   );
 }
 
-export function Search({ size = 16, className }: IconProps) {
+export function Search({ size = 16, className, style }: IconProps) {
   return (
-    <svg {...props(size, className)}>
+    <svg {...props(size, className, style)}>
       <circle cx="11" cy="11" r="8" />
       <line x1="21" y1="21" x2="16.65" y2="16.65" />
     </svg>
   );
 }
 
-export function Edit2({ size = 16, className }: IconProps) {
+export function Edit2({ size = 16, className, style }: IconProps) {
   return (
-    <svg {...props(size, className)}>
+    <svg {...props(size, className, style)}>
       <path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z" />
     </svg>
   );
 }
 
-export function Share2({ size = 16, className }: IconProps) {
+export function Share2({ size = 16, className, style }: IconProps) {
   return (
-    <svg {...props(size, className)}>
+    <svg {...props(size, className, style)}>
       <circle cx="18" cy="5" r="3" />
       <circle cx="6" cy="12" r="3" />
       <circle cx="18" cy="19" r="3" />
@@ -177,35 +178,35 @@ export function Share2({ size = 16, className }: IconProps) {
   );
 }
 
-export function ArrowLeft({ size = 16, className }: IconProps) {
+export function ArrowLeft({ size = 16, className, style }: IconProps) {
   return (
-    <svg {...props(size, className)}>
+    <svg {...props(size, className, style)}>
       <line x1="19" y1="12" x2="5" y2="12" />
       <polyline points="12 19 5 12 12 5" />
     </svg>
   );
 }
 
-export function Eye({ size = 16, className }: IconProps) {
+export function Eye({ size = 16, className, style }: IconProps) {
   return (
-    <svg {...props(size, className)}>
+    <svg {...props(size, className, style)}>
       <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
       <circle cx="12" cy="12" r="3" />
     </svg>
   );
 }
 
-export function ChevronDown({ size = 16, className }: IconProps) {
+export function ChevronDown({ size = 16, className, style }: IconProps) {
   return (
-    <svg {...props(size, className)}>
+    <svg {...props(size, className, style)}>
       <polyline points="6 9 12 15 18 9" />
     </svg>
   );
 }
 
-export function Database({ size = 16, className }: IconProps) {
+export function Database({ size = 16, className, style }: IconProps) {
   return (
-    <svg {...props(size, className)}>
+    <svg {...props(size, className, style)}>
       <ellipse cx="12" cy="5" rx="9" ry="3" />
       <path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3" />
       <path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5" />
@@ -213,17 +214,17 @@ export function Database({ size = 16, className }: IconProps) {
   );
 }
 
-export function Table({ size = 16, className }: IconProps) {
+export function Table({ size = 16, className, style }: IconProps) {
   return (
-    <svg {...props(size, className)}>
+    <svg {...props(size, className, style)}>
       <path d="M9 3H5a2 2 0 0 0-2 2v4m6-6h10a2 2 0 0 1 2 2v4M9 3v18m0 0h10a2 2 0 0 0 2-2v-4M9 21H5a2 2 0 0 1-2-2v-4m0 0h18" />
     </svg>
   );
 }
 
-export function Trash2({ size = 16, className }: IconProps) {
+export function Trash2({ size = 16, className, style }: IconProps) {
   return (
-    <svg {...props(size, className)}>
+    <svg {...props(size, className, style)}>
       <polyline points="3 6 5 6 21 6" />
       <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6" />
       <path d="M10 11v6M14 11v6" />
@@ -232,18 +233,18 @@ export function Trash2({ size = 16, className }: IconProps) {
   );
 }
 
-export function CheckCircle({ size = 16, className }: IconProps) {
+export function CheckCircle({ size = 16, className, style }: IconProps) {
   return (
-    <svg {...props(size, className)}>
+    <svg {...props(size, className, style)}>
       <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
       <polyline points="22 4 12 14.01 9 11.01" />
     </svg>
   );
 }
 
-export function XCircle({ size = 16, className }: IconProps) {
+export function XCircle({ size = 16, className, style }: IconProps) {
   return (
-    <svg {...props(size, className)}>
+    <svg {...props(size, className, style)}>
       <circle cx="12" cy="12" r="10" />
       <line x1="15" y1="9" x2="9" y2="15" />
       <line x1="9" y1="9" x2="15" y2="15" />
@@ -251,18 +252,18 @@ export function XCircle({ size = 16, className }: IconProps) {
   );
 }
 
-export function Link({ size = 16, className }: IconProps) {
+export function Link({ size = 16, className, style }: IconProps) {
   return (
-    <svg {...props(size, className)}>
+    <svg {...props(size, className, style)}>
       <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" />
       <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" />
     </svg>
   );
 }
 
-export function Loader({ size = 16, className }: IconProps) {
+export function Loader({ size = 16, className, style }: IconProps) {
   return (
-    <svg {...props(size, className)}>
+    <svg {...props(size, className, style)}>
       <line x1="12" y1="2" x2="12" y2="6" />
       <line x1="12" y1="18" x2="12" y2="22" />
       <line x1="4.93" y1="4.93" x2="7.76" y2="7.76" />
@@ -275,9 +276,9 @@ export function Loader({ size = 16, className }: IconProps) {
   );
 }
 
-export function Users({ size = 16, className }: IconProps) {
+export function Users({ size = 16, className, style }: IconProps) {
   return (
-    <svg {...props(size, className)}>
+    <svg {...props(size, className, style)}>
       <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
       <circle cx="9" cy="7" r="4" />
       <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
@@ -286,51 +287,51 @@ export function Users({ size = 16, className }: IconProps) {
   );
 }
 
-export function Shield({ size = 16, className }: IconProps) {
+export function Shield({ size = 16, className, style }: IconProps) {
   return (
-    <svg {...props(size, className)}>
+    <svg {...props(size, className, style)}>
       <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
     </svg>
   );
 }
 
-export function ChevronRight({ size = 16, className }: IconProps) {
+export function ChevronRight({ size = 16, className, style }: IconProps) {
   return (
-    <svg {...props(size, className)}>
+    <svg {...props(size, className, style)}>
       <polyline points="9 18 15 12 9 6" />
     </svg>
   );
 }
 
-export function X({ size = 16, className }: IconProps) {
+export function X({ size = 16, className, style }: IconProps) {
   return (
-    <svg {...props(size, className)}>
+    <svg {...props(size, className, style)}>
       <line x1="18" y1="6" x2="6" y2="18" />
       <line x1="6" y1="6" x2="18" y2="18" />
     </svg>
   );
 }
 
-export function Filter({ size = 16, className }: IconProps) {
+export function Filter({ size = 16, className, style }: IconProps) {
   return (
-    <svg {...props(size, className)}>
+    <svg {...props(size, className, style)}>
       <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3" />
     </svg>
   );
 }
 
-export function Copy({ size = 16, className }: IconProps) {
+export function Copy({ size = 16, className, style }: IconProps) {
   return (
-    <svg {...props(size, className)}>
+    <svg {...props(size, className, style)}>
       <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
       <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
     </svg>
   );
 }
 
-export function Settings({ size = 16, className }: IconProps) {
+export function Settings({ size = 16, className, style }: IconProps) {
   return (
-    <svg {...props(size, className)}>
+    <svg {...props(size, className, style)}>
       <circle cx="12" cy="12" r="3" />
       <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" />
     </svg>
