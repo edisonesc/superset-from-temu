@@ -41,7 +41,8 @@ services:
       redis:
         condition: service_healthy
     environment:
-      NEXTAUTH_URL: http://localhost:3001
+      NEXTAUTH_URL: https://173e-136-158-16-231.ngrok-free.app/
+      AUTH_TRUST_HOST: true
       # ── Secrets: set these via a .env file or your secrets manager ──────────
       # NEXTAUTH_SECRET: <openssl rand -base64 32>
       # ENCRYPTION_KEY:  <openssl rand -hex 32>

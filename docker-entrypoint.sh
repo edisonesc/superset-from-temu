@@ -10,8 +10,11 @@ for var in DATABASE_URL REDIS_URL NEXTAUTH_SECRET NEXTAUTH_URL ENCRYPTION_KEY; d
   fi
 done
 
+echo "▶ Syncing migration history (marking pre-existing tables)..."
+node scripts/mark-migrated.mjs
+
 echo "▶ Running database migrations..."
-npx drizzle-kit migrate
+node scripts/migrate.mjs
 
 echo "▶ Starting Next.js server..."
 # Find server.js - location varies depending on build environment

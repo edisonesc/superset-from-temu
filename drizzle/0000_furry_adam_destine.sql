@@ -90,13 +90,18 @@ CREATE TABLE `saved_queries` (
 	CONSTRAINT `saved_queries_id` PRIMARY KEY(`id`)
 );
 --> statement-breakpoint
-ALTER TABLE `users` MODIFY COLUMN `id` varchar(128) NOT NULL;--> statement-breakpoint
-ALTER TABLE `users` MODIFY COLUMN `email` varchar(255) NOT NULL;--> statement-breakpoint
-ALTER TABLE `users` MODIFY COLUMN `role` enum('admin','alpha','gamma','public') NOT NULL DEFAULT 'gamma';--> statement-breakpoint
-ALTER TABLE `users` MODIFY COLUMN `created_at` timestamp NOT NULL DEFAULT (now());--> statement-breakpoint
-ALTER TABLE `users` ADD `name` varchar(255) NOT NULL;--> statement-breakpoint
-ALTER TABLE `users` ADD `password_hash` varchar(255) NOT NULL;--> statement-breakpoint
-ALTER TABLE `users` ADD `updated_at` timestamp DEFAULT (now()) NOT NULL ON UPDATE CURRENT_TIMESTAMP;--> statement-breakpoint
+CREATE TABLE `users` (
+	`id` varchar(128) NOT NULL,
+	`email` varchar(255) NOT NULL,
+	`name` varchar(255) NOT NULL,
+	`password_hash` varchar(255) NOT NULL,
+	`role` enum('admin','alpha','gamma','public') NOT NULL DEFAULT 'gamma',
+	`created_at` timestamp NOT NULL DEFAULT (now()),
+	`updated_at` timestamp NOT NULL DEFAULT (now()) ON UPDATE CURRENT_TIMESTAMP,
+	CONSTRAINT `users_id` PRIMARY KEY(`id`),
+	CONSTRAINT `users_email_unique` UNIQUE(`email`)
+);
+--> statement-breakpoint
 ALTER TABLE `charts` ADD CONSTRAINT `charts_dataset_id_datasets_id_fk` FOREIGN KEY (`dataset_id`) REFERENCES `datasets`(`id`) ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE `charts` ADD CONSTRAINT `charts_created_by_users_id_fk` FOREIGN KEY (`created_by`) REFERENCES `users`(`id`) ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE `dashboard_charts` ADD CONSTRAINT `dashboard_charts_dashboard_id_dashboards_id_fk` FOREIGN KEY (`dashboard_id`) REFERENCES `dashboards`(`id`) ON DELETE no action ON UPDATE no action;--> statement-breakpoint

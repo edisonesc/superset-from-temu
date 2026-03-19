@@ -32,13 +32,12 @@ COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static     ./.next/static
 COPY --from=builder --chown=nextjs:nodejs /app/public           ./public
 
-# Drizzle migration files + config (applied at startup)
+# Drizzle migration files + migration runner script
 COPY --from=builder --chown=nextjs:nodejs /app/drizzle          ./drizzle
-COPY --from=builder --chown=nextjs:nodejs /app/drizzle.config.ts ./drizzle.config.ts
+COPY --from=builder --chown=nextjs:nodejs /app/scripts          ./scripts
 
-# Need node_modules for drizzle-kit at runtime
+# node_modules needed for migrate.mjs (drizzle-orm, mysql2) and Next.js runtime
 COPY --from=deps --chown=nextjs:nodejs /app/node_modules        ./node_modules
-COPY --from=deps --chown=nextjs:nodejs /app/package.json        ./package.json
 
 COPY --chown=nextjs:nodejs docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
 RUN chmod +x /usr/local/bin/docker-entrypoint.sh
