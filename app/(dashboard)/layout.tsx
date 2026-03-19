@@ -1,8 +1,8 @@
 import Link from "next/link";
-import { headers } from "next/headers";
 import { auth } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import { SidebarLogoutButton } from "@/components/dashboard/sidebar-logout-button";
+import { SidebarNav } from "@/components/dashboard/SidebarNav";
 
 /**
  * Protected dashboard shell layout.
@@ -18,10 +18,6 @@ export default async function DashboardLayout({
   if (!session) redirect("/login");
 
   const { user } = session;
-
-  // Resolve current pathname from headers for active link highlighting
-  const headersList = await headers();
-  const pathname = headersList.get("x-pathname") ?? "";
 
   return (
     <div className="flex min-h-screen" style={{ background: "var(--bg-base)" }}>
@@ -49,7 +45,7 @@ export default async function DashboardLayout({
 
         {/* Navigation */}
         <nav className="flex-1 overflow-y-auto px-2 py-3">
-          <SidebarNav pathname={pathname} isAdmin={user.role === "admin"} />
+          <SidebarNav isAdmin={user.role === "admin"} />
         </nav>
 
         {/* Footer — user info + logout */}
@@ -75,38 +71,3 @@ export default async function DashboardLayout({
   );
 }
 
-// ---------------------------------------------------------------------------
-// Sidebar navigation
-// ---------------------------------------------------------------------------
-
-const NAV_ITEMS = [
-  { href: "/dashboards", label: "Dashboards" },
-  { href: "/charts", label: "Charts" },
-  { href: "/sqllab", label: "SQL Lab" },
-  { href: "/datasets", label: "Datasets" },
-  { href: "/connections", label: "Connections" },
-] as const;
-
-function SidebarNav({ pathname, isAdmin }: { pathname: string; isAdmin: boolean }) {
-  const items = isAdmin
-    ? [...NAV_ITEMS, { href: "/admin/users", label: "Users" } as const]
-    : NAV_ITEMS;
-
-  return (
-    <ul className="space-y-0.5">
-      {items.map(({ href, label }) => {
-        const isActive = pathname === href || pathname.startsWith(href + "/");
-        return (
-          <li key={href}>
-            <Link
-              href={href}
-              className={isActive ? "nav-item-active" : "nav-item"}
-            >
-              {label}
-            </Link>
-          </li>
-        );
-      })}
-    </ul>
-  );
-}
