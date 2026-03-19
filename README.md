@@ -7,6 +7,16 @@
 
 <!-- This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app). -->
 
+<img width="3016" height="787" alt="image" src="https://github.com/user-attachments/assets/0edb032e-da62-4226-98f2-39b5c9ec6a97" />
+<img width="2718" height="1911" alt="image" src="https://github.com/user-attachments/assets/1460b84b-0e03-4b55-b3d7-1af2d1ddcb3a" />
+
+<img width="2083" height="429" alt="image" src="https://github.com/user-attachments/assets/3e2f01cc-20c0-462c-8c92-dcb010bc4833" />
+<img width="3016" height="763" alt="image" src="https://github.com/user-attachments/assets/767e97bb-fbcb-461c-ad2b-2e81591a0660" />
+<img width="2728" height="355" alt="image" src="https://github.com/user-attachments/assets/6cf3297f-6f3b-48cd-86f6-eeaf12be5d5f" />
+<img width="2727" height="352" alt="image" src="https://github.com/user-attachments/assets/9d8f75e4-d94a-491f-91cc-3697fac732a5" />
+<img width="873" height="969" alt="image" src="https://github.com/user-attachments/assets/83bfe9d7-5208-4aea-8803-f445ac538f2d" />
+
+
 For codebase, see [ONBOARDING.md](ONBOARDING.md).
 
 ## Prerequisites & Setup
