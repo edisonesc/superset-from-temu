@@ -281,7 +281,6 @@ export default function NewDatasetPage() {
                     style={{
                       ...inp,
                       lineHeight: "1.6",
-                      background: "#FAFAFA",
                     }}
                     onFocus={(e) => (e.currentTarget.style.borderColor = "var(--accent)")}
                     onBlur={(e) => (e.currentTarget.style.borderColor = "var(--bg-border)")}
