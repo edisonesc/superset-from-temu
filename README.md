@@ -8,6 +8,8 @@
 <!-- This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app). -->
 
 <img width="3016" height="787" alt="image" src="https://github.com/user-attachments/assets/0edb032e-da62-4226-98f2-39b5c9ec6a97" />
+<img width="3830" height="1995" alt="image" src="https://github.com/user-attachments/assets/58b90f16-1239-4e8b-9367-0e4421eadca9" />
+
 <img width="2718" height="1911" alt="image" src="https://github.com/user-attachments/assets/1460b84b-0e03-4b55-b3d7-1af2d1ddcb3a" />
 
 <img width="2083" height="429" alt="image" src="https://github.com/user-attachments/assets/3e2f01cc-20c0-462c-8c92-dcb010bc4833" />
