@@ -8,6 +8,7 @@ on:
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
+    environment: aws-env
 
     env:
       ECR_REPOSITORY: superset-from-temu
@@ -61,8 +62,8 @@ jobs:
                 "essential": true,
                 "portMappings": [
                   {
-                    "containerPort": 3000,
-                    "hostPort": 3000,
+                    "containerPort": 80,
+                    "hostPort": 80,
                     "protocol": "tcp"
                   }
                 ],
@@ -74,6 +75,7 @@ jobs:
                   { "name": "REDIS_URL",       "value": "${{ secrets.REDIS_URL }}" },
                   { "name": "NEXTAUTH_SECRET", "value": "${{ secrets.NEXTAUTH_SECRET }}" },
                   { "name": "ENCRYPTION_KEY",  "value": "${{ secrets.ENCRYPTION_KEY }}" }
+                  { "name": "AWS_REGION",  "value": "${{ secrets.AWS_REGION }}" }
                 ]
               }
             ]
