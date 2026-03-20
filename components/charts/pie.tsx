@@ -2,7 +2,7 @@
 
 import ReactECharts from "echarts-for-react";
 import type { ChartComponentProps, ChartConfig, ChartConfigSchema, Row } from "@/types";
-import { CHART_COLORS, TEXT_COLOR, TOOLTIP_STYLE, PIE_LABEL_COLOR, PIE_LABEL_LINE_COLOR } from "@/lib/theme";
+import { CHART_COLORS, useEchartsTheme } from "@/lib/theme";
 
 export const configSchema: ChartConfigSchema = {
   fields: [
@@ -30,6 +30,8 @@ export function transformer(rows: Row[], config: ChartConfig): ChartComponentPro
  * Supports cross-filter on slice click.
  */
 export default function PieChart({ data, config, onCrossFilter }: ChartComponentProps) {
+  const { TEXT_COLOR, TOOLTIP_STYLE, PIE_LABEL_COLOR, PIE_LABEL_LINE_COLOR } = useEchartsTheme();
+
   if (!data?.length) {
     return (
       <div className="flex h-full items-center justify-center text-sm" style={{ color: "var(--text-muted)" }}>

@@ -2,55 +2,57 @@
 
 import { useEffect, useRef } from "react";
 import { EditorView, lineNumbers, drawSelection, highlightActiveLine, keymap, placeholder } from "@codemirror/view";
-import { EditorState } from "@codemirror/state";
+import { EditorState, Compartment } from "@codemirror/state";
 import { sql } from "@codemirror/lang-sql";
-import {
-  EDITOR_BG, EDITOR_TEXT, EDITOR_CARET, EDITOR_ACTIVE_LINE, EDITOR_SELECTION,
-  EDITOR_GUTTER_BG, EDITOR_GUTTER_BORDER, EDITOR_GUTTER_TEXT,
-  EDITOR_TOOLTIP_BG, EDITOR_TOOLTIP_BORDER, EDITOR_AUTOCOMPLETE_HOVER, EDITOR_PLACEHOLDER,
-} from "@/lib/theme";
+import { useTheme } from "@/components/theme-provider";
+import { LIGHT_TOKENS, DARK_TOKENS, type ThemeTokens } from "@/lib/theme";
 
 // ---------------------------------------------------------------------------
-// Light theme matching the app's corporate palette
+// Theme builder — constructs a CodeMirror theme from a token bag
 // ---------------------------------------------------------------------------
 
-const lightTheme = EditorView.theme(
-  {
-    "&": {
-      backgroundColor: EDITOR_BG,
-      color: EDITOR_TEXT,
-      height: "100%",
-      fontSize: "13px",
+function buildEditorTheme(t: ThemeTokens, dark: boolean) {
+  return EditorView.theme(
+    {
+      "&": {
+        backgroundColor: t.EDITOR_BG,
+        color: t.EDITOR_TEXT,
+        height: "100%",
+        fontSize: "13px",
+      },
+      ".cm-content": {
+        fontFamily: "var(--font-geist-mono), 'JetBrains Mono', monospace",
+        caretColor: t.EDITOR_CARET,
+        padding: "8px 0",
+      },
+      ".cm-cursor": { borderLeftColor: t.EDITOR_CARET },
+      ".cm-activeLine": { backgroundColor: t.EDITOR_ACTIVE_LINE },
+      ".cm-selectionBackground, ::selection": { backgroundColor: `${t.EDITOR_SELECTION} !important` },
+      ".cm-gutters": {
+        backgroundColor: t.EDITOR_GUTTER_BG,
+        borderRight: `1px solid ${t.EDITOR_GUTTER_BORDER}`,
+        color: t.EDITOR_GUTTER_TEXT,
+      },
+      ".cm-lineNumbers .cm-gutterElement": { paddingLeft: "8px", paddingRight: "12px" },
+      ".cm-focused .cm-selectionBackground": { backgroundColor: t.EDITOR_SELECTION },
+      ".cm-tooltip": {
+        backgroundColor: t.EDITOR_TOOLTIP_BG,
+        border: `1px solid ${t.EDITOR_TOOLTIP_BORDER}`,
+        color: t.EDITOR_TEXT,
+        boxShadow: "0 4px 12px rgba(0,0,0,0.08)",
+      },
+      ".cm-tooltip-autocomplete ul li[aria-selected]": {
+        backgroundColor: t.EDITOR_AUTOCOMPLETE_HOVER,
+        color: t.EDITOR_TEXT,
+      },
+      ".cm-placeholder": { color: t.EDITOR_PLACEHOLDER },
     },
-    ".cm-content": {
-      fontFamily: "var(--font-geist-mono), 'JetBrains Mono', monospace",
-      caretColor: EDITOR_CARET,
-      padding: "8px 0",
-    },
-    ".cm-cursor": { borderLeftColor: EDITOR_CARET },
-    ".cm-activeLine": { backgroundColor: EDITOR_ACTIVE_LINE },
-    ".cm-selectionBackground, ::selection": { backgroundColor: `${EDITOR_SELECTION} !important` },
-    ".cm-gutters": {
-      backgroundColor: EDITOR_GUTTER_BG,
-      borderRight: `1px solid ${EDITOR_GUTTER_BORDER}`,
-      color: EDITOR_GUTTER_TEXT,
-    },
-    ".cm-lineNumbers .cm-gutterElement": { paddingLeft: "8px", paddingRight: "12px" },
-    ".cm-focused .cm-selectionBackground": { backgroundColor: EDITOR_SELECTION },
-    ".cm-tooltip": {
-      backgroundColor: EDITOR_TOOLTIP_BG,
-      border: `1px solid ${EDITOR_TOOLTIP_BORDER}`,
-      color: EDITOR_TEXT,
-      boxShadow: "0 4px 12px rgba(0,0,0,0.08)",
-    },
-    ".cm-tooltip-autocomplete ul li[aria-selected]": {
-      backgroundColor: EDITOR_AUTOCOMPLETE_HOVER,
-      color: EDITOR_TEXT,
-    },
-    ".cm-placeholder": { color: EDITOR_PLACEHOLDER },
-  },
-  { dark: false },
-);
+    { dark },
+  );
+}
+
+const lightTheme = buildEditorTheme(LIGHT_TOKENS, false);
+const darkTheme  = buildEditorTheme(DARK_TOKENS, true);
 
 // ---------------------------------------------------------------------------
 // Props
@@ -68,12 +70,15 @@ type SqlEditorProps = {
 // ---------------------------------------------------------------------------
 
 /**
- * CodeMirror 6 SQL editor with light theme, line numbers, and Ctrl/Cmd+Enter to run.
+ * CodeMirror 6 SQL editor with theme-aware styling, line numbers, and Ctrl/Cmd+Enter to run.
  * Manages its own EditorView instance and syncs value externally via props.
+ * Theme is hot-swapped via a Compartment when the global theme changes.
  */
 export default function SqlEditor({ value, onChange, onRun, className }: SqlEditorProps) {
+  const { theme } = useTheme();
   const containerRef = useRef<HTMLDivElement>(null);
   const viewRef = useRef<EditorView | null>(null);
+  const themeCompartment = useRef(new Compartment());
   const onChangeRef = useRef(onChange);
   const onRunRef = useRef(onRun);
 
@@ -85,6 +90,10 @@ export default function SqlEditor({ value, onChange, onRun, className }: SqlEdit
   useEffect(() => {
     if (!containerRef.current) return;
 
+    const initialTheme = document.documentElement.classList.contains("dark")
+      ? darkTheme
+      : lightTheme;
+
     const view = new EditorView({
       state: EditorState.create({
         doc: value,
@@ -94,7 +103,7 @@ export default function SqlEditor({ value, onChange, onRun, className }: SqlEdit
           drawSelection(),
           highlightActiveLine(),
           placeholder("Write SQL here…  Ctrl+Enter to run"),
-          lightTheme,
+          themeCompartment.current.of(initialTheme),
           keymap.of([
             {
               key: "Ctrl-Enter",
@@ -126,6 +135,17 @@ export default function SqlEditor({ value, onChange, onRun, className }: SqlEdit
     return () => view.destroy();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  // Hot-swap the CodeMirror theme when the global theme changes
+  useEffect(() => {
+    const view = viewRef.current;
+    if (!view) return;
+    view.dispatch({
+      effects: themeCompartment.current.reconfigure(
+        theme === "dark" ? darkTheme : lightTheme,
+      ),
+    });
+  }, [theme]);
 
   // Sync external value changes into the editor (e.g. loading saved query)
   useEffect(() => {

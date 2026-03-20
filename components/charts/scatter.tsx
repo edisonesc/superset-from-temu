@@ -2,7 +2,7 @@
 
 import ReactECharts from "echarts-for-react";
 import type { ChartComponentProps, ChartConfig, ChartConfigSchema, Row } from "@/types";
-import { SCATTER_COLORS, TEXT_COLOR, SPLIT_LINE_COLOR, AXIS_LINE_COLOR, TOOLTIP_STYLE, SCATTER_EMPHASIS_SHADOW } from "@/lib/theme";
+import { SCATTER_COLORS, useEchartsTheme } from "@/lib/theme";
 
 export const configSchema: ChartConfigSchema = {
   fields: [
@@ -28,6 +28,8 @@ export function transformer(rows: Row[], config: ChartConfig): ChartComponentPro
  * Optional bubble size and color dimension grouping.
  */
 export default function ScatterChart({ data, config, onCrossFilter }: ChartComponentProps) {
+  const { TEXT_COLOR, SPLIT_LINE_COLOR, TOOLTIP_STYLE, SCATTER_EMPHASIS_SHADOW } = useEchartsTheme();
+
   if (!data?.length) {
     return (
       <div className="flex h-full items-center justify-center text-sm" style={{ color: "var(--text-muted)" }}>

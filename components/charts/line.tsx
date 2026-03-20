@@ -2,7 +2,7 @@
 
 import ReactECharts from "echarts-for-react";
 import type { ChartComponentProps, ChartConfig, ChartConfigSchema, Row } from "@/types";
-import { CHART_COLORS, TEXT_COLOR, SPLIT_LINE_COLOR, AXIS_LINE_COLOR, AXIS_POINTER_COLOR, TOOLTIP_STYLE } from "@/lib/theme";
+import { CHART_COLORS, useEchartsTheme } from "@/lib/theme";
 
 export const configSchema: ChartConfigSchema = {
   fields: [
@@ -28,6 +28,8 @@ export function transformer(rows: Row[], config: ChartConfig): ChartComponentPro
  * Supports multiple metrics and optional area fill.
  */
 export default function LineChart({ data, config, onCrossFilter }: ChartComponentProps) {
+  const { TEXT_COLOR, SPLIT_LINE_COLOR, AXIS_LINE_COLOR, AXIS_POINTER_COLOR, TOOLTIP_STYLE } = useEchartsTheme();
+
   if (!data?.length) {
     return (
       <div className="flex h-full items-center justify-center text-sm" style={{ color: "var(--text-muted)" }}>

@@ -3,6 +3,7 @@ import { auth } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import { SidebarLogoutButton } from "@/components/dashboard/sidebar-logout-button";
 import { SidebarNav } from "@/components/dashboard/SidebarNav";
+import { ThemeToggle } from "@/components/dashboard/ThemeToggle";
 
 /**
  * Protected dashboard shell layout.
@@ -48,7 +49,7 @@ export default async function DashboardLayout({
           <SidebarNav isAdmin={user.role === "admin"} />
         </nav>
 
-        {/* Footer — user info + logout */}
+        {/* Footer — user info + logout + theme toggle */}
         <div className="p-3" style={{ borderTop: "1px solid var(--bg-border)" }}>
           <div className="mb-2 px-2">
             <p className="truncate text-sm font-medium" style={{ color: "var(--text-primary)" }}>
@@ -61,7 +62,12 @@ export default async function DashboardLayout({
               {user.role}
             </p>
           </div>
-          <SidebarLogoutButton />
+          <div className="flex items-center gap-2">
+            <div className="flex-1">
+              <SidebarLogoutButton />
+            </div>
+            <ThemeToggle />
+          </div>
         </div>
       </aside>
 

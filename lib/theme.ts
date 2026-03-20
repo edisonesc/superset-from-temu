@@ -1,5 +1,5 @@
 /**
- * Design system tokens for JavaScript/ECharts contexts.
+ * Design system tokens for JavaScript/ECharts/CodeMirror contexts.
  *
  * CSS custom properties (defined in app/globals.css) cannot be used directly
  * inside ECharts option objects or CodeMirror theme strings because those APIs
@@ -34,8 +34,12 @@
  * --gray-300         → PIE_LABEL_LINE_COLOR
  */
 
+"use client";
+
+import { useTheme } from "@/components/theme-provider";
+
 // ---------------------------------------------------------------------------
-// Chart categorical palette
+// Chart categorical palette — same for both themes (vivid colours work on both)
 // ---------------------------------------------------------------------------
 
 /** 7-colour categorical palette for all series-based charts. */
@@ -58,82 +62,201 @@ export const SCATTER_COLORS = [
   "#EE6B82", // salmon rose
 ] as const;
 
-/** Sequential palette for heatmap (light → dark cyan). */
-export const HEATMAP_GRADIENT = [
-  "#ECFEFF", // --heatmap-0
-  "#A5F3FC", // --heatmap-1
-  "#67E8F9", // --heatmap-2
-  "#22D3EE", // --heatmap-3
-  "#0E7490", // --heatmap-4 / --accent-deep
-] as const;
-
 // ---------------------------------------------------------------------------
-// Axis / grid
+// Typed token bags — one per theme
 // ---------------------------------------------------------------------------
 
-/** Axis label and legend text colour. → --text-muted */
-export const TEXT_COLOR = "#9CA3AF";
+export interface ThemeTokens {
+  // Axis / grid
+  TEXT_COLOR: string;
+  SPLIT_LINE_COLOR: string;
+  AXIS_LINE_COLOR: string;
+  AXIS_POINTER_COLOR: string;
 
-/** Horizontal grid line colour. → --bg-hover */
-export const SPLIT_LINE_COLOR = "#F1F5F9";
+  // Tooltip
+  TOOLTIP_STYLE: {
+    backgroundColor: string;
+    borderColor: string;
+    borderWidth: number;
+    textStyle: { color: string; fontSize: number };
+    extraCssText: string;
+  };
 
-/** Axis border line colour. → --bg-border */
-export const AXIS_LINE_COLOR = "#E2E8F0";
+  // Pie
+  PIE_LABEL_COLOR: string;
+  PIE_LABEL_LINE_COLOR: string;
 
-/** Crosshair / axis-pointer line colour. → --slate-900 */
-export const AXIS_POINTER_COLOR = "#1E293B";
+  // Heatmap
+  HEATMAP_GRADIENT: readonly [string, string, string, string, string];
+  HEATMAP_TOOLTIP_DIM: string;
 
-// ---------------------------------------------------------------------------
-// Tooltip
-// ---------------------------------------------------------------------------
+  // Scatter
+  SCATTER_EMPHASIS_SHADOW: string;
 
-/** Shared ECharts tooltip style object — drop this into any chart option. */
-export const TOOLTIP_STYLE = {
-  backgroundColor: "#FFFFFF",  // --bg-surface
-  borderColor:     "#E2E8F0",  // --bg-border
-  borderWidth: 1,
-  textStyle: { color: "#111827", fontSize: 12 }, // --text-primary
-  extraCssText:
-    "border-radius:2px;box-shadow:0 4px 16px rgba(0,0,0,0.10);padding:10px 14px;",
-} as const;
-
-// ---------------------------------------------------------------------------
-// Pie chart specifics
-// ---------------------------------------------------------------------------
-
-/** Pie slice label colour. → --text-secondary */
-export const PIE_LABEL_COLOR = "#6B7280";
-
-/** Pie label-line colour. → --gray-300 */
-export const PIE_LABEL_LINE_COLOR = "#D1D5DB";
-
-// ---------------------------------------------------------------------------
-// Heatmap specifics
-// ---------------------------------------------------------------------------
-
-/** Dim text used inside heatmap tooltip formatter. → --slate-400 */
-export const HEATMAP_TOOLTIP_DIM = "#94A3B8";
-
-// ---------------------------------------------------------------------------
-// Scatter specifics
-// ---------------------------------------------------------------------------
-
-/** Shadow colour on scatter point emphasis hover. */
-export const SCATTER_EMPHASIS_SHADOW = "rgba(99,102,241,0.4)";
+  // CodeMirror / SqlEditor
+  EDITOR_BG: string;
+  EDITOR_TEXT: string;
+  EDITOR_CARET: string;
+  EDITOR_ACTIVE_LINE: string;
+  EDITOR_SELECTION: string;
+  EDITOR_GUTTER_BG: string;
+  EDITOR_GUTTER_BORDER: string;
+  EDITOR_GUTTER_TEXT: string;
+  EDITOR_TOOLTIP_BG: string;
+  EDITOR_TOOLTIP_BORDER: string;
+  EDITOR_AUTOCOMPLETE_HOVER: string;
+  EDITOR_PLACEHOLDER: string;
+}
 
 // ---------------------------------------------------------------------------
-// CodeMirror / SqlEditor
+// Light tokens
 // ---------------------------------------------------------------------------
 
-export const EDITOR_BG             = "#FFFFFF";  // --bg-surface
-export const EDITOR_TEXT           = "#111827";  // --text-primary
-export const EDITOR_CARET          = "#20A7C9";  // --accent
-export const EDITOR_ACTIVE_LINE    = "#F8FAFC";  // --bg-elevated
-export const EDITOR_SELECTION      = "rgba(32,167,201,0.15)"; // --accent-15
-export const EDITOR_GUTTER_BG     = "#F8FAFC";  // --bg-elevated
-export const EDITOR_GUTTER_BORDER = "#E2E8F0";  // --bg-border
-export const EDITOR_GUTTER_TEXT   = "#9CA3AF";  // --text-muted
-export const EDITOR_TOOLTIP_BG    = "#FFFFFF";  // --bg-surface
-export const EDITOR_TOOLTIP_BORDER = "#E2E8F0"; // --bg-border
-export const EDITOR_AUTOCOMPLETE_HOVER = "rgba(32,167,201,0.10)"; // --accent-10
-export const EDITOR_PLACEHOLDER   = "#9CA3AF";  // --text-muted
+export const LIGHT_TOKENS: ThemeTokens = {
+  TEXT_COLOR:          "#9CA3AF", // --text-muted
+  SPLIT_LINE_COLOR:    "#F1F5F9", // --bg-hover
+  AXIS_LINE_COLOR:     "#E2E8F0", // --bg-border
+  AXIS_POINTER_COLOR:  "#1E293B", // --slate-900
+
+  TOOLTIP_STYLE: {
+    backgroundColor: "#FFFFFF",   // --bg-surface
+    borderColor:     "#E2E8F0",   // --bg-border
+    borderWidth: 1,
+    textStyle: { color: "#111827", fontSize: 12 }, // --text-primary
+    extraCssText:
+      "border-radius:2px;box-shadow:0 4px 16px rgba(0,0,0,0.10);padding:10px 14px;",
+  },
+
+  PIE_LABEL_COLOR:     "#6B7280", // --text-secondary
+  PIE_LABEL_LINE_COLOR:"#D1D5DB", // --gray-300
+
+  HEATMAP_GRADIENT: [
+    "#ECFEFF", // --heatmap-0
+    "#A5F3FC", // --heatmap-1
+    "#67E8F9", // --heatmap-2
+    "#22D3EE", // --heatmap-3
+    "#0E7490", // --heatmap-4 / --accent-deep
+  ],
+
+  HEATMAP_TOOLTIP_DIM: "#94A3B8", // --slate-400
+  SCATTER_EMPHASIS_SHADOW: "rgba(99,102,241,0.4)",
+
+  EDITOR_BG:              "#FFFFFF",                // --bg-surface
+  EDITOR_TEXT:            "#111827",                // --text-primary
+  EDITOR_CARET:           "#20A7C9",                // --accent
+  EDITOR_ACTIVE_LINE:     "#F8FAFC",                // --bg-elevated
+  EDITOR_SELECTION:       "rgba(32,167,201,0.15)",  // --accent-15
+  EDITOR_GUTTER_BG:       "#F8FAFC",                // --bg-elevated
+  EDITOR_GUTTER_BORDER:   "#E2E8F0",                // --bg-border
+  EDITOR_GUTTER_TEXT:     "#9CA3AF",                // --text-muted
+  EDITOR_TOOLTIP_BG:      "#FFFFFF",                // --bg-surface
+  EDITOR_TOOLTIP_BORDER:  "#E2E8F0",                // --bg-border
+  EDITOR_AUTOCOMPLETE_HOVER: "rgba(32,167,201,0.10)", // --accent-10
+  EDITOR_PLACEHOLDER:     "#9CA3AF",                // --text-muted
+};
+
+// ---------------------------------------------------------------------------
+// Dark tokens
+// ---------------------------------------------------------------------------
+
+export const DARK_TOKENS: ThemeTokens = {
+  TEXT_COLOR:          "#6E7681", // --text-muted dark
+  SPLIT_LINE_COLOR:    "#21262D", // --bg-hover dark
+  AXIS_LINE_COLOR:     "#30363D", // --bg-border dark
+  AXIS_POINTER_COLOR:  "#E2E8F0", // --slate-900 dark (inverted)
+
+  TOOLTIP_STYLE: {
+    backgroundColor: "#161B22",   // --bg-surface dark
+    borderColor:     "#30363D",   // --bg-border dark
+    borderWidth: 1,
+    textStyle: { color: "#E6EDF3", fontSize: 12 }, // --text-primary dark
+    extraCssText:
+      "border-radius:2px;box-shadow:0 4px 16px rgba(0,0,0,0.40);padding:10px 14px;",
+  },
+
+  PIE_LABEL_COLOR:     "#8B949E", // --text-secondary dark
+  PIE_LABEL_LINE_COLOR:"#555F6B", // --gray-300 dark
+
+  HEATMAP_GRADIENT: [
+    "#0E7490", // --heatmap-0 dark (reversed)
+    "#0891B2", // --heatmap-1 dark
+    "#06B6D4", // --heatmap-2 dark
+    "#22D3EE", // --heatmap-3 dark
+    "#67E8F9", // --heatmap-4 dark (lightest)
+  ],
+
+  HEATMAP_TOOLTIP_DIM: "#64748B", // --slate-400 dark
+  SCATTER_EMPHASIS_SHADOW: "rgba(99,102,241,0.5)",
+
+  EDITOR_BG:              "#161B22",                // --bg-surface dark
+  EDITOR_TEXT:            "#E6EDF3",                // --text-primary dark
+  EDITOR_CARET:           "#22D3EE",                // --accent dark
+  EDITOR_ACTIVE_LINE:     "#1C2128",                // --bg-elevated dark
+  EDITOR_SELECTION:       "rgba(34,211,238,0.15)",  // --accent-15 dark
+  EDITOR_GUTTER_BG:       "#1C2128",                // --bg-elevated dark
+  EDITOR_GUTTER_BORDER:   "#30363D",                // --bg-border dark
+  EDITOR_GUTTER_TEXT:     "#6E7681",                // --text-muted dark
+  EDITOR_TOOLTIP_BG:      "#161B22",                // --bg-surface dark
+  EDITOR_TOOLTIP_BORDER:  "#30363D",                // --bg-border dark
+  EDITOR_AUTOCOMPLETE_HOVER: "rgba(34,211,238,0.10)", // --accent-10 dark
+  EDITOR_PLACEHOLDER:     "#6E7681",                // --text-muted dark
+};
+
+// ---------------------------------------------------------------------------
+// Hook — returns the correct token bag for the active theme
+// ---------------------------------------------------------------------------
+
+export function useEchartsTheme(): ThemeTokens {
+  const { theme } = useTheme();
+  return theme === "dark" ? DARK_TOKENS : LIGHT_TOKENS;
+}
+
+// ---------------------------------------------------------------------------
+// Legacy flat exports — kept for any remaining direct imports
+// Prefer useEchartsTheme() in components going forward.
+// ---------------------------------------------------------------------------
+
+/** @deprecated Use useEchartsTheme().TEXT_COLOR */
+export const TEXT_COLOR          = LIGHT_TOKENS.TEXT_COLOR;
+/** @deprecated Use useEchartsTheme().SPLIT_LINE_COLOR */
+export const SPLIT_LINE_COLOR    = LIGHT_TOKENS.SPLIT_LINE_COLOR;
+/** @deprecated Use useEchartsTheme().AXIS_LINE_COLOR */
+export const AXIS_LINE_COLOR     = LIGHT_TOKENS.AXIS_LINE_COLOR;
+/** @deprecated Use useEchartsTheme().AXIS_POINTER_COLOR */
+export const AXIS_POINTER_COLOR  = LIGHT_TOKENS.AXIS_POINTER_COLOR;
+/** @deprecated Use useEchartsTheme().TOOLTIP_STYLE */
+export const TOOLTIP_STYLE       = LIGHT_TOKENS.TOOLTIP_STYLE;
+/** @deprecated Use useEchartsTheme().PIE_LABEL_COLOR */
+export const PIE_LABEL_COLOR     = LIGHT_TOKENS.PIE_LABEL_COLOR;
+/** @deprecated Use useEchartsTheme().PIE_LABEL_LINE_COLOR */
+export const PIE_LABEL_LINE_COLOR= LIGHT_TOKENS.PIE_LABEL_LINE_COLOR;
+/** @deprecated Use useEchartsTheme().HEATMAP_GRADIENT */
+export const HEATMAP_GRADIENT    = LIGHT_TOKENS.HEATMAP_GRADIENT;
+/** @deprecated Use useEchartsTheme().HEATMAP_TOOLTIP_DIM */
+export const HEATMAP_TOOLTIP_DIM = LIGHT_TOKENS.HEATMAP_TOOLTIP_DIM;
+/** @deprecated Use useEchartsTheme().SCATTER_EMPHASIS_SHADOW */
+export const SCATTER_EMPHASIS_SHADOW = LIGHT_TOKENS.SCATTER_EMPHASIS_SHADOW;
+/** @deprecated Use useEchartsTheme().EDITOR_BG */
+export const EDITOR_BG              = LIGHT_TOKENS.EDITOR_BG;
+/** @deprecated Use useEchartsTheme().EDITOR_TEXT */
+export const EDITOR_TEXT            = LIGHT_TOKENS.EDITOR_TEXT;
+/** @deprecated Use useEchartsTheme().EDITOR_CARET */
+export const EDITOR_CARET           = LIGHT_TOKENS.EDITOR_CARET;
+/** @deprecated Use useEchartsTheme().EDITOR_ACTIVE_LINE */
+export const EDITOR_ACTIVE_LINE     = LIGHT_TOKENS.EDITOR_ACTIVE_LINE;
+/** @deprecated Use useEchartsTheme().EDITOR_SELECTION */
+export const EDITOR_SELECTION       = LIGHT_TOKENS.EDITOR_SELECTION;
+/** @deprecated Use useEchartsTheme().EDITOR_GUTTER_BG */
+export const EDITOR_GUTTER_BG       = LIGHT_TOKENS.EDITOR_GUTTER_BG;
+/** @deprecated Use useEchartsTheme().EDITOR_GUTTER_BORDER */
+export const EDITOR_GUTTER_BORDER   = LIGHT_TOKENS.EDITOR_GUTTER_BORDER;
+/** @deprecated Use useEchartsTheme().EDITOR_GUTTER_TEXT */
+export const EDITOR_GUTTER_TEXT     = LIGHT_TOKENS.EDITOR_GUTTER_TEXT;
+/** @deprecated Use useEchartsTheme().EDITOR_TOOLTIP_BG */
+export const EDITOR_TOOLTIP_BG      = LIGHT_TOKENS.EDITOR_TOOLTIP_BG;
+/** @deprecated Use useEchartsTheme().EDITOR_TOOLTIP_BORDER */
+export const EDITOR_TOOLTIP_BORDER  = LIGHT_TOKENS.EDITOR_TOOLTIP_BORDER;
+/** @deprecated Use useEchartsTheme().EDITOR_AUTOCOMPLETE_HOVER */
+export const EDITOR_AUTOCOMPLETE_HOVER = LIGHT_TOKENS.EDITOR_AUTOCOMPLETE_HOVER;
+/** @deprecated Use useEchartsTheme().EDITOR_PLACEHOLDER */
+export const EDITOR_PLACEHOLDER     = LIGHT_TOKENS.EDITOR_PLACEHOLDER;

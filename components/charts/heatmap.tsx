@@ -2,7 +2,7 @@
 
 import ReactECharts from "echarts-for-react";
 import type { ChartComponentProps, ChartConfig, ChartConfigSchema, Row } from "@/types";
-import { TEXT_COLOR, AXIS_LINE_COLOR, TOOLTIP_STYLE, HEATMAP_GRADIENT, HEATMAP_TOOLTIP_DIM } from "@/lib/theme";
+import { useEchartsTheme } from "@/lib/theme";
 
 export const configSchema: ChartConfigSchema = {
   fields: [
@@ -24,6 +24,8 @@ export function transformer(rows: Row[], config: ChartConfig): ChartComponentPro
  * Renders a 2D grid coloured by a metric value.
  */
 export default function HeatmapChart({ data, config, onCrossFilter }: ChartComponentProps) {
+  const { TEXT_COLOR, AXIS_LINE_COLOR, TOOLTIP_STYLE, HEATMAP_GRADIENT, HEATMAP_TOOLTIP_DIM } = useEchartsTheme();
+
   if (!data?.length) {
     return (
       <div className="flex h-full items-center justify-center text-sm" style={{ color: "var(--text-muted)" }}>
@@ -87,7 +89,7 @@ export default function HeatmapChart({ data, config, onCrossFilter }: ChartCompo
       textStyle: { color: TEXT_COLOR, fontSize: 11 },
       // Sequential palette: bg-elevated → accent deep → accent → accent-bright → light
       inRange: { color: HEATMAP_GRADIENT },
-      outOfRange: { color: ["#F1F5F9"] },
+      outOfRange: { color: ["var(--bg-hover)"] },
     },
     series: [
       {
