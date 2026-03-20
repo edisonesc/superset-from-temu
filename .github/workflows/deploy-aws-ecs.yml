@@ -62,8 +62,8 @@ jobs:
                 "essential": true,
                 "portMappings": [
                   {
-                    "containerPort": 80,
-                    "hostPort": 80,
+                    "containerPort": 3000,
+                    "hostPort": 3000,
                     "protocol": "tcp"
                   }
                 ],
@@ -76,7 +76,16 @@ jobs:
                   { "name": "NEXTAUTH_SECRET", "value": "${{ secrets.NEXTAUTH_SECRET }}" },
                   { "name": "ENCRYPTION_KEY",  "value": "${{ secrets.ENCRYPTION_KEY }}" },
                   { "name": "AWS_REGION",  "value": "${{ secrets.AWS_REGION }}" }
-                ]
+                ],
+                "logConfiguration": {
+                  "logDriver": "awslogs",
+                  "options": {
+                    "awslogs-group": "/ecs/temp-td",
+                    "awslogs-create-group": "true",
+                    "awslogs-region": "${{ secrets.AWS_REGION }}",
+                    "awslogs-stream-prefix": "ecs"
+                  }
+                }
               }
             ]
           }
