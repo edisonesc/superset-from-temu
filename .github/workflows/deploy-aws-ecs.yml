@@ -74,7 +74,7 @@ jobs:
                   { "name": "DATABASE_URL",    "value": "${{ secrets.DATABASE_URL }}" },
                   { "name": "REDIS_URL",       "value": "${{ secrets.REDIS_URL }}" },
                   { "name": "NEXTAUTH_SECRET", "value": "${{ secrets.NEXTAUTH_SECRET }}" },
-                  { "name": "ENCRYPTION_KEY",  "value": "${{ secrets.ENCRYPTION_KEY }}" }
+                  { "name": "ENCRYPTION_KEY",  "value": "${{ secrets.ENCRYPTION_KEY }}" },
                   { "name": "AWS_REGION",  "value": "${{ secrets.AWS_REGION }}" }
                 ]
               }
