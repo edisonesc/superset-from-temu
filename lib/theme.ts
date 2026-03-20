@@ -145,7 +145,15 @@ export const LIGHT_TOKENS: ThemeTokens = {
   HEATMAP_TOOLTIP_DIM: "#94A3B8", // --slate-400
   SCATTER_EMPHASIS_SHADOW: "rgba(99,102,241,0.4)",
 
-  chartColors: CHART_COLORS,
+  chartColors: [
+    "#0E7490", // cyan-700  (deepest)
+    "#0891B2", // cyan-600
+    "#06B6D4", // cyan-500
+    "#20A7C9", // --accent
+    "#22D3EE", // cyan-400
+    "#67E8F9", // cyan-300
+    "#A5F3FC", // cyan-200
+  ] as const,
   scatterColors: SCATTER_COLORS,
 
   EDITOR_BG:              "#FFFFFF",                // --bg-surface
@@ -196,13 +204,13 @@ export const DARK_TOKENS: ThemeTokens = {
   SCATTER_EMPHASIS_SHADOW: "rgba(0,212,232,0.4)",
 
   chartColors: [
-    "#00D4E8", // electric cyan
-    "#FF4F8B", // hot pink
-    "#00E5A0", // neon emerald
-    "#FFB800", // vivid amber
-    "#A855F7", // bright violet
-    "#38BDFF", // sky blue
-    "#FF6B35", // vivid orange
+    "#5EECFA", // --accent-bright dark (brightest)
+    "#00D4E8", // --accent dark (electric cyan)
+    "#00C8D8", // --accent-cyan dark
+    "#22D3EE", // cyan-400
+    "#06B6D4", // cyan-500
+    "#0891B2", // cyan-600
+    "#0097B2", // --accent-deep dark
   ],
   scatterColors: [
     "#00D4E8", // electric cyan

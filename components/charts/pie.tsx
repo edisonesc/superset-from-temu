@@ -79,8 +79,10 @@ export default function PieChart({ data, config, onCrossFilter }: ChartComponent
         type: "pie",
         radius,
         data: pieData,
+        minAngle: 5,
         // 1px surface-color border between segments for separation
         itemStyle: { borderColor: "var(--bg-surface)", borderWidth: 2 },
+        avoidLabelOverlap: true,
         label: {
           show: config.show_labels !== false,
           color: PIE_LABEL_COLOR,

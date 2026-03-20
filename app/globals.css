@@ -40,13 +40,13 @@
   --destructive:  var(--error);
 
   /* Chart categorical palette — cyan gradient, light → deep */
-  --chart-1: #CFFAFE;   /* cyan-100  */
-  --chart-2: #A5F3FC;   /* cyan-200  */
-  --chart-3: #67E8F9;   /* cyan-300  */
-  --chart-4: #22D3EE;   /* cyan-400  */
-  --chart-5: #06B6D4;   /* cyan-500  */
-  --chart-6: #0891B2;   /* cyan-600  */
-  --chart-7: #0E7490;   /* cyan-700  */
+  --chart-1: #0E7490;   /* cyan-700 (deepest first) */
+  --chart-2: #0891B2;   /* cyan-600  */
+  --chart-3: #06B6D4;   /* cyan-500  */
+  --chart-4: #20A7C9;   /* accent    */
+  --chart-5: #22D3EE;   /* cyan-400  */
+  --chart-6: #67E8F9;   /* cyan-300  */
+  --chart-7: #A5F3FC;   /* cyan-200  */
 
   /* Heatmap sequential palette (light → --accent-deep) */
   --heatmap-0: #ECFEFF;
@@ -105,13 +105,13 @@
   --info:     #00D4E8;
 
   /* Chart palette — vibrant neon for dark backgrounds */
-  --chart-1: #00D4E8;   /* electric cyan  */
-  --chart-2: #FF4F8B;   /* hot pink       */
-  --chart-3: #00E5A0;   /* neon emerald   */
-  --chart-4: #FFB800;   /* vivid amber    */
-  --chart-5: #A855F7;   /* bright violet  */
-  --chart-6: #38BDFF;   /* sky blue       */
-  --chart-7: #FF6B35;   /* vivid orange   */
+  --chart-1: #5EECFA;   /* accent-bright dark (brightest) */
+  --chart-2: #00D4E8;   /* accent dark (electric cyan)    */
+  --chart-3: #00C8D8;   /* accent-cyan dark               */
+  --chart-4: #22D3EE;   /* cyan-400                       */
+  --chart-5: #06B6D4;   /* cyan-500                       */
+  --chart-6: #0891B2;   /* cyan-600                       */
+  --chart-7: #0097B2;   /* accent-deep dark               */
 
   /* Accent opacity variants */
   --accent-10: rgba(0,212,232,0.10);
