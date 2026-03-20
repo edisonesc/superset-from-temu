@@ -139,19 +139,24 @@ export default function NewDatasetPage() {
                   </Link>
                 </div>
               ) : (
-                <select
-                  value={connectionId}
-                  onChange={(e) => { setConnectionId(e.target.value); setTableName(""); setName(""); }}
-                  className="w-full text-sm px-3 py-2 outline-none"
-                  style={inp}
-                  onFocus={onF}
-                  onBlur={onB}
-                >
-                  <option value="">— select connection —</option>
-                  {connections.map((c) => (
-                    <option key={c.id} value={c.id}>{c.name} ({c.dialect})</option>
-                  ))}
-                </select>
+                <div className="relative">
+                  <select
+                    value={connectionId}
+                    onChange={(e) => { setConnectionId(e.target.value); setTableName(""); setName(""); }}
+                    className="w-full text-sm px-3 py-2 outline-none"
+                    style={{ ...inp, appearance: "none", WebkitAppearance: "none", paddingRight: "28px" }}
+                    onFocus={onF}
+                    onBlur={onB}
+                  >
+                    <option value="">— select connection —</option>
+                    {connections.map((c) => (
+                      <option key={c.id} value={c.id}>{c.name} ({c.dialect})</option>
+                    ))}
+                  </select>
+                  <svg className="pointer-events-none absolute right-3 top-1/2 h-3 w-3 -translate-y-1/2" style={{ display: "block", color: "var(--text-muted)" }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                  </svg>
+                </div>
               )}
 
               {/* Selected connection badge */}
@@ -236,19 +241,24 @@ export default function NewDatasetPage() {
                     <p className="text-sm" style={{ color: "var(--text-muted)" }}>No tables found in this connection.</p>
                   ) : (
                     <>
-                      <select
-                        value={tableName}
-                        onChange={(e) => { setTableName(e.target.value); setName(""); }}
-                        className="w-full text-sm px-3 py-2 outline-none"
-                        style={inp}
-                        onFocus={onF}
-                        onBlur={onB}
-                      >
-                        <option value="">— select table —</option>
-                        {tables.map((t) => (
-                          <option key={t.name} value={t.name}>{t.name}</option>
-                        ))}
-                      </select>
+                      <div className="relative">
+                        <select
+                          value={tableName}
+                          onChange={(e) => { setTableName(e.target.value); setName(""); }}
+                          className="w-full text-sm px-3 py-2 outline-none"
+                          style={{ ...inp, appearance: "none", WebkitAppearance: "none", paddingRight: "28px" }}
+                          onFocus={onF}
+                          onBlur={onB}
+                        >
+                          <option value="">— select table —</option>
+                          {tables.map((t) => (
+                            <option key={t.name} value={t.name}>{t.name}</option>
+                          ))}
+                        </select>
+                        <svg className="pointer-events-none absolute right-3 top-1/2 h-3 w-3 -translate-y-1/2" style={{ display: "block", color: "var(--text-muted)" }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                        </svg>
+                      </div>
                       {tableName && (
                         <p className="text-xs mt-1.5" style={{ color: "var(--text-muted)" }}>
                           {tables.find((t) => t.name === tableName)?.columns.length ?? 0} columns detected

@@ -217,57 +217,75 @@ export function FilterConfigModal({
             {/* Type */}
             <div>
               <label style={labelStyle}>Filter Type *</label>
-              <select
-                value={type}
-                onChange={(e) => setType(e.target.value as FilterConfig["type"])}
-                className={inputCls}
-                style={{ ...inputStyle, cursor: "pointer" }}
-              >
-                <option value="date_range">Date Range</option>
-                <option value="select">Dimension Select</option>
-                <option value="search">Search</option>
-              </select>
+              <div className="relative">
+                <select
+                  value={type}
+                  onChange={(e) => setType(e.target.value as FilterConfig["type"])}
+                  className={inputCls}
+                  style={{ ...inputStyle, cursor: "pointer", appearance: "none", WebkitAppearance: "none", paddingRight: "28px" }}
+                >
+                  <option value="date_range">Date Range</option>
+                  <option value="select">Dimension Select</option>
+                  <option value="search">Search</option>
+                </select>
+                <svg className="pointer-events-none absolute right-2 top-1/2 h-3 w-3 -translate-y-1/2" style={{ display: "block", color: "var(--text-muted)" }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                </svg>
+              </div>
             </div>
 
             {/* Dataset (required for select type to load options) */}
             <div>
               <label style={labelStyle}>Dataset</label>
-              <select
-                value={datasetId}
-                onChange={(e) => { setDatasetId(e.target.value); setColumn(""); }}
-                className={inputCls}
-                style={{ ...inputStyle, cursor: "pointer" }}
-              >
-                <option value="">— Select a dataset —</option>
-                {datasets.map((d) => (
-                  <option key={d.id} value={d.id}>
-                    {d.name}
-                  </option>
-                ))}
-              </select>
+              <div className="relative">
+                <select
+                  value={datasetId}
+                  onChange={(e) => { setDatasetId(e.target.value); setColumn(""); }}
+                  className={inputCls}
+                  style={{ ...inputStyle, cursor: "pointer", appearance: "none", WebkitAppearance: "none", paddingRight: "28px" }}
+                >
+                  <option value="">— Select a dataset —</option>
+                  {datasets.map((d) => (
+                    <option key={d.id} value={d.id}>
+                      {d.name}
+                    </option>
+                  ))}
+                </select>
+                <svg className="pointer-events-none absolute right-2 top-1/2 h-3 w-3 -translate-y-1/2" style={{ display: "block", color: "var(--text-muted)" }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                </svg>
+              </div>
             </div>
 
             {/* Column */}
             <div>
               <label style={labelStyle}>Column *</label>
               {columns.length > 0 ? (
-                <select
-                  value={column}
-                  onChange={(e) => setColumn(e.target.value)}
-                  className={inputCls}
-                  style={{
-                    ...inputStyle,
-                    cursor: "pointer",
-                    borderColor: errors.column ? "var(--error)" : "var(--bg-border)",
-                  }}
-                >
-                  <option value="">— Select a column —</option>
-                  {columns.map((c) => (
-                    <option key={c.name} value={c.name}>
-                      {c.name} ({c.type})
-                    </option>
-                  ))}
-                </select>
+                <div className="relative">
+                  <select
+                    value={column}
+                    onChange={(e) => setColumn(e.target.value)}
+                    className={inputCls}
+                    style={{
+                      ...inputStyle,
+                      cursor: "pointer",
+                      borderColor: errors.column ? "var(--error)" : "var(--bg-border)",
+                      appearance: "none",
+                      WebkitAppearance: "none",
+                      paddingRight: "28px",
+                    }}
+                  >
+                    <option value="">— Select a column —</option>
+                    {columns.map((c) => (
+                      <option key={c.name} value={c.name}>
+                        {c.name} ({c.type})
+                      </option>
+                    ))}
+                  </select>
+                  <svg className="pointer-events-none absolute right-2 top-1/2 h-3 w-3 -translate-y-1/2" style={{ display: "block", color: "var(--text-muted)" }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                  </svg>
+                </div>
               ) : (
                 <input
                   type="text"

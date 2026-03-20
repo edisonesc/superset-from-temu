@@ -45,8 +45,8 @@ export function SearchWidget({ config }: Props) {
   return (
     <div className="relative flex items-center">
       <svg
-        className="pointer-events-none absolute left-2 h-3 w-3"
-        style={{ color: "var(--text-muted)" }}
+        className="pointer-events-none absolute left-2 h-3.5 w-3.5"
+        style={{ color: "var(--text-muted)", display: "block" }}
         fill="none"
         stroke="currentColor"
         viewBox="0 0 24 24"
@@ -63,15 +63,22 @@ export function SearchWidget({ config }: Props) {
         value={localQuery}
         onChange={(e) => handleChange(e.target.value)}
         placeholder={`Search ${config.column}…`}
-        className="w-full py-1.5 pl-7 pr-2 text-xs outline-none"
+        className="w-full py-2 pl-8 pr-2 text-xs outline-none"
         style={{
           background: "var(--bg-base)",
           border: "1px solid var(--bg-border)",
-          borderRadius: "2px",
+          borderRadius: "8px",
           color: "var(--text-primary)",
+          transition: "border-color 0.15s, box-shadow 0.15s",
         }}
-        onFocus={(e) => ((e.currentTarget as HTMLInputElement).style.borderColor = "var(--accent)")}
-        onBlur={(e) => ((e.currentTarget as HTMLInputElement).style.borderColor = "var(--bg-border)")}
+        onFocus={(e) => {
+          (e.currentTarget as HTMLInputElement).style.borderColor = "var(--accent)";
+          (e.currentTarget as HTMLInputElement).style.boxShadow = "0 0 0 2px rgba(32,167,201,0.2)";
+        }}
+        onBlur={(e) => {
+          (e.currentTarget as HTMLInputElement).style.borderColor = "var(--bg-border)";
+          (e.currentTarget as HTMLInputElement).style.boxShadow = "none";
+        }}
       />
       {localQuery && (
         <button
@@ -79,6 +86,8 @@ export function SearchWidget({ config }: Props) {
           onClick={() => handleChange("")}
           className="absolute right-2"
           style={{ color: "var(--text-muted)" }}
+          onMouseEnter={(e) => ((e.currentTarget as HTMLButtonElement).style.color = "var(--text-secondary)")}
+          onMouseLeave={(e) => ((e.currentTarget as HTMLButtonElement).style.color = "var(--text-muted)")}
           title="Clear"
         >
           <svg className="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">

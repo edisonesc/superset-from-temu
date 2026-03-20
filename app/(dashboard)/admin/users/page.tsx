@@ -133,24 +133,32 @@ export default function AdminUsersPage() {
                       </td>
                       <td className="px-4 py-3" style={{ color: "var(--text-secondary)" }}>{user.email}</td>
                       <td className="px-4 py-3">
-                        <select
-                          value={user.role}
-                          disabled={isSelf || updateRole.isPending}
-                          onChange={(e) => updateRole.mutate({ id: user.id, role: e.target.value })}
-                          className="text-xs px-2 py-1 outline-none transition-colors disabled:opacity-50"
-                          style={{
-                            background: "var(--bg-elevated)",
-                            border: "1px solid var(--bg-border)",
-                            color: "var(--text-primary)",
-                            borderRadius: "2px",
-                          }}
-                          onFocus={(e) => (e.currentTarget.style.borderColor = "var(--accent)")}
-                          onBlur={(e) => (e.currentTarget.style.borderColor = "var(--bg-border)")}
-                        >
-                          {USER_ROLES.map((r) => (
-                            <option key={r} value={r}>{r}</option>
-                          ))}
-                        </select>
+                        <div className="relative inline-block">
+                          <select
+                            value={user.role}
+                            disabled={isSelf || updateRole.isPending}
+                            onChange={(e) => updateRole.mutate({ id: user.id, role: e.target.value })}
+                            className="text-xs px-2 py-1 outline-none transition-colors disabled:opacity-50"
+                            style={{
+                              background: "var(--bg-elevated)",
+                              border: "1px solid var(--bg-border)",
+                              color: "var(--text-primary)",
+                              borderRadius: "2px",
+                              appearance: "none",
+                              WebkitAppearance: "none",
+                              paddingRight: "28px",
+                            }}
+                            onFocus={(e) => (e.currentTarget.style.borderColor = "var(--accent)")}
+                            onBlur={(e) => (e.currentTarget.style.borderColor = "var(--bg-border)")}
+                          >
+                            {USER_ROLES.map((r) => (
+                              <option key={r} value={r}>{r}</option>
+                            ))}
+                          </select>
+                          <svg className="pointer-events-none absolute right-2 top-1/2 h-3 w-3 -translate-y-1/2" style={{ display: "block", color: "var(--text-muted)" }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                          </svg>
+                        </div>
                       </td>
                       <td className="px-4 py-3 text-xs" style={{ color: "var(--text-muted)" }}>
                         {new Date(user.createdAt).toLocaleDateString()}

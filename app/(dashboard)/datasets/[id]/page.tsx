@@ -330,20 +330,25 @@ export default function DatasetDetailPage() {
             <div>
               <label className="block text-xs font-medium mb-1.5" style={{ color: "var(--text-secondary)" }}>Connection</label>
               {canEdit ? (
-                <select
-                  value={editConnectionId ?? dataset.connectionId}
-                  onChange={(e) => setEditConnectionId(e.target.value)}
-                  className="w-full text-sm px-3 py-2 outline-none transition-colors"
-                  style={{ ...inputStyle, cursor: "pointer" }}
-                  onFocus={(e) => (e.currentTarget.style.borderColor = "var(--accent)")}
-                  onBlur={(e) => (e.currentTarget.style.borderColor = "var(--bg-border)")}
-                >
-                  {connections.map((c) => (
-                    <option key={c.id} value={c.id}>
-                      {c.name} ({c.dialect})
-                    </option>
-                  ))}
-                </select>
+                <div className="relative">
+                  <select
+                    value={editConnectionId ?? dataset.connectionId}
+                    onChange={(e) => setEditConnectionId(e.target.value)}
+                    className="w-full text-sm px-3 py-2 outline-none transition-colors"
+                    style={{ ...inputStyle, cursor: "pointer", appearance: "none", WebkitAppearance: "none", paddingRight: "28px" }}
+                    onFocus={(e) => (e.currentTarget.style.borderColor = "var(--accent)")}
+                    onBlur={(e) => (e.currentTarget.style.borderColor = "var(--bg-border)")}
+                  >
+                    {connections.map((c) => (
+                      <option key={c.id} value={c.id}>
+                        {c.name} ({c.dialect})
+                      </option>
+                    ))}
+                  </select>
+                  <svg className="pointer-events-none absolute right-3 top-1/2 h-3 w-3 -translate-y-1/2" style={{ display: "block", color: "var(--text-muted)" }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                  </svg>
+                </div>
               ) : (
                 <div className="flex items-center gap-2">
                   <span className="text-sm" style={{ color: "var(--text-primary)" }}>{dataset.connectionName ?? "—"}</span>

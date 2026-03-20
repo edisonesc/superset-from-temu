@@ -289,25 +289,33 @@ export default function ChartBuilder({ initialChartId }: Props) {
                     onFocus={(e) => (e.currentTarget.style.borderColor = "var(--accent)")}
                     onBlur={(e) => (e.currentTarget.style.borderColor = "var(--bg-border)")}
                   />
-                  <select
-                    value={datasetId ?? ""}
-                    onChange={(e) => {
-                      setDatasetId(e.target.value || null);
-                      setConfig({});
-                    }}
-                    className="w-full text-xs px-2.5 py-1.5 outline-none"
-                    style={{
-                      background: "var(--bg-elevated)",
-                      border: "1px solid var(--bg-border)",
-                      color: "var(--text-primary)",
-                      borderRadius: "2px",
-                    }}
-                  >
-                    <option value="">— select dataset —</option>
-                    {datasets.map((d) => (
-                      <option key={d.id} value={d.id}>{d.name}</option>
-                    ))}
-                  </select>
+                  <div className="relative">
+                    <select
+                      value={datasetId ?? ""}
+                      onChange={(e) => {
+                        setDatasetId(e.target.value || null);
+                        setConfig({});
+                      }}
+                      className="w-full text-xs px-2.5 py-1.5 outline-none"
+                      style={{
+                        background: "var(--bg-elevated)",
+                        border: "1px solid var(--bg-border)",
+                        color: "var(--text-primary)",
+                        borderRadius: "2px",
+                        appearance: "none",
+                        WebkitAppearance: "none",
+                        paddingRight: "28px",
+                      }}
+                    >
+                      <option value="">— select dataset —</option>
+                      {datasets.map((d) => (
+                        <option key={d.id} value={d.id}>{d.name}</option>
+                      ))}
+                    </select>
+                    <svg className="pointer-events-none absolute right-2 top-1/2 h-3 w-3 -translate-y-1/2" style={{ display: "block", color: "var(--text-muted)" }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                    </svg>
+                  </div>
                 </section>
 
                 {/* Columns list */}
@@ -344,26 +352,34 @@ export default function ChartBuilder({ initialChartId }: Props) {
                         <div className="space-y-1">
                           {(config.metrics ?? []).map((m, i) => (
                             <div key={i} className="flex gap-1">
-                              <select
-                                value={m}
-                                onChange={(e) => {
-                                  const next = [...(config.metrics ?? [])];
-                                  next[i] = e.target.value;
-                                  setConfigField("metrics", next);
-                                }}
-                                className="flex-1 text-xs px-2 py-1 outline-none"
-                                style={{
-                                  background: "var(--bg-elevated)",
-                                  border: "1px solid var(--bg-border)",
-                                  color: "var(--text-primary)",
-                                  borderRadius: "2px",
-                                }}
-                              >
-                                <option value="">— column —</option>
-                                {columns.map((c) => (
-                                  <option key={c.name} value={c.name}>{c.name}</option>
-                                ))}
-                              </select>
+                              <div className="relative flex-1">
+                                <select
+                                  value={m}
+                                  onChange={(e) => {
+                                    const next = [...(config.metrics ?? [])];
+                                    next[i] = e.target.value;
+                                    setConfigField("metrics", next);
+                                  }}
+                                  className="w-full text-xs px-2 py-1 outline-none"
+                                  style={{
+                                    background: "var(--bg-elevated)",
+                                    border: "1px solid var(--bg-border)",
+                                    color: "var(--text-primary)",
+                                    borderRadius: "2px",
+                                    appearance: "none",
+                                    WebkitAppearance: "none",
+                                    paddingRight: "28px",
+                                  }}
+                                >
+                                  <option value="">— column —</option>
+                                  {columns.map((c) => (
+                                    <option key={c.name} value={c.name}>{c.name}</option>
+                                  ))}
+                                </select>
+                                <svg className="pointer-events-none absolute right-2 top-1/2 h-3 w-3 -translate-y-1/2" style={{ display: "block", color: "var(--text-muted)" }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                                </svg>
+                              </div>
                               <button
                                 onClick={() =>
                                   setConfigField(
@@ -391,22 +407,30 @@ export default function ChartBuilder({ initialChartId }: Props) {
                           </button>
                         </div>
                       ) : (
-                        <select
-                          value={String(config[field.name as keyof ChartConfig] ?? "")}
-                          onChange={(e) => setConfigField(field.name as keyof ChartConfig, e.target.value)}
-                          className="w-full text-xs px-2.5 py-1.5 outline-none"
-                          style={{
-                            background: "var(--bg-elevated)",
-                            border: "1px solid var(--bg-border)",
-                            color: "var(--text-primary)",
-                            borderRadius: "2px",
-                          }}
-                        >
-                          <option value="">— column —</option>
-                          {columns.map((c) => (
-                            <option key={c.name} value={c.name}>{c.name}</option>
-                          ))}
-                        </select>
+                        <div className="relative">
+                          <select
+                            value={String(config[field.name as keyof ChartConfig] ?? "")}
+                            onChange={(e) => setConfigField(field.name as keyof ChartConfig, e.target.value)}
+                            className="w-full text-xs px-2.5 py-1.5 outline-none"
+                            style={{
+                              background: "var(--bg-elevated)",
+                              border: "1px solid var(--bg-border)",
+                              color: "var(--text-primary)",
+                              borderRadius: "2px",
+                              appearance: "none",
+                              WebkitAppearance: "none",
+                              paddingRight: "28px",
+                            }}
+                          >
+                            <option value="">— column —</option>
+                            {columns.map((c) => (
+                              <option key={c.name} value={c.name}>{c.name}</option>
+                            ))}
+                          </select>
+                          <svg className="pointer-events-none absolute right-2 top-1/2 h-3 w-3 -translate-y-1/2" style={{ display: "block", color: "var(--text-muted)" }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                          </svg>
+                        </div>
                       )}
                     </section>
                   ))}
@@ -433,21 +457,29 @@ export default function ChartBuilder({ initialChartId }: Props) {
                           <span className="text-xs" style={{ color: "var(--text-primary)" }}>Enabled</span>
                         </label>
                       ) : field.type === "select" ? (
-                        <select
-                          value={String(config[field.name as keyof ChartConfig] ?? field.defaultValue ?? "")}
-                          onChange={(e) => setConfigField(field.name as keyof ChartConfig, e.target.value)}
-                          className="w-full text-xs px-2.5 py-1.5 outline-none"
-                          style={{
-                            background: "var(--bg-elevated)",
-                            border: "1px solid var(--bg-border)",
-                            color: "var(--text-primary)",
-                            borderRadius: "2px",
-                          }}
-                        >
-                          {field.choices?.map((c) => (
-                            <option key={c} value={c}>{c}</option>
-                          ))}
-                        </select>
+                        <div className="relative">
+                          <select
+                            value={String(config[field.name as keyof ChartConfig] ?? field.defaultValue ?? "")}
+                            onChange={(e) => setConfigField(field.name as keyof ChartConfig, e.target.value)}
+                            className="w-full text-xs px-2.5 py-1.5 outline-none"
+                            style={{
+                              background: "var(--bg-elevated)",
+                              border: "1px solid var(--bg-border)",
+                              color: "var(--text-primary)",
+                              borderRadius: "2px",
+                              appearance: "none",
+                              WebkitAppearance: "none",
+                              paddingRight: "28px",
+                            }}
+                          >
+                            {field.choices?.map((c) => (
+                              <option key={c} value={c}>{c}</option>
+                            ))}
+                          </select>
+                          <svg className="pointer-events-none absolute right-2 top-1/2 h-3 w-3 -translate-y-1/2" style={{ display: "block", color: "var(--text-muted)" }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                          </svg>
+                        </div>
                       ) : (
                         <input
                           value={String(config[field.name as keyof ChartConfig] ?? field.defaultValue ?? "")}

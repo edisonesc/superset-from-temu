@@ -33,6 +33,38 @@ function FilterWidget({ config }: { config: FilterConfig }) {
 }
 
 // ---------------------------------------------------------------------------
+// FilterTypeIcon — small accent icon indicating filter type
+// ---------------------------------------------------------------------------
+
+function FilterTypeIcon({ type }: { type: FilterConfig["type"] }) {
+  return (
+    <svg
+      className="h-3 w-3 shrink-0"
+      style={{ color: "var(--accent)", display: "block" }}
+      fill="none"
+      stroke="currentColor"
+      viewBox="0 0 24 24"
+    >
+      {type === "date_range" && (
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5}
+          d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+        />
+      )}
+      {type === "select" && (
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5}
+          d="M4 6h16M4 10h16M4 14h10"
+        />
+      )}
+      {type === "search" && (
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5}
+          d="M21 21l-4.35-4.35M17 11A6 6 0 115 11a6 6 0 0112 0z"
+        />
+      )}
+    </svg>
+  );
+}
+
+// ---------------------------------------------------------------------------
 // CrossFilterChip — dismissible chip for chart-click cross-filters
 // ---------------------------------------------------------------------------
 
@@ -170,7 +202,7 @@ export function FilterBar({ dashboardId, isEditMode, dashboardCharts }: FilterBa
           {/* Collapse toggle */}
           <button
             onClick={() => setCollapsed((c) => !c)}
-            className="flex items-center gap-1 rounded px-1.5 py-1 text-xs transition-colors"
+            className="flex items-center gap-1.5 rounded-md px-1.5 py-1 text-xs font-medium transition-colors"
             style={{ color: "var(--text-muted)" }}
             onMouseEnter={(e) =>
               ((e.currentTarget as HTMLButtonElement).style.color = "var(--text-secondary)")
@@ -180,17 +212,9 @@ export function FilterBar({ dashboardId, isEditMode, dashboardCharts }: FilterBa
             }
             title={collapsed ? "Expand filters" : "Collapse filters"}
           >
-            <svg
-              className="h-3.5 w-3.5"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-              style={{
-                transform: collapsed ? "rotate(-90deg)" : undefined,
-                transition: "transform 0.15s",
-              }}
-            >
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+            {/* Funnel icon */}
+            <svg className="h-3.5 w-3.5" style={{ display: "block" }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4h18M7 10h10M11 16h2" />
             </svg>
             <span>Filters</span>
             {nativeConfigs.length > 0 && (
@@ -198,6 +222,7 @@ export function FilterBar({ dashboardId, isEditMode, dashboardCharts }: FilterBa
                 className="rounded-full px-1.5 py-0.5"
                 style={{
                   background: "var(--bg-elevated)",
+                  border: "1px solid var(--bg-border)",
                   color: hasNativeValues ? "var(--accent-bright)" : "var(--text-muted)",
                   fontSize: "0.65rem",
                   fontVariantNumeric: "tabular-nums",
@@ -206,6 +231,19 @@ export function FilterBar({ dashboardId, isEditMode, dashboardCharts }: FilterBa
                 {nativeConfigs.length}
               </span>
             )}
+            <svg
+              className="h-3 w-3"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+              style={{
+                display: "block",
+                transform: collapsed ? "rotate(-90deg)" : undefined,
+                transition: "transform 0.15s",
+              }}
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+            </svg>
           </button>
 
           {/* Cross-filter chips (always visible in toolbar) */}
@@ -224,7 +262,7 @@ export function FilterBar({ dashboardId, isEditMode, dashboardCharts }: FilterBa
           {(hasNativeValues || crossFilterEntries.length > 0) && (
             <button
               onClick={handleClearAll}
-              className="rounded px-2 py-1 text-xs transition-colors"
+              className="rounded-md px-2.5 py-1 text-xs font-medium transition-colors"
               style={{ color: "var(--text-muted)" }}
               onMouseEnter={(e) =>
                 ((e.currentTarget as HTMLButtonElement).style.color = "var(--error)")
@@ -241,9 +279,9 @@ export function FilterBar({ dashboardId, isEditMode, dashboardCharts }: FilterBa
           {isEditMode && (
             <button
               onClick={() => { setEditingConfig(undefined); setShowAddModal(true); }}
-              className="flex items-center gap-1 rounded px-2 py-1 text-xs transition-colors"
+              className="flex items-center gap-1 rounded-md px-2.5 py-1.5 text-xs transition-colors"
               style={{
-                border: "1px dashed var(--bg-border)",
+                border: "1.5px dashed var(--bg-border)",
                 color: "var(--text-muted)",
               }}
               onMouseEnter={(e) => {
@@ -266,19 +304,31 @@ export function FilterBar({ dashboardId, isEditMode, dashboardCharts }: FilterBa
         {/* Filter widgets row */}
         {!collapsed && nativeConfigs.length > 0 && (
           <div
-            className="flex flex-wrap gap-3 px-4 pb-3"
+            className="flex flex-wrap gap-3 px-4 pt-2.5 pb-4"
+            style={{ borderTop: "1px solid var(--bg-border)" }}
           >
             {nativeConfigs.map((config) => (
               <div
                 key={config.id}
-                className="flex flex-col gap-1"
-                style={{ minWidth: "180px", maxWidth: "260px", flex: "1 1 180px" }}
+                className="flex flex-col gap-2"
+                style={{
+                  minWidth: config.type === "date_range" ? "200px" : "180px",
+                  maxWidth: config.type === "date_range" ? "280px" : "260px",
+                  flex: config.type === "date_range" ? "1 1 200px" : "1 1 180px",
+                  background: "var(--bg-elevated)",
+                  border: "1px solid var(--bg-border)",
+                  borderRadius: "8px",
+                  padding: "10px 12px",
+                }}
               >
                 {/* Widget label + edit/delete actions */}
                 <div className="flex items-center justify-between">
-                  <span className="text-xs font-medium" style={{ color: "var(--text-secondary)" }}>
-                    {config.label}
-                  </span>
+                  <div className="flex items-center gap-1.5">
+                    <FilterTypeIcon type={config.type} />
+                    <span className="text-xs font-semibold" style={{ color: "var(--text-secondary)" }}>
+                      {config.label}
+                    </span>
+                  </div>
                   {isEditMode && (
                     <div className="flex items-center gap-1">
                       <button

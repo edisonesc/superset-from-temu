@@ -186,15 +186,20 @@ function SchemaBrowser({ connections, onInsertTable }: { connections: Connection
   return (
     <div className="flex h-full flex-col">
       <div className="p-2" style={{ borderBottom: "1px solid var(--bg-border)" }}>
-        <select
-          value={selectedConnectionId ?? ""}
-          onChange={(e) => { setSelectedConnectionId(e.target.value || null); setExpandedTables(new Set()); }}
-          className="w-full px-2 py-1.5 text-xs outline-none"
-          style={inputStyle}
-        >
-          <option value="">Select connection…</option>
-          {connections.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
-        </select>
+        <div className="relative">
+          <select
+            value={selectedConnectionId ?? ""}
+            onChange={(e) => { setSelectedConnectionId(e.target.value || null); setExpandedTables(new Set()); }}
+            className="w-full px-2 py-1.5 text-xs outline-none"
+            style={{ ...inputStyle, appearance: "none", WebkitAppearance: "none", paddingRight: "28px" }}
+          >
+            <option value="">Select connection…</option>
+            {connections.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
+          </select>
+          <svg className="pointer-events-none absolute right-2 top-1/2 h-3 w-3 -translate-y-1/2" style={{ display: "block", color: "var(--text-muted)" }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+          </svg>
+        </div>
       </div>
 
       <div className="flex-1 overflow-y-auto py-1">
@@ -517,15 +522,20 @@ export default function SqlLabPage() {
               </button>
             )}
 
-            <select
-              value={activeTab?.connectionId ?? ""}
-              onChange={(e) => { if (activeTabId) setTabConnection(activeTabId, e.target.value); }}
-              className="px-2 py-1 text-xs outline-none"
-              style={inputStyle}
-            >
-              <option value="">Select connection…</option>
-              {connections.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
-            </select>
+            <div className="relative">
+              <select
+                value={activeTab?.connectionId ?? ""}
+                onChange={(e) => { if (activeTabId) setTabConnection(activeTabId, e.target.value); }}
+                className="px-2 py-1 text-xs outline-none"
+                style={{ ...inputStyle, appearance: "none", WebkitAppearance: "none", paddingRight: "28px" }}
+              >
+                <option value="">Select connection…</option>
+                {connections.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
+              </select>
+              <svg className="pointer-events-none absolute right-2 top-1/2 h-3 w-3 -translate-y-1/2" style={{ display: "block", color: "var(--text-muted)" }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+              </svg>
+            </div>
 
             <div className="flex-1" />
 

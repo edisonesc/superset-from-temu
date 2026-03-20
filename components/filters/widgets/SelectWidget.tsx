@@ -77,8 +77,15 @@ export function SelectWidget({ config }: Props) {
         style={{
           background: "var(--bg-base)",
           border: `1px solid ${open ? "var(--accent)" : "var(--bg-border)"}`,
-          borderRadius: "2px",
+          borderRadius: open ? "8px 8px 0 0" : "8px",
           color: selected.length ? "var(--text-primary)" : "var(--text-muted)",
+          transition: "border-color 0.15s, box-shadow 0.15s",
+        }}
+        onFocus={(e) => {
+          if (!open) (e.currentTarget as HTMLButtonElement).style.boxShadow = "0 0 0 2px rgba(32,167,201,0.2)";
+        }}
+        onBlur={(e) => {
+          (e.currentTarget as HTMLButtonElement).style.boxShadow = "none";
         }}
       >
         <span className="truncate">{displayLabel}</span>
@@ -87,7 +94,7 @@ export function SelectWidget({ config }: Props) {
           fill="none"
           stroke="currentColor"
           viewBox="0 0 24 24"
-          style={{ transform: open ? "rotate(180deg)" : undefined, transition: "transform 0.15s" }}
+          style={{ display: "block", transform: open ? "rotate(180deg)" : undefined, transition: "transform 0.15s" }}
         >
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
         </svg>
@@ -98,11 +105,13 @@ export function SelectWidget({ config }: Props) {
         <div
           className="absolute left-0 right-0 z-50 flex flex-col overflow-hidden"
           style={{
-            top: "calc(100% + 4px)",
+            top: "100%",
+            marginTop: "-1px",
             background: "var(--bg-elevated)",
-            border: "1px solid var(--bg-border)",
-            borderRadius: "2px",
-            boxShadow: "0 4px 16px rgba(0,0,0,0.4)",
+            border: "1px solid var(--accent)",
+            borderTop: "none",
+            borderRadius: "0 0 8px 8px",
+            boxShadow: "0 8px 24px rgba(0,0,0,0.3), 0 0 0 1px var(--bg-border)",
             maxHeight: "240px",
           }}
         >
@@ -118,7 +127,7 @@ export function SelectWidget({ config }: Props) {
               style={{
                 background: "var(--bg-base)",
                 border: "1px solid var(--bg-border)",
-                borderRadius: "2px",
+                borderRadius: "6px",
                 color: "var(--text-primary)",
               }}
             />
@@ -146,7 +155,7 @@ export function SelectWidget({ config }: Props) {
                     onClick={() => toggleValue(opt)}
                     className="flex w-full items-center gap-2 px-3 py-1.5 text-left text-xs transition-colors"
                     style={{
-                      background: isSelected ? "rgba(99,102,241,0.12)" : undefined,
+                      background: isSelected ? "var(--accent-10)" : undefined,
                       color: "var(--text-primary)",
                     }}
                     onMouseEnter={(e) => {
@@ -162,7 +171,7 @@ export function SelectWidget({ config }: Props) {
                       className="flex h-3.5 w-3.5 shrink-0 items-center justify-center"
                       style={{
                         border: `1px solid ${isSelected ? "var(--accent)" : "var(--bg-border)"}`,
-                        borderRadius: "2px",
+                        borderRadius: "3px",
                         background: isSelected ? "var(--accent)" : undefined,
                       }}
                     >
@@ -184,7 +193,7 @@ export function SelectWidget({ config }: Props) {
               <button
                 type="button"
                 onClick={() => setFilter(config.id, { type: "select", values: [] })}
-                className="w-full px-3 py-1.5 text-left text-xs transition-colors"
+                className="w-full px-3 py-2 text-left text-xs font-medium transition-colors"
                 style={{ color: "var(--text-muted)" }}
                 onMouseEnter={(e) => ((e.currentTarget as HTMLButtonElement).style.color = "var(--error)")}
                 onMouseLeave={(e) => ((e.currentTarget as HTMLButtonElement).style.color = "var(--text-muted)")}
