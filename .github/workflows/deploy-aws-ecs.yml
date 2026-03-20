@@ -16,6 +16,7 @@ jobs:
       ECS_SERVICE: temp-td-service
       ECS_CLUSTER: temp-cluster
       TASK_DEFINITION: temp-td
+      REDIS_PORT: 6379
 
     steps:
       # Checkout repo
@@ -80,7 +81,24 @@ jobs:
                 "logConfiguration": {
                   "logDriver": "awslogs",
                   "options": {
-                    "awslogs-group": "/ecs/temp-td",
+                    "awslogs-group": "/ecs/${{ env.TASK_DEFINITION }}",
+                    "awslogs-create-group": "true",
+                    "awslogs-region": "${{ secrets.AWS_REGION }}",
+                    "awslogs-stream-prefix": "ecs"
+                  }
+                }
+              },
+              {
+                "name": "redis",
+                "image": "redis:7-alpine",
+                "essential": false,
+                "portMappings": [
+                  { "containerPort": ${{ env.REDIS_PORT }}, "hostPort": ${{ env.REDIS_PORT }}, "protocol": "tcp" }
+                ],
+                "logConfiguration": {
+                  "logDriver": "awslogs",
+                  "options": {
+                    "awslogs-group": "/ecs/${{ env.TASK_DEFINITION }}",
                     "awslogs-create-group": "true",
                     "awslogs-region": "${{ secrets.AWS_REGION }}",
                     "awslogs-stream-prefix": "ecs"
@@ -93,6 +111,10 @@ jobs:
 
       - name: Print task definition for debugging
         run: cat taskdef.json
+
+      - name: Run DB migrations
+        run: |
+          DATABASE_URL="${{ secrets.DATABASE_URL }}" npx drizzle-kit migrate
 
       # Deploy task definition to ECS
       - name: Deploy to ECS
