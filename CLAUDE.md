@@ -82,6 +82,7 @@
    e. Create a dashboard and add the chart
    f. Add a filter and verify cross-filtering
    g. Publish the dashboard and verify public URL works
+   h. ensure variables are strictly type and is a valid type
 2. npm run lint — fix all warnings
 3. npm run build — fix issues if there's any
 4. Update CLAUDE.md — mark all items complete

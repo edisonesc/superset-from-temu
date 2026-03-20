@@ -66,6 +66,19 @@ export const cache = {
   async del(key: string): Promise<void> {
     await redis.del(key);
   },
+
+  /**
+   * Delete all keys matching a glob-style pattern (e.g. "chart:abc123:*").
+   * Uses SCAN to avoid blocking the Redis event loop.
+   */
+  async delPattern(pattern: string): Promise<void> {
+    let cursor = "0";
+    do {
+      const [next, keys] = await redis.scan(cursor, "MATCH", pattern, "COUNT", 100);
+      cursor = next;
+      if (keys.length > 0) await redis.del(...keys);
+    } while (cursor !== "0");
+  },
 };
 
 export default redis;

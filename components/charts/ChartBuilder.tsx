@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useCallback, useRef } from "react";
 import { useRouter } from "next/navigation";
-import { useQuery, useMutation } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { listCharts, getChart } from "./registry";
 import type { ChartVizType, ChartConfig, ChartComponentProps } from "@/types";
@@ -66,6 +66,7 @@ type Props = {
  */
 export default function ChartBuilder({ initialChartId }: Props) {
   const router = useRouter();
+  const queryClient = useQueryClient();
   const previewTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // ── State ────────────────────────────────────────────────────────────────
@@ -162,8 +163,12 @@ export default function ChartBuilder({ initialChartId }: Props) {
       return result;
     },
     onSuccess: (result) => {
+      const id = result?.id ?? initialChartId;
+      queryClient.invalidateQueries({ queryKey: ["chart-meta", id] });
+      queryClient.invalidateQueries({ queryKey: ["chart-data", id] });
+      queryClient.invalidateQueries({ queryKey: ["chart", id] });
       toast.success("Chart saved");
-      router.push(`/charts/${result?.id ?? initialChartId}`);
+      router.push(`/charts/${id}`);
     },
     onError: (err) => toast.error(err instanceof Error ? err.message : "Save failed"),
   });

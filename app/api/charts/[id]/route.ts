@@ -4,6 +4,7 @@ import { db } from "@/db";
 import { charts, datasets } from "@/db/schema";
 import { eq } from "drizzle-orm";
 import { z } from "zod";
+import { cache } from "@/lib/redis";
 import type { ApiResponse } from "@/types";
 
 const updateChartSchema = z.object({
@@ -91,6 +92,7 @@ export async function PUT(
     }
 
     await db.update(charts).set(parsed.data).where(eq(charts.id, id));
+    await cache.delPattern(`chart:${id}:*`);
     return NextResponse.json<ApiResponse<{ id: string }>>({ data: { id }, error: null });
   } catch (err) {
     console.error("[PUT /api/charts/[id]]", err);
