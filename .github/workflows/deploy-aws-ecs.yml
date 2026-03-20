@@ -130,6 +130,12 @@ jobs:
         run: |
           DATABASE_URL="${{ secrets.DATABASE_URL }}" npx drizzle-kit migrate
 
+      - name: Seed database
+        run: |
+          DATABASE_URL="${{ secrets.DATABASE_URL }}" \
+          ENCRYPTION_KEY="${{ secrets.ENCRYPTION_KEY }}" \
+          npx tsx db/seeds/seed-connection.ts
+
       - name: Remove runner IP from RDS security group
         if: always()
         run: |
