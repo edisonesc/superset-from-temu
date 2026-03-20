@@ -2,7 +2,7 @@
 
 import ReactECharts from "echarts-for-react";
 import type { ChartComponentProps, ChartConfig, ChartConfigSchema, Row } from "@/types";
-import { CHART_COLORS, useEchartsTheme } from "@/lib/theme";
+import { useEchartsTheme } from "@/lib/theme";
 
 export const configSchema: ChartConfigSchema = {
   fields: [
@@ -28,7 +28,7 @@ export function transformer(rows: Row[], config: ChartConfig): ChartComponentPro
  * Supports multiple metrics and optional stacking.
  */
 export default function AreaChart({ data, config, onCrossFilter }: ChartComponentProps) {
-  const { TEXT_COLOR, SPLIT_LINE_COLOR, AXIS_LINE_COLOR, AXIS_POINTER_COLOR, TOOLTIP_STYLE } = useEchartsTheme();
+  const { TEXT_COLOR, SPLIT_LINE_COLOR, AXIS_LINE_COLOR, AXIS_POINTER_COLOR, TOOLTIP_STYLE, chartColors } = useEchartsTheme();
 
   if (!data?.length) {
     return (
@@ -63,7 +63,7 @@ export default function AreaChart({ data, config, onCrossFilter }: ChartComponen
 
   const option = {
     backgroundColor: "transparent",
-    color: CHART_COLORS,
+    color: chartColors,
     tooltip: {
       trigger: "axis",
       axisPointer: { lineStyle: { color: AXIS_POINTER_COLOR, width: 1 } },

@@ -2,7 +2,7 @@
 
 import ReactECharts from "echarts-for-react";
 import type { ChartComponentProps, ChartConfig, ChartConfigSchema, Row } from "@/types";
-import { CHART_COLORS, useEchartsTheme } from "@/lib/theme";
+import { useEchartsTheme } from "@/lib/theme";
 
 // ---------------------------------------------------------------------------
 // Config schema
@@ -48,7 +48,7 @@ export function transformer(rows: Row[], config: ChartConfig): ChartComponentPro
  * Supports multiple metrics and cross-filter on bar click.
  */
 export default function BarChart({ data, config, onCrossFilter }: ChartComponentProps) {
-  const { TEXT_COLOR, SPLIT_LINE_COLOR, AXIS_LINE_COLOR, TOOLTIP_STYLE } = useEchartsTheme();
+  const { TEXT_COLOR, SPLIT_LINE_COLOR, AXIS_LINE_COLOR, TOOLTIP_STYLE, chartColors } = useEchartsTheme();
 
   if (!data?.length) {
     return (
@@ -108,7 +108,7 @@ export default function BarChart({ data, config, onCrossFilter }: ChartComponent
 
   const option = {
     backgroundColor: "transparent",
-    color: CHART_COLORS,
+    color: chartColors,
     tooltip: {
       trigger: "axis",
       ...TOOLTIP_STYLE,

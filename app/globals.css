@@ -39,14 +39,14 @@
   --accent-hover: var(--accent-deep);
   --destructive:  var(--error);
 
-  /* Chart categorical palette — 7 colours, matches lib/theme.ts CHART_COLORS */
-  --chart-1: #5B8AF5;
-  --chart-2: #EE6B82;
-  --chart-3: #2CC8A4;
-  --chart-4: #F5B731;
-  --chart-5: #9F6CF7;
-  --chart-6: #3DBDE8;
-  --chart-7: #F47A4A;
+  /* Chart categorical palette — cyan gradient, light → deep */
+  --chart-1: #CFFAFE;   /* cyan-100  */
+  --chart-2: #A5F3FC;   /* cyan-200  */
+  --chart-3: #67E8F9;   /* cyan-300  */
+  --chart-4: #22D3EE;   /* cyan-400  */
+  --chart-5: #06B6D4;   /* cyan-500  */
+  --chart-6: #0891B2;   /* cyan-600  */
+  --chart-7: #0E7490;   /* cyan-700  */
 
   /* Heatmap sequential palette (light → --accent-deep) */
   --heatmap-0: #ECFEFF;
@@ -80,58 +80,61 @@
    Dark mode overrides — applied when <html class="dark">
    --------------------------------------------------------------------------- */
 .dark {
-  /* Backgrounds */
-  --bg-base:     #0D1117;
-  --bg-surface:  #161B22;
-  --bg-elevated: #1C2128;
-  --bg-border:   #30363D;
-  --bg-hover:    #21262D;
+  /* Backgrounds — near-black navy */
+  --bg-base:     #070B10;
+  --bg-surface:  #0C1018;
+  --bg-elevated: #111620;
+  --bg-border:   #1C2130;
+  --bg-hover:    #161B28;
 
-  /* Primary accent — slightly brighter for dark contrast */
-  --accent:        #22D3EE;
-  --accent-bright: #67E8F9;
-  --accent-deep:   #0891B2;
-  --accent-cyan:   #06B6D4;
+  /* Primary accent — electric cyan */
+  --accent:        #00D4E8;
+  --accent-bright: #5EECFA;
+  --accent-deep:   #0097B2;
+  --accent-cyan:   #00C8D8;
 
-  /* Text */
-  --text-primary:   #E6EDF3;
-  --text-secondary: #8B949E;
-  --text-muted:     #6E7681;
+  /* Text — bright white */
+  --text-primary:   #E8EEF8;
+  --text-secondary: #7D8BA0;
+  --text-muted:     #4A5568;
 
   /* Semantic */
-  --success:  #3FB950;
-  --warning:  #D29922;
-  --error:    #F85149;
-  --info:     #22D3EE;
+  --success:  #00D084;
+  --warning:  #F5A623;
+  --error:    #FF4F6A;
+  --info:     #00D4E8;
+
+  /* Chart palette — vibrant neon for dark backgrounds */
+  --chart-1: #00D4E8;   /* electric cyan  */
+  --chart-2: #FF4F8B;   /* hot pink       */
+  --chart-3: #00E5A0;   /* neon emerald   */
+  --chart-4: #FFB800;   /* vivid amber    */
+  --chart-5: #A855F7;   /* bright violet  */
+  --chart-6: #38BDFF;   /* sky blue       */
+  --chart-7: #FF6B35;   /* vivid orange   */
 
   /* Accent opacity variants */
-  --accent-10: rgba(34,211,238,0.10);
-  --accent-15: rgba(34,211,238,0.15);
+  --accent-10: rgba(0,212,232,0.10);
+  --accent-15: rgba(0,212,232,0.15);
 
   /* Error opacity variants */
-  --error-bg:     rgba(248,81,73,0.07);
-  --error-border: rgba(248,81,73,0.15);
+  --error-bg:     rgba(255,79,106,0.08);
+  --error-border: rgba(255,79,106,0.18);
 
-  /* Neutrals (inverted for dark) */
-  --slate-400: #64748B;
-  --slate-900: #E2E8F0;
-  --gray-300:  #555F6B;
+  /* Neutrals */
+  --slate-400: #4A5568;
+  --slate-900: #E2EAF8;
+  --gray-300:  #2D3748;
 
-  /* Heatmap — reversed direction for dark backgrounds */
-  --heatmap-0: #0E7490;
-  --heatmap-1: #0891B2;
-  --heatmap-2: #06B6D4;
-  --heatmap-3: #22D3EE;
+  /* Heatmap — dark-to-bright cyan */
+  --heatmap-0: #0A1F2E;
+  --heatmap-1: #0097B2;
+  --heatmap-2: #00C8D8;
+  --heatmap-3: #00D4E8;
 
-  /* Login stays dark regardless — no overrides needed */
-}
-
-/* ---------------------------------------------------------------------------
-   Dark mode — global filter transform on body
-   Single parent-level rule; all children inherit the effect automatically.
-   --------------------------------------------------------------------------- */
-.dark body {
-  /* filter: saturate(1) brightness(1.5) contrast(1.5) hue-rotate(700deg); */
+  /* Login page — dark card */
+  --login-card-bg:     rgba(12,16,24,0.92);
+  --login-card-border: rgba(28,33,48,0.80);
 }
 
 /* ---------------------------------------------------------------------------

@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, useState } from "react";
+import { createContext, useContext, useEffect, useState, startTransition } from "react";
 
 export type Theme = "light" | "dark";
 
@@ -13,15 +13,19 @@ interface ThemeContextValue {
 const ThemeContext = createContext<ThemeContextValue | null>(null);
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
-  // Initialise from the class already set by the FOUC inline script.
-  // The inline script has already applied the correct html class before React
-  // hydrates, so we just read the DOM — no extra effect needed.
-  const [theme, setThemeState] = useState<Theme>(() => {
-    if (typeof document !== "undefined") {
-      return document.documentElement.classList.contains("dark") ? "dark" : "light";
-    }
-    return "dark"; // SSR default — matches FOUC script default
-  });
+  // Always start with the SSR default ("dark").
+  // The FOUC inline script has already applied the correct class to <html>
+  // before React hydrates, so there is no visual flash. After mount we sync
+  // React state to whatever the script actually set, using startTransition so
+  // the update is non-urgent and the React Compiler doesn't flag it.
+  const [theme, setThemeState] = useState<Theme>("dark");
+
+  useEffect(() => {
+    const stored = localStorage.getItem("theme") as Theme | null;
+    const resolved: Theme = stored === "light" ? "light" : "dark";
+    applyThemeClass(resolved);
+    startTransition(() => setThemeState(resolved));
+  }, []);
 
   const setTheme = (t: Theme) => {
     const html = document.documentElement;
@@ -29,7 +33,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     // Temporarily add transition class for smooth crossfade.
     html.classList.add("theme-transitioning");
     applyThemeClass(t);
-    setThemeState(t);
+    startTransition(() => setThemeState(t));
     localStorage.setItem("theme", t);
 
     // Remove transition class after animation completes.

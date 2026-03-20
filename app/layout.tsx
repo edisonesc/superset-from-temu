@@ -40,7 +40,7 @@ export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <head>
         {/* FOUC prevention — must run synchronously before any paint */}
         <script dangerouslySetInnerHTML={{ __html: themeScript }} />

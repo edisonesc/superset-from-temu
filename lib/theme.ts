@@ -42,15 +42,15 @@ import { useTheme } from "@/components/theme-provider";
 // Chart categorical palette — same for both themes (vivid colours work on both)
 // ---------------------------------------------------------------------------
 
-/** 7-colour categorical palette for all series-based charts. */
+/** 7-colour cyan gradient palette — light to deep, mirrors heatmap scale. */
 export const CHART_COLORS = [
-  "#5B8AF5", // --chart-1  cornflower blue
-  "#EE6B82", // --chart-2  salmon rose
-  "#2CC8A4", // --chart-3  seafoam
-  "#F5B731", // --chart-4  golden
-  "#9F6CF7", // --chart-5  soft violet
-  "#3DBDE8", // --chart-6  azure
-  "#F47A4A", // --chart-7  terracotta
+  "#CFFAFE", // --chart-1  cyan-100
+  "#A5F3FC", // --chart-2  cyan-200
+  "#67E8F9", // --chart-3  cyan-300
+  "#22D3EE", // --chart-4  cyan-400
+  "#06B6D4", // --chart-5  cyan-500
+  "#0891B2", // --chart-6  cyan-600
+  "#0E7490", // --chart-7  cyan-700
 ] as const;
 
 /** Scatter chart uses a tighter, blue-anchored palette. */
@@ -89,6 +89,10 @@ export interface ThemeTokens {
   // Heatmap
   HEATMAP_GRADIENT: readonly [string, string, string, string, string];
   HEATMAP_TOOLTIP_DIM: string;
+
+  // Chart palettes (theme-specific)
+  chartColors: readonly string[];
+  scatterColors: readonly string[];
 
   // Scatter
   SCATTER_EMPHASIS_SHADOW: string;
@@ -141,6 +145,9 @@ export const LIGHT_TOKENS: ThemeTokens = {
   HEATMAP_TOOLTIP_DIM: "#94A3B8", // --slate-400
   SCATTER_EMPHASIS_SHADOW: "rgba(99,102,241,0.4)",
 
+  chartColors: CHART_COLORS,
+  scatterColors: SCATTER_COLORS,
+
   EDITOR_BG:              "#FFFFFF",                // --bg-surface
   EDITOR_TEXT:            "#111827",                // --text-primary
   EDITOR_CARET:           "#20A7C9",                // --accent
@@ -160,46 +167,63 @@ export const LIGHT_TOKENS: ThemeTokens = {
 // ---------------------------------------------------------------------------
 
 export const DARK_TOKENS: ThemeTokens = {
-  TEXT_COLOR:          "#6E7681", // --text-muted dark
-  SPLIT_LINE_COLOR:    "#21262D", // --bg-hover dark
-  AXIS_LINE_COLOR:     "#30363D", // --bg-border dark
-  AXIS_POINTER_COLOR:  "#E2E8F0", // --slate-900 dark (inverted)
+  TEXT_COLOR:          "#4A5568", // --text-muted dark
+  SPLIT_LINE_COLOR:    "#161B28", // --bg-hover dark
+  AXIS_LINE_COLOR:     "#1C2130", // --bg-border dark
+  AXIS_POINTER_COLOR:  "#E2EAF8", // --slate-900 dark (inverted)
 
   TOOLTIP_STYLE: {
-    backgroundColor: "#161B22",   // --bg-surface dark
-    borderColor:     "#30363D",   // --bg-border dark
+    backgroundColor: "#0C1018",   // --bg-surface dark
+    borderColor:     "#1C2130",   // --bg-border dark
     borderWidth: 1,
-    textStyle: { color: "#E6EDF3", fontSize: 12 }, // --text-primary dark
+    textStyle: { color: "#E8EEF8", fontSize: 12 }, // --text-primary dark
     extraCssText:
-      "border-radius:2px;box-shadow:0 4px 16px rgba(0,0,0,0.40);padding:10px 14px;",
+      "border-radius:2px;box-shadow:0 4px 24px rgba(0,0,0,0.60);padding:10px 14px;",
   },
 
-  PIE_LABEL_COLOR:     "#8B949E", // --text-secondary dark
-  PIE_LABEL_LINE_COLOR:"#555F6B", // --gray-300 dark
+  PIE_LABEL_COLOR:     "#7D8BA0", // --text-secondary dark
+  PIE_LABEL_LINE_COLOR:"#2D3748", // --gray-300 dark
 
   HEATMAP_GRADIENT: [
-    "#0E7490", // --heatmap-0 dark (reversed)
-    "#0891B2", // --heatmap-1 dark
-    "#06B6D4", // --heatmap-2 dark
-    "#22D3EE", // --heatmap-3 dark
-    "#67E8F9", // --heatmap-4 dark (lightest)
+    "#0A1F2E", // --heatmap-0 dark
+    "#0097B2", // --heatmap-1 dark
+    "#00C8D8", // --heatmap-2 dark
+    "#00D4E8", // --heatmap-3 dark
+    "#5EECFA", // --heatmap-4 dark (brightest)
   ],
 
-  HEATMAP_TOOLTIP_DIM: "#64748B", // --slate-400 dark
-  SCATTER_EMPHASIS_SHADOW: "rgba(99,102,241,0.5)",
+  HEATMAP_TOOLTIP_DIM: "#4A5568", // --slate-400 dark
+  SCATTER_EMPHASIS_SHADOW: "rgba(0,212,232,0.4)",
 
-  EDITOR_BG:              "#161B22",                // --bg-surface dark
-  EDITOR_TEXT:            "#E6EDF3",                // --text-primary dark
-  EDITOR_CARET:           "#22D3EE",                // --accent dark
-  EDITOR_ACTIVE_LINE:     "#1C2128",                // --bg-elevated dark
-  EDITOR_SELECTION:       "rgba(34,211,238,0.15)",  // --accent-15 dark
-  EDITOR_GUTTER_BG:       "#1C2128",                // --bg-elevated dark
-  EDITOR_GUTTER_BORDER:   "#30363D",                // --bg-border dark
-  EDITOR_GUTTER_TEXT:     "#6E7681",                // --text-muted dark
-  EDITOR_TOOLTIP_BG:      "#161B22",                // --bg-surface dark
-  EDITOR_TOOLTIP_BORDER:  "#30363D",                // --bg-border dark
-  EDITOR_AUTOCOMPLETE_HOVER: "rgba(34,211,238,0.10)", // --accent-10 dark
-  EDITOR_PLACEHOLDER:     "#6E7681",                // --text-muted dark
+  chartColors: [
+    "#00D4E8", // electric cyan
+    "#FF4F8B", // hot pink
+    "#00E5A0", // neon emerald
+    "#FFB800", // vivid amber
+    "#A855F7", // bright violet
+    "#38BDFF", // sky blue
+    "#FF6B35", // vivid orange
+  ],
+  scatterColors: [
+    "#00D4E8", // electric cyan
+    "#A855F7", // bright violet
+    "#00E5A0", // neon emerald
+    "#FFB800", // vivid amber
+    "#FF4F8B", // hot pink
+  ],
+
+  EDITOR_BG:              "#0C1018",                // --bg-surface dark
+  EDITOR_TEXT:            "#E8EEF8",                // --text-primary dark
+  EDITOR_CARET:           "#00D4E8",                // --accent dark
+  EDITOR_ACTIVE_LINE:     "#111620",                // --bg-elevated dark
+  EDITOR_SELECTION:       "rgba(0,212,232,0.15)",   // --accent-15 dark
+  EDITOR_GUTTER_BG:       "#111620",                // --bg-elevated dark
+  EDITOR_GUTTER_BORDER:   "#1C2130",                // --bg-border dark
+  EDITOR_GUTTER_TEXT:     "#4A5568",                // --text-muted dark
+  EDITOR_TOOLTIP_BG:      "#0C1018",                // --bg-surface dark
+  EDITOR_TOOLTIP_BORDER:  "#1C2130",                // --bg-border dark
+  EDITOR_AUTOCOMPLETE_HOVER: "rgba(0,212,232,0.10)", // --accent-10 dark
+  EDITOR_PLACEHOLDER:     "#4A5568",                // --text-muted dark
 };
 
 // ---------------------------------------------------------------------------

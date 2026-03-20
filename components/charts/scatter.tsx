@@ -2,7 +2,7 @@
 
 import ReactECharts from "echarts-for-react";
 import type { ChartComponentProps, ChartConfig, ChartConfigSchema, Row } from "@/types";
-import { SCATTER_COLORS, useEchartsTheme } from "@/lib/theme";
+import { useEchartsTheme } from "@/lib/theme";
 
 export const configSchema: ChartConfigSchema = {
   fields: [
@@ -28,7 +28,7 @@ export function transformer(rows: Row[], config: ChartConfig): ChartComponentPro
  * Optional bubble size and color dimension grouping.
  */
 export default function ScatterChart({ data, config, onCrossFilter }: ChartComponentProps) {
-  const { TEXT_COLOR, SPLIT_LINE_COLOR, TOOLTIP_STYLE, SCATTER_EMPHASIS_SHADOW } = useEchartsTheme();
+  const { TEXT_COLOR, SPLIT_LINE_COLOR, TOOLTIP_STYLE, SCATTER_EMPHASIS_SHADOW, scatterColors } = useEchartsTheme();
 
   if (!data?.length) {
     return (
@@ -73,7 +73,7 @@ export default function ScatterChart({ data, config, onCrossFilter }: ChartCompo
 
   const option = {
     backgroundColor: "transparent",
-    color: SCATTER_COLORS,
+    color: scatterColors,
     tooltip: {
       trigger: "item",
       ...TOOLTIP_STYLE,
