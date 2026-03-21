@@ -67,12 +67,12 @@ export function DateRangeWidget({ config }: Props) {
   }
 
   return (
-    <div className="flex min-w-0 items-center gap-1 overflow-hidden">
+    <div className="flex items-center gap-1">
       <input
         type="date"
         value={value.from ?? ""}
         onChange={(e) => update({ from: e.target.value || null })}
-        style={{ ...inputStyle, flex: "1 1 0", minWidth: 0 }}
+        style={{ ...inputStyle, flex: "1 1 auto", minWidth: "130px" }}
         title="From"
         onFocus={onFocusInput}
         onBlur={onBlurInput}
@@ -82,7 +82,7 @@ export function DateRangeWidget({ config }: Props) {
         type="date"
         value={value.to ?? ""}
         onChange={(e) => update({ to: e.target.value || null })}
-        style={{ ...inputStyle, flex: "1 1 0", minWidth: 0 }}
+        style={{ ...inputStyle, flex: "1 1 auto", minWidth: "130px" }}
         title="To"
         onFocus={onFocusInput}
         onBlur={onBlurInput}

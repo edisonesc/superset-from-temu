@@ -312,9 +312,9 @@ export function FilterBar({ dashboardId, isEditMode, dashboardCharts }: FilterBa
                 key={config.id}
                 className="flex flex-col gap-2"
                 style={{
-                  minWidth: config.type === "date_range" ? "200px" : "180px",
-                  maxWidth: config.type === "date_range" ? "280px" : "260px",
-                  flex: config.type === "date_range" ? "1 1 200px" : "1 1 180px",
+                  minWidth: config.type === "date_range" ? "380px" : "180px",
+                  maxWidth: config.type === "date_range" ? "480px" : "260px",
+                  flex: config.type === "date_range" ? "1 1 380px" : "1 1 180px",
                   background: "var(--bg-elevated)",
                   border: "1px solid var(--bg-border)",
                   borderRadius: "8px",
