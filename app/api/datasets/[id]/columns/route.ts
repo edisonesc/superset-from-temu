@@ -15,6 +15,9 @@ type ColumnInfo = {
   nullable: boolean;
   isPrimaryKey?: boolean;
   isForeignKey?: boolean;
+  is_temporal?: boolean;
+  is_filterable?: boolean;
+  is_groupable?: boolean;
 };
 
 /**

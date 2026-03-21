@@ -303,6 +303,15 @@ export function buildChartQuery(chart: Chart, dataset: Dataset, dialect: Dialect
     sql += `\nLIMIT ${Math.floor(Number(config.row_limit))}`;
   }
 
+  // Time range filter on the time column (chart-level date range constraint)
+  if (config.time_column?.trim() && config.time_range?.trim()) {
+    const [from, to] = config.time_range.split(",").map((s) => s.trim());
+    const timeRangeFilters: FilterItem[] = [];
+    if (from) timeRangeFilters.push({ column: config.time_column, operator: ">=", value: from });
+    if (to)   timeRangeFilters.push({ column: config.time_column, operator: "<=", value: to });
+    if (timeRangeFilters.length) sql = applyAdHocFilters(sql, timeRangeFilters, dialect);
+  }
+
   // Chart-level ad-hoc filters (baked into the chart, independent of dashboard filters)
   if (config.filters?.length) {
     sql = applyAdHocFilters(sql, config.filters, dialect);

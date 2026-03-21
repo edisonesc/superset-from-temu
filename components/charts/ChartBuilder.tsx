@@ -60,7 +60,7 @@ type Dataset = {
   tableName?: string | null;
 };
 
-type ColumnInfo = { name: string; type: string; is_temporal?: boolean };
+type ColumnInfo = { name: string; type: string; is_temporal?: boolean; is_filterable?: boolean; is_groupable?: boolean };
 
 const FILTER_OPERATORS: FilterItem["operator"][] = [
   "==",
@@ -369,6 +369,10 @@ export default function ChartBuilder({ initialChartId }: Props) {
   const temporalColumns = columns.filter((c) => c.is_temporal);
   const otherColumns = columns.filter((c) => !c.is_temporal);
 
+  // Respect is_groupable / is_filterable flags when explicitly set; undefined = no restriction
+  const groupableColumns = columns.filter((c) => c.is_groupable !== false);
+  const filterableColumns = columns.filter((c) => c.is_filterable !== false);
+
   // ── Render ───────────────────────────────────────────────────────────────
   const ChartComponent = chartDef.component;
 
@@ -635,6 +639,51 @@ export default function ChartBuilder({ initialChartId }: Props) {
                             </option>
                           ))}
                         </SelectBox>
+                        <label
+                          className="block text-xs font-medium mt-2 mb-1.5"
+                          style={{ color: "var(--text-secondary)" }}
+                        >
+                          Time Range
+                        </label>
+                        <div className="flex gap-1 items-center">
+                          <input
+                            type="date"
+                            value={config.time_range?.split(",")[0] ?? ""}
+                            onChange={(e) => {
+                              const from = e.target.value;
+                              const to = config.time_range?.split(",")[1] ?? "";
+                              setConfigField("time_range", from || to ? `${from},${to}` : undefined);
+                            }}
+                            className="flex-1 text-xs px-2 py-1.5 outline-none"
+                            style={{
+                              background: "var(--bg-elevated)",
+                              border: "1px solid var(--bg-border)",
+                              color: "var(--text-primary)",
+                              borderRadius: "2px",
+                            }}
+                            onFocus={(e) => (e.currentTarget.style.borderColor = "var(--accent)")}
+                            onBlur={(e) => (e.currentTarget.style.borderColor = "var(--bg-border)")}
+                          />
+                          <span className="text-xs" style={{ color: "var(--text-muted)" }}>–</span>
+                          <input
+                            type="date"
+                            value={config.time_range?.split(",")[1] ?? ""}
+                            onChange={(e) => {
+                              const from = config.time_range?.split(",")[0] ?? "";
+                              const to = e.target.value;
+                              setConfigField("time_range", from || to ? `${from},${to}` : undefined);
+                            }}
+                            className="flex-1 text-xs px-2 py-1.5 outline-none"
+                            style={{
+                              background: "var(--bg-elevated)",
+                              border: "1px solid var(--bg-border)",
+                              color: "var(--text-primary)",
+                              borderRadius: "2px",
+                            }}
+                            onFocus={(e) => (e.currentTarget.style.borderColor = "var(--accent)")}
+                            onBlur={(e) => (e.currentTarget.style.borderColor = "var(--bg-border)")}
+                          />
+                        </div>
                       </>
                     )}
                   </section>
@@ -799,7 +848,7 @@ export default function ChartBuilder({ initialChartId }: Props) {
                           }
                         >
                           <option value="">— column —</option>
-                          {columns.map((c) => (
+                          {groupableColumns.map((c) => (
                             <option key={c.name} value={c.name}>
                               {c.name}
                             </option>
@@ -1091,7 +1140,7 @@ export default function ChartBuilder({ initialChartId }: Props) {
                               onChange={(v) => updateFilter(i, { column: v })}
                             >
                               <option value="">— column —</option>
-                              {columns.map((c) => (
+                              {filterableColumns.map((c) => (
                                 <option key={c.name} value={c.name}>
                                   {c.name}
                                 </option>
