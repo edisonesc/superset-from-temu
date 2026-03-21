@@ -8,6 +8,7 @@ import { useSession } from "next-auth/react";
 import { toast } from "sonner";
 import { ArrowLeft, Save, RefreshCw, Trash2 } from "@/components/ui/icons";
 import SqlEditor from "@/components/sqllab/SqlEditor";
+import type { FilterItem, SavedMetric } from "@/types";
 
 type Dataset = {
   id: string;
@@ -19,6 +20,8 @@ type Dataset = {
   tableName: string | null;
   sqlDefinition: string | null;
   columnMetadata: unknown;
+  metrics: unknown;
+  defaultFilters: unknown;
   createdBy: string;
   createdAt: string;
   updatedAt: string;
@@ -57,7 +60,9 @@ async function fetchJson<T>(url: string, init?: RequestInit): Promise<T> {
   return json.data as T;
 }
 
-/** Dataset detail page — overview (name, description, connection, SQL/table) + columns tab. */
+const FILTER_OPERATORS = ["==", "!=", ">", "<", ">=", "<=", "in", "not in", "like"] as const;
+
+/** Dataset detail page — Overview, Columns, Metrics, and Default Filters tabs. */
 export default function DatasetDetailPage() {
   const params = useParams();
   const router = useRouter();
@@ -67,13 +72,15 @@ export default function DatasetDetailPage() {
   const { data: session } = useSession();
   const canEdit = ["admin", "alpha"].includes(session?.user?.role ?? "");
 
-  const [activeTab, setActiveTab] = useState<"overview" | "columns">("overview");
+  const [activeTab, setActiveTab] = useState<"overview" | "columns" | "metrics">("overview");
   const [editName, setEditName] = useState<string | null>(null);
   const [editDesc, setEditDesc] = useState<string | null>(null);
   const [editConnectionId, setEditConnectionId] = useState<string | null>(null);
   const [editTableName, setEditTableName] = useState<string | null>(null);
   const [editSqlDefinition, setEditSqlDefinition] = useState<string | null>(null);
   const [localColumns, setLocalColumns] = useState<ColumnMeta[] | null>(null);
+  const [localMetrics, setLocalMetrics] = useState<SavedMetric[] | null>(null);
+  const [localDefaultFilters, setLocalDefaultFilters] = useState<FilterItem[] | null>(null);
   const [isSyncing, setIsSyncing] = useState(false);
 
   const { data: dataset, isLoading, isError } = useQuery<Dataset>({
@@ -88,6 +95,10 @@ export default function DatasetDetailPage() {
       setEditConnectionId(dataset.connectionId);
       setEditTableName(dataset.tableName ?? null);
       setEditSqlDefinition(dataset.sqlDefinition ?? null);
+      setLocalMetrics(Array.isArray(dataset.metrics) ? (dataset.metrics as SavedMetric[]) : []);
+      setLocalDefaultFilters(
+        Array.isArray(dataset.defaultFilters) ? (dataset.defaultFilters as FilterItem[]) : [],
+      );
     }
   }, [dataset]);
 
@@ -129,6 +140,10 @@ export default function DatasetDetailPage() {
       if (editSqlDefinition !== null && editSqlDefinition !== dataset?.sqlDefinition) {
         payload.sqlDefinition = editSqlDefinition;
       }
+      // Save default filters alongside overview changes
+      if (localDefaultFilters !== null) {
+        payload.defaultFilters = localDefaultFilters;
+      }
       return fetchJson(`/api/datasets/${id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
@@ -143,7 +158,6 @@ export default function DatasetDetailPage() {
       queryClient.invalidateQueries({ queryKey: ["dataset", id] });
       queryClient.invalidateQueries({ queryKey: ["datasets"] });
       if (connectionChanged || tableChanged || sqlChanged) {
-        // Clear cached column metadata so the user re-syncs with the new source
         queryClient.invalidateQueries({ queryKey: ["dataset-columns", id] });
         setLocalColumns(null);
         if (connectionChanged) toast.info("Connection changed — sync columns to refresh metadata");
@@ -163,6 +177,21 @@ export default function DatasetDetailPage() {
     onSuccess: () => {
       toast.success("Column metadata saved");
       queryClient.invalidateQueries({ queryKey: ["dataset-columns", id] });
+    },
+    onError: (e) => toast.error(`Save failed: ${(e as Error).message}`),
+  });
+
+  const saveMetrics = useMutation({
+    mutationFn: () =>
+      fetchJson(`/api/datasets/${id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ metrics: localMetrics }),
+      }),
+    onSuccess: () => {
+      toast.success("Metrics saved");
+      queryClient.invalidateQueries({ queryKey: ["dataset", id] });
+      queryClient.invalidateQueries({ queryKey: ["dataset-meta", id] });
     },
     onError: (e) => toast.error(`Save failed: ${(e as Error).message}`),
   });
@@ -218,6 +247,12 @@ export default function DatasetDetailPage() {
       deleteDataset.mutate();
     }
   }
+
+  // Default filters from either localDefaultFilters state or dataset
+  const currentDefaultFilters = localDefaultFilters ?? [];
+  const columnNames = Array.isArray(dataset?.columnMetadata)
+    ? (dataset.columnMetadata as ColumnMeta[]).map((c) => c.name)
+    : [];
 
   const displayColumns = localColumns ?? (columns as ColumnMeta[]);
 
@@ -293,7 +328,7 @@ export default function DatasetDetailPage() {
 
       {/* Tabs */}
       <div className="flex px-6" style={{ background: "var(--bg-surface)", borderBottom: "1px solid var(--bg-border)" }}>
-        {(["overview", "columns"] as const).map((tab) => (
+        {(["overview", "columns", "metrics"] as const).map((tab) => (
           <button
             key={tab}
             onClick={() => setActiveTab(tab)}
@@ -427,6 +462,86 @@ export default function DatasetDetailPage() {
               </div>
             )}
 
+            {/* Default Filters */}
+            <div>
+              <label className="block text-xs font-medium mb-1.5" style={{ color: "var(--text-secondary)" }}>
+                Default Filters
+                <span className="ml-1.5 font-normal" style={{ color: "var(--text-muted)" }}>
+                  — applied to every query on this dataset
+                </span>
+              </label>
+              <div className="space-y-2">
+                {currentDefaultFilters.map((f, i) => (
+                  <div key={i} className="flex gap-1.5 items-center">
+                    <input
+                      value={f.column}
+                      onChange={(e) => {
+                        const next = [...currentDefaultFilters];
+                        next[i] = { ...next[i], column: e.target.value };
+                        setLocalDefaultFilters(next);
+                      }}
+                      placeholder="column"
+                      list={`df-cols-${i}`}
+                      className="flex-1 text-xs px-2 py-1.5 outline-none font-mono"
+                      style={inputStyle}
+                    />
+                    <datalist id={`df-cols-${i}`}>
+                      {columnNames.map((c) => <option key={c} value={c} />)}
+                    </datalist>
+                    <div className="relative" style={{ width: 90 }}>
+                      <select
+                        value={f.operator}
+                        onChange={(e) => {
+                          const next = [...currentDefaultFilters];
+                          next[i] = { ...next[i], operator: e.target.value as FilterItem["operator"] };
+                          setLocalDefaultFilters(next);
+                        }}
+                        className="w-full text-xs px-2 py-1.5 outline-none"
+                        style={{ ...inputStyle, appearance: "none", WebkitAppearance: "none" }}
+                      >
+                        {FILTER_OPERATORS.map((op) => <option key={op} value={op}>{op}</option>)}
+                      </select>
+                    </div>
+                    <input
+                      value={String(f.value ?? "")}
+                      onChange={(e) => {
+                        const next = [...currentDefaultFilters];
+                        const op = next[i].operator;
+                        next[i] = {
+                          ...next[i],
+                          value: (op === "in" || op === "not in")
+                            ? e.target.value.split(",").map((v) => v.trim())
+                            : e.target.value,
+                        };
+                        setLocalDefaultFilters(next);
+                      }}
+                      placeholder={(f.operator === "in" || f.operator === "not in") ? "a, b, c" : "value"}
+                      className="flex-1 text-xs px-2 py-1.5 outline-none"
+                      style={inputStyle}
+                    />
+                    <button
+                      onClick={() => setLocalDefaultFilters(currentDefaultFilters.filter((_, j) => j !== i))}
+                      className="px-1.5 text-xs transition-colors"
+                      style={{ color: "var(--text-muted)" }}
+                      onMouseEnter={(e) => ((e.currentTarget as HTMLButtonElement).style.color = "var(--error)")}
+                      onMouseLeave={(e) => ((e.currentTarget as HTMLButtonElement).style.color = "var(--text-muted)")}
+                    >
+                      ×
+                    </button>
+                  </div>
+                ))}
+                <button
+                  onClick={() =>
+                    setLocalDefaultFilters([...currentDefaultFilters, { column: "", operator: "==", value: "" }])
+                  }
+                  className="text-xs transition-colors"
+                  style={{ color: "var(--accent)" }}
+                >
+                  + Add Filter
+                </button>
+              </div>
+            </div>
+
             {/* Charts using this dataset */}
             {chartList.length > 0 && (
               <div>
@@ -463,7 +578,7 @@ export default function DatasetDetailPage() {
               </button>
             </div>
           </div>
-        ) : (
+        ) : activeTab === "columns" ? (
           /* Columns tab */
           <div className="space-y-4">
             <div className="flex items-center justify-between">
@@ -536,16 +651,10 @@ export default function DatasetDetailPage() {
                           <div className="flex items-center gap-1.5">
                             <code className="text-xs font-mono" style={{ color: "var(--text-primary)" }}>{col.name}</code>
                             {col.isPrimaryKey && (
-                              <span
-                                className="text-[10px] px-1"
-                                style={{ background: "rgba(217,119,6,0.1)", color: "var(--warning)", borderRadius: "2px" }}
-                              >PK</span>
+                              <span className="text-[10px] px-1" style={{ background: "rgba(217,119,6,0.1)", color: "var(--warning)", borderRadius: "2px" }}>PK</span>
                             )}
                             {col.isForeignKey && (
-                              <span
-                                className="text-[10px] px-1"
-                                style={{ background: "rgba(32,167,201,0.1)", color: "var(--accent)", borderRadius: "2px" }}
-                              >FK</span>
+                              <span className="text-[10px] px-1" style={{ background: "rgba(32,167,201,0.1)", color: "var(--accent)", borderRadius: "2px" }}>FK</span>
                             )}
                           </div>
                         </td>
@@ -559,12 +668,7 @@ export default function DatasetDetailPage() {
                             value={col.label ?? col.name}
                             onChange={(e) => updateColumn(idx, "label", e.target.value)}
                             className="w-full text-xs px-2 py-1 outline-none transition-colors"
-                            style={{
-                              background: "var(--bg-elevated)",
-                              border: "1px solid transparent",
-                              color: "var(--text-primary)",
-                              borderRadius: "2px",
-                            }}
+                            style={{ background: "var(--bg-elevated)", border: "1px solid transparent", color: "var(--text-primary)", borderRadius: "2px" }}
                             onFocus={(e) => (e.currentTarget.style.borderColor = "var(--bg-border)")}
                             onBlur={(e) => (e.currentTarget.style.borderColor = "transparent")}
                           />
@@ -575,44 +679,126 @@ export default function DatasetDetailPage() {
                             onChange={(e) => updateColumn(idx, "description", e.target.value)}
                             placeholder="Optional…"
                             className="w-full text-xs px-2 py-1 outline-none transition-colors"
-                            style={{
-                              background: "var(--bg-elevated)",
-                              border: "1px solid transparent",
-                              color: "var(--text-secondary)",
-                              borderRadius: "2px",
-                            }}
+                            style={{ background: "var(--bg-elevated)", border: "1px solid transparent", color: "var(--text-secondary)", borderRadius: "2px" }}
                             onFocus={(e) => (e.currentTarget.style.borderColor = "var(--bg-border)")}
                             onBlur={(e) => (e.currentTarget.style.borderColor = "transparent")}
                           />
                         </td>
                         <td className="px-4 py-2.5 text-center">
-                          <input
-                            type="checkbox"
-                            checked={col.is_temporal ?? false}
-                            onChange={(e) => updateColumn(idx, "is_temporal", e.target.checked)}
-                            style={{ accentColor: "var(--accent-deep)" }}
-                          />
+                          <input type="checkbox" checked={col.is_temporal ?? false} onChange={(e) => updateColumn(idx, "is_temporal", e.target.checked)} style={{ accentColor: "var(--accent-deep)" }} />
                         </td>
                         <td className="px-4 py-2.5 text-center">
-                          <input
-                            type="checkbox"
-                            checked={col.is_filterable ?? true}
-                            onChange={(e) => updateColumn(idx, "is_filterable", e.target.checked)}
-                            style={{ accentColor: "var(--accent-deep)" }}
-                          />
+                          <input type="checkbox" checked={col.is_filterable ?? true} onChange={(e) => updateColumn(idx, "is_filterable", e.target.checked)} style={{ accentColor: "var(--accent-deep)" }} />
                         </td>
                         <td className="px-4 py-2.5 text-center">
-                          <input
-                            type="checkbox"
-                            checked={col.is_groupable ?? true}
-                            onChange={(e) => updateColumn(idx, "is_groupable", e.target.checked)}
-                            style={{ accentColor: "var(--accent-deep)" }}
-                          />
+                          <input type="checkbox" checked={col.is_groupable ?? true} onChange={(e) => updateColumn(idx, "is_groupable", e.target.checked)} style={{ accentColor: "var(--accent-deep)" }} />
                         </td>
                       </tr>
                     ))}
                   </tbody>
                 </table>
+              </div>
+            )}
+          </div>
+        ) : (
+          /* Metrics tab */
+          <div className="max-w-2xl space-y-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium" style={{ color: "var(--text-primary)" }}>Saved Metrics</p>
+                <p className="text-xs mt-0.5" style={{ color: "var(--text-muted)" }}>
+                  Named SQL expressions referenced by charts. Example: <code className="font-mono" style={{ color: "var(--accent-deep)" }}>SUM(revenue)</code>
+                </p>
+              </div>
+              <button
+                onClick={() => saveMetrics.mutate()}
+                disabled={saveMetrics.isPending}
+                className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-white transition-colors disabled:opacity-50"
+                style={{ background: "var(--accent)", borderRadius: "2px" }}
+                onMouseEnter={(e) => ((e.currentTarget as HTMLButtonElement).style.background = "var(--accent-deep)")}
+                onMouseLeave={(e) => ((e.currentTarget as HTMLButtonElement).style.background = "var(--accent)")}
+              >
+                <Save size={12} />
+                {saveMetrics.isPending ? "Saving…" : "Save Metrics"}
+              </button>
+            </div>
+
+            {(localMetrics ?? []).length > 0 && (
+              <div style={{ border: "1px solid var(--bg-border)", borderRadius: "2px", overflow: "hidden" }}>
+                <table className="w-full text-sm">
+                  <thead style={{ background: "var(--bg-elevated)", borderBottom: "1px solid var(--bg-border)" }}>
+                    <tr>
+                      <th className="px-4 py-2.5 text-xs font-semibold uppercase tracking-wide text-left" style={{ color: "var(--text-secondary)", width: "35%" }}>Name</th>
+                      <th className="px-4 py-2.5 text-xs font-semibold uppercase tracking-wide text-left" style={{ color: "var(--text-secondary)" }}>SQL Expression</th>
+                      <th className="px-4 py-2.5 w-8" />
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {(localMetrics ?? []).map((m, idx) => (
+                      <tr
+                        key={idx}
+                        style={{ borderBottom: "1px solid var(--bg-border)", background: idx % 2 === 0 ? "var(--bg-surface)" : "var(--bg-elevated)" }}
+                      >
+                        <td className="px-4 py-2">
+                          <input
+                            value={m.name}
+                            onChange={(e) => {
+                              const next = [...(localMetrics ?? [])];
+                              next[idx] = { ...next[idx], name: e.target.value };
+                              setLocalMetrics(next);
+                            }}
+                            placeholder="Total Revenue"
+                            className="w-full text-xs px-2 py-1 outline-none"
+                            style={{ background: "var(--bg-elevated)", border: "1px solid transparent", color: "var(--text-primary)", borderRadius: "2px" }}
+                            onFocus={(e) => (e.currentTarget.style.borderColor = "var(--bg-border)")}
+                            onBlur={(e) => (e.currentTarget.style.borderColor = "transparent")}
+                          />
+                        </td>
+                        <td className="px-4 py-2">
+                          <input
+                            value={m.expression}
+                            onChange={(e) => {
+                              const next = [...(localMetrics ?? [])];
+                              next[idx] = { ...next[idx], expression: e.target.value };
+                              setLocalMetrics(next);
+                            }}
+                            placeholder="SUM(revenue)"
+                            className="w-full text-xs px-2 py-1 outline-none font-mono"
+                            style={{ background: "var(--bg-elevated)", border: "1px solid transparent", color: "var(--accent-deep)", borderRadius: "2px" }}
+                            onFocus={(e) => (e.currentTarget.style.borderColor = "var(--bg-border)")}
+                            onBlur={(e) => (e.currentTarget.style.borderColor = "transparent")}
+                          />
+                        </td>
+                        <td className="px-2 py-2 text-center">
+                          <button
+                            onClick={() => setLocalMetrics((localMetrics ?? []).filter((_, j) => j !== idx))}
+                            className="px-1 text-xs transition-colors"
+                            style={{ color: "var(--text-muted)" }}
+                            onMouseEnter={(e) => ((e.currentTarget as HTMLButtonElement).style.color = "var(--error)")}
+                            onMouseLeave={(e) => ((e.currentTarget as HTMLButtonElement).style.color = "var(--text-muted)")}
+                          >
+                            ×
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+
+            <button
+              onClick={() => setLocalMetrics([...(localMetrics ?? []), { name: "", expression: "" }])}
+              className="text-xs transition-colors"
+              style={{ color: "var(--accent)" }}
+            >
+              + Add Metric
+            </button>
+
+            {(localMetrics ?? []).length === 0 && (
+              <div className="text-center py-12" style={{ color: "var(--text-muted)" }}>
+                <p className="text-sm">No saved metrics yet.</p>
+                <p className="text-xs mt-1">Click &quot;+ Add Metric&quot; to define reusable SQL expressions.</p>
               </div>
             )}
           </div>

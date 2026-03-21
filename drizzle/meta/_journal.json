@@ -8,6 +8,13 @@
       "when": 1773942402493,
       "tag": "0000_furry_adam_destine",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "5",
+      "when": 1774121592160,
+      "tag": "0001_wealthy_bastion",
+      "breakpoints": true
     }
   ]
 }

@@ -317,8 +317,9 @@ export default function SqlLabPage() {
   // Read persisted sizes after mount to avoid SSR/client hydration mismatch
   useEffect(() => {
     const w = localStorage.getItem("sqllab:leftPanelWidth");
-    if (w) setLeftPanelWidth(Number(w));
     const h = localStorage.getItem("sqllab:bottomPanelHeight");
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    if (w) setLeftPanelWidth(Number(w));
     if (h) setBottomPanelHeight(Number(h));
   }, []);
 

@@ -87,6 +87,10 @@ export const datasets = mysqlTable("datasets", {
   sqlDefinition: text("sql_definition"),
   /** JSON array of { name, type, description } column descriptors. */
   columnMetadata: json("column_metadata"),
+  /** JSON array of { name, expression } saved metrics. */
+  metrics: json("metrics"),
+  /** JSON array of FilterItem pre-filters applied to every query on this dataset. */
+  defaultFilters: json("default_filters"),
   createdBy: varchar("created_by", { length: 128 })
     .notNull()
     .references(() => users.id),

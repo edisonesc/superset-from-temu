@@ -7,6 +7,13 @@ import { z } from "zod";
 import { cache } from "@/lib/redis";
 import type { ApiResponse } from "@/types";
 
+const savedMetricSchema = z.object({ name: z.string().min(1), expression: z.string().min(1) });
+const filterItemSchema = z.object({
+  column: z.string(),
+  operator: z.enum(["==", "!=", ">", "<", ">=", "<=", "in", "not in", "like"]),
+  value: z.unknown(),
+});
+
 const updateDatasetSchema = z.object({
   name: z.string().min(1).optional(),
   description: z.string().optional(),
@@ -14,6 +21,8 @@ const updateDatasetSchema = z.object({
   tableName: z.string().optional(),
   sqlDefinition: z.string().optional(),
   columnMetadata: z.array(z.record(z.string(), z.unknown())).optional(),
+  metrics: z.array(savedMetricSchema).optional(),
+  defaultFilters: z.array(filterItemSchema).optional(),
 });
 
 /**
@@ -42,6 +51,8 @@ export async function GET(
         tableName: datasets.tableName,
         sqlDefinition: datasets.sqlDefinition,
         columnMetadata: datasets.columnMetadata,
+        metrics: datasets.metrics,
+        defaultFilters: datasets.defaultFilters,
         createdBy: datasets.createdBy,
         createdAt: datasets.createdAt,
         updatedAt: datasets.updatedAt,
@@ -107,6 +118,8 @@ export async function PUT(
       if (parsed.data.sqlDefinition !== existing.sqlDefinition) updates.columnMetadata = null;
     }
     if (parsed.data.columnMetadata !== undefined) updates.columnMetadata = parsed.data.columnMetadata;
+    if (parsed.data.metrics !== undefined) updates.metrics = parsed.data.metrics;
+    if (parsed.data.defaultFilters !== undefined) updates.defaultFilters = parsed.data.defaultFilters;
 
     if (parsed.data.connectionId !== undefined) {
       // Verify the new connection exists

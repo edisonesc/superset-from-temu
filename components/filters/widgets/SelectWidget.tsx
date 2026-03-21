@@ -28,6 +28,7 @@ export function SelectWidget({ config }: Props) {
   // Load distinct values on mount if we have a datasetId and column
   useEffect(() => {
     if (!config.datasetId || !config.column) return;
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setLoadingOptions(true);
     fetch(`/api/datasets/${config.datasetId}/values?column=${encodeURIComponent(config.column)}`)
       .then((r) => r.json())

@@ -56,7 +56,7 @@ async function fetchChartMeta(chartId: string) {
   if (!res.ok) throw new Error("Failed to load chart");
   const json = await res.json();
   if (json.error) throw new Error(json.error);
-  return json.data as { id: string; name: string; vizType: string };
+  return json.data as { id: string; name: string; vizType: string; config?: import("@/types").ChartConfig };
 }
 
 // ---------------------------------------------------------------------------
@@ -132,11 +132,13 @@ export const ChartPanel = memo(function ChartPanel({
   });
 
   // Fetch chart data — re-fetches when cross-filters or native filters change
+  const refreshFrequency = metaQuery.data?.config?.refresh_frequency ?? 0;
   const dataQuery = useQuery({
     queryKey: ["chart-data", chartId, filters, nativeFiltersJson],
     queryFn: () => fetchChartData(chartId, filters, nativeFiltersJson),
     enabled: !!metaQuery.data,
     staleTime: 1000 * 60,
+    refetchInterval: refreshFrequency > 0 ? refreshFrequency * 1000 : false,
   });
 
   const isLoading = metaQuery.isLoading || dataQuery.isLoading;

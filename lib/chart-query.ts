@@ -5,7 +5,7 @@ import { cache } from "@/lib/redis";
 import { runQuery } from "@/lib/query-runner";
 import { QUERY_CACHE_TTL_SECONDS } from "@/lib/constants";
 import { createHash } from "crypto";
-import type { ChartComponentProps, ChartConfig, FilterContext, Row } from "@/types";
+import type { ChartComponentProps, ChartConfig, FilterContext, FilterItem, Row, SavedMetric } from "@/types";
 import type { Chart, Dataset } from "@/db/schema";
 import type { FilterValue } from "@/stores/filterStore";
 
@@ -32,6 +32,65 @@ type Dialect = "mysql" | "postgresql";
 function quoteIdentifier(name: string, dialect: Dialect): string {
   if (dialect === "postgresql") return `"${name}"`;
   return `\`${name}\``;
+}
+
+/**
+ * Wraps the base SQL in a subquery and applies ad-hoc FilterItem WHERE conditions.
+ * Used for both chart-level filters (config.filters) and dataset default filters.
+ */
+function applyAdHocFilters(baseSql: string, filters: FilterItem[], dialect: Dialect): string {
+  const conditions: string[] = [];
+
+  for (const { column, operator, value } of filters) {
+    const safeCol = column.replace(/[^a-zA-Z0-9_.]/g, "");
+    if (!safeCol) continue;
+    const quotedCol = quoteIdentifier(safeCol, dialect);
+    const escapeVal = (v: unknown) => String(v).replace(/'/g, "''");
+
+    if (operator === "in" || operator === "not in") {
+      const vals = Array.isArray(value)
+        ? value.map((v) => `'${escapeVal(v)}'`).join(", ")
+        : `'${escapeVal(value)}'`;
+      const op = operator === "in" ? "IN" : "NOT IN";
+      conditions.push(`${quotedCol} ${op} (${vals})`);
+    } else if (operator === "like") {
+      conditions.push(`${quotedCol} LIKE '%${escapeVal(value)}%'`);
+    } else {
+      const sqlOp = operator === "==" ? "=" : operator;
+      conditions.push(`${quotedCol} ${sqlOp} '${escapeVal(value)}'`);
+    }
+  }
+
+  if (conditions.length === 0) return baseSql;
+  return `SELECT * FROM (${baseSql}) AS __adhoc__ WHERE ${conditions.join(" AND ")}`;
+}
+
+/**
+ * Returns a dialect-aware SQL expression that truncates/formats a date column to a time grain.
+ *  - PostgreSQL: DATE_TRUNC('month', "col")
+ *  - MySQL:      DATE_FORMAT(`col`, '%Y-%m')  /  CONCAT(YEAR(`col`), '-Q', QUARTER(`col`))
+ */
+function getTimeExpression(
+  dialect: Dialect,
+  col: string,
+  grain: NonNullable<ChartConfig["time_grain"]>,
+): string {
+  const safe = col.replace(/[`"]/g, "");
+  const quoted = quoteIdentifier(safe, dialect);
+  if (dialect === "postgresql") {
+    return `DATE_TRUNC('${grain}', ${quoted})`;
+  }
+  // MySQL
+  if (grain === "quarter") {
+    return `CONCAT(YEAR(${quoted}), '-Q', QUARTER(${quoted}))`;
+  }
+  const fmtMap: Record<string, string> = {
+    day: "%Y-%m-%d",
+    week: "%Y-%u",
+    month: "%Y-%m",
+    year: "%Y",
+  };
+  return `DATE_FORMAT(${quoted}, '${fmtMap[grain]}')`;
 }
 
 function buildCacheKey(
@@ -138,6 +197,15 @@ function applyFilters(baseSql: string, filters: FilterContext, dialect: Dialect)
 export function buildChartQuery(chart: Chart, dataset: Dataset, dialect: Dialect = "mysql"): string {
   const config = chart.config as ChartConfig;
 
+  // Resolve saved metric names → expressions from dataset.metrics
+  const savedMetrics = Array.isArray((dataset as Record<string, unknown>).metrics)
+    ? ((dataset as Record<string, unknown>).metrics as SavedMetric[])
+    : [];
+  function resolveMetric(m: string): string {
+    const saved = savedMetrics.find((sm) => sm.name === m);
+    return saved ? saved.expression : m;
+  }
+
   // Base table or virtual dataset subquery
   const source = dataset.sqlDefinition
     ? `(${dataset.sqlDefinition}) AS __dataset__`
@@ -145,6 +213,16 @@ export function buildChartQuery(chart: Chart, dataset: Dataset, dialect: Dialect
 
   const selectParts: string[] = [];
   const groupByParts: string[] = [];
+
+  // --- Time column with grain (prepended as first SELECT / GROUP BY) ---
+  if (config.time_column?.trim() && config.time_grain) {
+    const timeExpr = getTimeExpression(dialect, config.time_column, config.time_grain);
+    // Alias back to the original column name so chart renderers that key on
+    // config.x_axis / config.dimension still find the column in result rows.
+    const timeAlias = quoteIdentifier(config.time_column.trim(), dialect);
+    selectParts.push(`${timeExpr} AS ${timeAlias}`);
+    if (!["table", "pivot_table"].includes(chart.vizType)) groupByParts.push(timeExpr);
+  }
 
   // --- Dimension columns (GROUP BY keys) --- (skip empty strings)
   const dims = new Set<string>();
@@ -159,6 +237,14 @@ export function buildChartQuery(chart: Chart, dataset: Dataset, dialect: Dialect
     if (config.longitude?.trim()) dims.add(config.longitude);
     if (config.geo_region?.trim()) dims.add(config.geo_region);
     if (config.color_dimension?.trim()) dims.add(config.color_dimension);
+  }
+
+  // When time grain is active, remove the raw time column from dims so the
+  // truncated expression (DATE_TRUNC / DATE_FORMAT) is the sole grouping for
+  // that column. Without this, both the raw timestamp and the truncated value
+  // appear in GROUP BY, neutralising the grain.
+  if (config.time_column?.trim() && config.time_grain) {
+    dims.delete(config.time_column.trim());
   }
 
   // Table / pivot_table: no GROUP BY, select all if no dims
@@ -180,7 +266,8 @@ export function buildChartQuery(chart: Chart, dataset: Dataset, dialect: Dialect
   const aggregation = config.aggregation;
   let hasAggregation = false;
 
-  rawMetrics.forEach((m, i) => {
+  rawMetrics.forEach((raw, i) => {
+    const m = resolveMetric(raw); // resolve saved metric name → expression
     // If it looks like an aggregation expression (contains a function call), use as-is
     if (/\w+\s*\(/.test(m)) {
       selectParts.push(`${m} AS __metric_${i}__`);
@@ -204,6 +291,29 @@ export function buildChartQuery(chart: Chart, dataset: Dataset, dialect: Dialect
 
   if (isAggChart && groupByParts.length > 0 && hasAggregation) {
     sql += `\nGROUP BY ${groupByParts.join(", ")}`;
+  }
+
+  // ORDER BY / LIMIT (applied before filter wrapping so preview shows correct results)
+  if (config.order_by?.trim()) {
+    const orderCol = quoteIdentifier(config.order_by.replace(/[`"]/g, ""), dialect);
+    const dir = config.sort_order === "DESC" ? "DESC" : "ASC";
+    sql += `\nORDER BY ${orderCol} ${dir}`;
+  }
+  if (config.row_limit && Number(config.row_limit) > 0) {
+    sql += `\nLIMIT ${Math.floor(Number(config.row_limit))}`;
+  }
+
+  // Chart-level ad-hoc filters (baked into the chart, independent of dashboard filters)
+  if (config.filters?.length) {
+    sql = applyAdHocFilters(sql, config.filters, dialect);
+  }
+
+  // Dataset-level default filters (always applied regardless of chart or dashboard filters)
+  const defaultFilters = Array.isArray((dataset as Record<string, unknown>).defaultFilters)
+    ? ((dataset as Record<string, unknown>).defaultFilters as FilterItem[])
+    : [];
+  if (defaultFilters.length > 0) {
+    sql = applyAdHocFilters(sql, defaultFilters, dialect);
   }
 
   return sql;

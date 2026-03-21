@@ -16,10 +16,13 @@ export default function DashboardViewerPage() {
   const { data: session } = useSession();
 
   const {
-    dashboard, layout, filters, isEditMode, isDirty,
+    dashboard, tabs, activeTabId, filters, isEditMode, isDirty,
     loadDashboard, setEditMode, setFilter, clearFilter,
     saveDashboard, publishDashboard, reset,
   } = useDashboardStore();
+
+  // Compute active layout for the filter config chart list
+  const activeLayout = tabs.find((t) => t.id === activeTabId)?.layout ?? [];
 
   const loadFilterConfigs = useFilterStore((s) => s.loadConfigs);
 
@@ -66,10 +69,14 @@ export default function DashboardViewerPage() {
 
   const handleSave = useCallback(async () => {
     setSaving(true);
-    try { await saveDashboard(); toast.success("Dashboard saved"); }
+    try {
+      await saveDashboard();
+      setEditMode(false);
+      toast.success("Dashboard saved");
+    }
     catch (err) { toast.error(err instanceof Error ? err.message : "Save failed"); }
     finally { setSaving(false); }
-  }, [saveDashboard]);
+  }, [saveDashboard, setEditMode]);
 
   const handleDiscard = useCallback(() => {
     if (isDirty && !confirm("Discard unsaved changes?")) return;
@@ -121,11 +128,13 @@ export default function DashboardViewerPage() {
 
   if (!dashboard) return null;
 
-  // Extract chart options from layout for use in filter config modal
-  const dashboardCharts = layout.map((item) => ({
-    id: item.chartId,
-    name: item.chartId, // name resolved inside ChartPanel — use chartId as fallback
-  }));
+  // Extract chart options from active layout for use in filter config modal
+  const dashboardCharts = activeLayout
+    .filter((item) => item.type !== "markdown" && item.chartId)
+    .map((item) => ({
+      id: item.chartId,
+      name: item.chartId, // name resolved inside ChartPanel — use chartId as fallback
+    }));
 
   return (
     <div className="flex h-full flex-col" style={{ background: "var(--bg-base)" }}>
