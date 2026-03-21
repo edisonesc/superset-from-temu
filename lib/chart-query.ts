@@ -144,6 +144,13 @@ export function buildChartQuery(chart: Chart, dataset: Dataset): string {
   if (config.dimension?.trim()) dims.add(config.dimension);
   if (config.rows) config.rows.filter((r) => r.trim()).forEach((r) => dims.add(r));
   if (config.columns) config.columns.filter((c) => c.trim()).forEach((c) => dims.add(c));
+  // Geo chart dimensions (only active when the chart is a geo viz type)
+  if (chart.vizType === "geo") {
+    if (config.latitude?.trim()) dims.add(config.latitude);
+    if (config.longitude?.trim()) dims.add(config.longitude);
+    if (config.geo_region?.trim()) dims.add(config.geo_region);
+    if (config.color_dimension?.trim()) dims.add(config.color_dimension);
+  }
 
   // Table / pivot_table: no GROUP BY, select all if no dims
   const isAggChart = !["table", "pivot_table"].includes(chart.vizType);

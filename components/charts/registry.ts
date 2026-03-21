@@ -14,6 +14,7 @@ import BigNumberChart, { configSchema as bigNumSchema, defaultConfig as bigNumDe
 import BigNumberTotalChart, { configSchema as bigNumTotalSchema, defaultConfig as bigNumTotalDefault, transformer as bigNumTotalTransformer } from "./big-number-total";
 import TableChart, { configSchema as tableSchema, defaultConfig as tableDefault, transformer as tableTransformer } from "./table-chart";
 import PivotTable, { configSchema as pivotSchema, defaultConfig as pivotDefault, transformer as pivotTransformer } from "./pivot-table";
+import GeoChart, { configSchema as geoSchema, defaultConfig as geoDefault, transformer as geoTransformer } from "./geo";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -140,6 +141,16 @@ export const chartRegistry: Record<ChartVizType, ChartDefinition> = {
     component: PivotTable,
     transformer: pivotTransformer,
     defaultConfig: pivotDefault,
+  },
+  geo: {
+    vizType: "geo",
+    label: "Geo Map",
+    description: "Visualise geographic data with scatter, heatmap, or choropleth maps.",
+    icon: "Map",
+    configSchema: geoSchema,
+    component: GeoChart,
+    transformer: geoTransformer,
+    defaultConfig: geoDefault,
   },
 };
 

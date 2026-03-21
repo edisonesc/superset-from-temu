@@ -90,6 +90,16 @@ export interface ThemeTokens {
   HEATMAP_GRADIENT: readonly [string, string, string, string, string];
   HEATMAP_TOOLTIP_DIM: string;
 
+  // Geo map gradient — cream → rose → hot-pink → purple → near-black
+  MAP_GRADIENT: readonly [string, string, string, string, string];
+
+  // Geo map colours (theme-aware)
+  GEO_SEA_COLOR: string;         // ocean / canvas background
+  GEO_AREA_COLOR: string;        // default land fill
+  GEO_AREA_HOVER_COLOR: string;  // emphasis/hover land fill
+  GEO_BORDER_COLOR: string;      // country border stroke
+  GEO_LABEL_COLOR: string;       // continent / region label text
+
   // Chart palettes (theme-specific)
   chartColors: readonly string[];
   scatterColors: readonly string[];
@@ -144,6 +154,21 @@ export const LIGHT_TOKENS: ThemeTokens = {
 
   HEATMAP_TOOLTIP_DIM: "#94A3B8", // --slate-400
   SCATTER_EMPHASIS_SHADOW: "rgba(99,102,241,0.4)",
+
+  MAP_GRADIENT: [
+    "#FFFDE7", // --map-gradient-0  cream white
+    "#FFADB5", // --map-gradient-1  light rose
+    "#E91E8C", // --map-gradient-2  hot pink / magenta
+    "#7B1FA2", // --map-gradient-3  deep purple
+    "#0D001A", // --map-gradient-4  near black
+  ] as const,
+
+  // Geo map — light mode: soft blue-grey sea/land scheme
+  GEO_SEA_COLOR:        "#EBF2F9", // light blue-grey ocean
+  GEO_AREA_COLOR:       "#D6E8F5", // soft blue land — distinct from sea
+  GEO_AREA_HOVER_COLOR: "#AECDE8", // slightly deeper blue on hover
+  GEO_BORDER_COLOR:     "#7A9EC4", // medium blue borders — crisp and visible
+  GEO_LABEL_COLOR:      "#4A7FA8", // muted steel-blue continent labels
 
   chartColors: [
     "#0E7490", // cyan-700  (deepest)
@@ -202,6 +227,21 @@ export const DARK_TOKENS: ThemeTokens = {
 
   HEATMAP_TOOLTIP_DIM: "#4A5568", // --slate-400 dark
   SCATTER_EMPHASIS_SHADOW: "rgba(0,212,232,0.4)",
+
+  MAP_GRADIENT: [
+    "#FFFDE7", // --map-gradient-0
+    "#FFADB5", // --map-gradient-1
+    "#E91E8C", // --map-gradient-2
+    "#7B1FA2", // --map-gradient-3
+    "#0D001A", // --map-gradient-4
+  ] as const,
+
+  // Geo map — dark mode: dark navy scheme matching screenshot reference
+  GEO_SEA_COLOR:        "#0E1118", // near-black sea / canvas background
+  GEO_AREA_COLOR:       "#1C2636", // dark navy land — slightly lighter than sea
+  GEO_AREA_HOVER_COLOR: "rgba(255,255,255,0.07)", // very subtle white overlay on hover
+  GEO_BORDER_COLOR:     "rgba(255,255,255,0.15)", // soft white country outlines
+  GEO_LABEL_COLOR:      "#546E8A", // muted blue-grey continent labels
 
   chartColors: [
     "#5EECFA", // --accent-bright dark (brightest)

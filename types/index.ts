@@ -24,7 +24,8 @@ export type ChartVizType =
   | "big_number"
   | "big_number_total"
   | "table"
-  | "pivot_table";
+  | "pivot_table"
+  | "geo";
 
 // ---------------------------------------------------------------------------
 // API response envelopes
@@ -114,6 +115,13 @@ export interface ChartConfig {
   rows?: string[];
   columns?: string[];
   aggregation?: "SUM" | "AVG" | "COUNT" | "MIN" | "MAX";
+
+  // Geo chart fields
+  latitude?: string;
+  longitude?: string;
+  geo_region?: string;
+  geo_mode?: "scatter" | "heatmap" | "choropleth";
+  geo_cluster?: boolean;
 
   time_range?: string;
   filters?: FilterItem[];

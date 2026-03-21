@@ -55,6 +55,13 @@
   --heatmap-3: #22D3EE;
   /* --heatmap-4 = --accent-deep */
 
+  /* Geo map gradient — cream → rose → hot-pink → purple → near-black */
+  --map-gradient-0: #FFFDE7;
+  --map-gradient-1: #FFADB5;
+  --map-gradient-2: #E91E8C;
+  --map-gradient-3: #7B1FA2;
+  --map-gradient-4: #0D001A;
+
   /* Accent opacity variants — used by SqlEditor selection & autocomplete */
   --accent-10: rgba(32,167,201,0.10);
   --accent-15: rgba(32,167,201,0.15);
@@ -131,6 +138,13 @@
   --heatmap-1: #0097B2;
   --heatmap-2: #00C8D8;
   --heatmap-3: #00D4E8;
+
+  /* Geo map gradient — same values; dark mode CSS filter handles inversion */
+  --map-gradient-0: #FFFDE7;
+  --map-gradient-1: #FFADB5;
+  --map-gradient-2: #E91E8C;
+  --map-gradient-3: #7B1FA2;
+  --map-gradient-4: #0D001A;
 
   /* Login page — dark card */
   --login-card-bg:     rgba(12,16,24,0.92);
