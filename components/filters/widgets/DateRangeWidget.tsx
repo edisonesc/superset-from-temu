@@ -41,6 +41,9 @@ export function DateRangeWidget({ config }: Props) {
     fontSize: "0.75rem",
     padding: "5px 8px",
     width: "100%",
+    maxWidth: "100%",
+    minWidth: 0,
+    boxSizing: "border-box" as const,
     colorScheme: "dark" as const,
     transition: "border-color 0.15s, box-shadow 0.15s",
   };
@@ -64,7 +67,7 @@ export function DateRangeWidget({ config }: Props) {
   }
 
   return (
-    <div className="flex flex-col gap-2">
+    <div className="flex min-w-0 flex-col gap-2 overflow-hidden">
       <div>
         <label className="mb-1 block text-xs font-medium" style={{ color: "var(--text-secondary)" }}>
           From
