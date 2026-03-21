@@ -102,6 +102,25 @@
 
 ---
 
+## Task Management
+
+1. **Plan First**: Write plan to `tasks/todo.md` with checkable items  
+2. **Verify Plan**: Check in before starting implementation  
+3. **Track Progress**: Mark items complete as you go  
+4. **Explain Changes**: High-level summary at each step  
+5. **Document Results**: Add review section to `tasks/todo.md`  
+6. **Capture Lessons**: Update `tasks/lessons.md` after corrections  
+
+---
+
+## Core Principles
+
+- **Simplicity First**: Make every change as simple as possible. Impact minimal code.  
+- **No Laziness**: Find root causes. No temporary fixes. Senior developer standards.  
+- **Minimal Impact**: Only touch what's necessary. No side effects with new bugs.  
+
+---
+
 ### After finishing a task
 
 1. npm run dev — full end to end test:
@@ -115,4 +134,4 @@
    h. ensure variables are strictly type and is a valid type
 2. npm run lint — fix all warnings
 3. npm run build — fix issues if there's any
-4. Update CLAUDE.md — mark all items complete
+4. Once finished, include description on before and after behavior of each feature added/fixed/refactored/planned
