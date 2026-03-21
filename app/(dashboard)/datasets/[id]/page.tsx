@@ -7,6 +7,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useSession } from "next-auth/react";
 import { toast } from "sonner";
 import { ArrowLeft, Save, RefreshCw, Trash2 } from "@/components/ui/icons";
+import SqlEditor from "@/components/sqllab/SqlEditor";
 
 type Dataset = {
   id: string;
@@ -70,6 +71,8 @@ export default function DatasetDetailPage() {
   const [editName, setEditName] = useState<string | null>(null);
   const [editDesc, setEditDesc] = useState<string | null>(null);
   const [editConnectionId, setEditConnectionId] = useState<string | null>(null);
+  const [editTableName, setEditTableName] = useState<string | null>(null);
+  const [editSqlDefinition, setEditSqlDefinition] = useState<string | null>(null);
   const [localColumns, setLocalColumns] = useState<ColumnMeta[] | null>(null);
   const [isSyncing, setIsSyncing] = useState(false);
 
@@ -83,6 +86,8 @@ export default function DatasetDetailPage() {
       setEditName(dataset.name);
       setEditDesc(dataset.description ?? "");
       setEditConnectionId(dataset.connectionId);
+      setEditTableName(dataset.tableName ?? null);
+      setEditSqlDefinition(dataset.sqlDefinition ?? null);
     }
   }, [dataset]);
 
@@ -118,6 +123,12 @@ export default function DatasetDetailPage() {
       if (editConnectionId && editConnectionId !== dataset?.connectionId) {
         payload.connectionId = editConnectionId;
       }
+      if (editTableName !== null && editTableName !== dataset?.tableName) {
+        payload.tableName = editTableName;
+      }
+      if (editSqlDefinition !== null && editSqlDefinition !== dataset?.sqlDefinition) {
+        payload.sqlDefinition = editSqlDefinition;
+      }
       return fetchJson(`/api/datasets/${id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
@@ -126,14 +137,17 @@ export default function DatasetDetailPage() {
     },
     onSuccess: () => {
       const connectionChanged = editConnectionId !== dataset?.connectionId;
+      const tableChanged = editTableName !== null && editTableName !== dataset?.tableName;
+      const sqlChanged = editSqlDefinition !== null && editSqlDefinition !== dataset?.sqlDefinition;
       toast.success("Dataset saved");
       queryClient.invalidateQueries({ queryKey: ["dataset", id] });
       queryClient.invalidateQueries({ queryKey: ["datasets"] });
-      if (connectionChanged) {
-        // Clear cached column metadata so the user re-syncs with the new connection
+      if (connectionChanged || tableChanged || sqlChanged) {
+        // Clear cached column metadata so the user re-syncs with the new source
         queryClient.invalidateQueries({ queryKey: ["dataset-columns", id] });
         setLocalColumns(null);
-        toast.info("Connection changed — sync columns to refresh metadata");
+        if (connectionChanged) toast.info("Connection changed — sync columns to refresh metadata");
+        else toast.info("Source changed — sync columns to refresh metadata");
       }
     },
     onError: (e) => toast.error(`Save failed: ${(e as Error).message}`),
@@ -373,23 +387,43 @@ export default function DatasetDetailPage() {
             {dataset.tableName && !dataset.sqlDefinition && (
               <div>
                 <label className="block text-xs font-medium mb-1.5" style={{ color: "var(--text-secondary)" }}>Table</label>
-                <code className="text-sm font-mono" style={{ color: "var(--text-primary)" }}>{dataset.tableName}</code>
+                {canEdit ? (
+                  <input
+                    value={editTableName ?? dataset.tableName}
+                    onChange={(e) => setEditTableName(e.target.value)}
+                    className="w-full text-sm px-3 py-2 outline-none transition-colors font-mono"
+                    style={inputStyle}
+                    onFocus={(e) => (e.currentTarget.style.borderColor = "var(--accent)")}
+                    onBlur={(e) => (e.currentTarget.style.borderColor = "var(--bg-border)")}
+                  />
+                ) : (
+                  <code className="text-sm font-mono" style={{ color: "var(--text-primary)" }}>{dataset.tableName}</code>
+                )}
               </div>
             )}
             {dataset.sqlDefinition && (
               <div>
                 <label className="block text-xs font-medium mb-1.5" style={{ color: "var(--text-secondary)" }}>SQL Definition</label>
-                <pre
-                  className="text-xs font-mono overflow-auto max-h-48 p-3"
-                  style={{
-                    background: "var(--bg-elevated)",
-                    border: "1px solid var(--bg-border)",
-                    color: "var(--text-primary)",
-                    borderRadius: "2px",
-                  }}
-                >
-                  {dataset.sqlDefinition}
-                </pre>
+                {canEdit ? (
+                  <div style={{ border: "1px solid var(--bg-border)", borderRadius: "2px", overflow: "hidden" }}>
+                    <SqlEditor
+                      value={editSqlDefinition ?? dataset.sqlDefinition}
+                      onChange={(v) => setEditSqlDefinition(v)}
+                    />
+                  </div>
+                ) : (
+                  <pre
+                    className="text-xs font-mono overflow-auto max-h-48 p-3"
+                    style={{
+                      background: "var(--bg-elevated)",
+                      border: "1px solid var(--bg-border)",
+                      color: "var(--text-primary)",
+                      borderRadius: "2px",
+                    }}
+                  >
+                    {dataset.sqlDefinition}
+                  </pre>
+                )}
               </div>
             )}
 

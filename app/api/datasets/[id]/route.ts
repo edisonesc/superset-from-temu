@@ -97,8 +97,14 @@ export async function PUT(
     const updates: Record<string, unknown> = {};
     if (parsed.data.name !== undefined) updates.name = parsed.data.name;
     if (parsed.data.description !== undefined) updates.description = parsed.data.description;
-    if (parsed.data.tableName !== undefined) updates.tableName = parsed.data.tableName;
-    if (parsed.data.sqlDefinition !== undefined) updates.sqlDefinition = parsed.data.sqlDefinition;
+    if (parsed.data.tableName !== undefined) {
+      updates.tableName = parsed.data.tableName;
+      if (parsed.data.tableName !== existing.tableName) updates.columnMetadata = null;
+    }
+    if (parsed.data.sqlDefinition !== undefined) {
+      updates.sqlDefinition = parsed.data.sqlDefinition;
+      if (parsed.data.sqlDefinition !== existing.sqlDefinition) updates.columnMetadata = null;
+    }
     if (parsed.data.columnMetadata !== undefined) updates.columnMetadata = parsed.data.columnMetadata;
 
     if (parsed.data.connectionId !== undefined) {
