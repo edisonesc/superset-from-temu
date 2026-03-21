@@ -116,6 +116,18 @@ export interface ChartConfig {
   columns?: string[];
   aggregation?: "SUM" | "AVG" | "COUNT" | "MIN" | "MAX";
 
+  // Pie chart aggregation options
+  /** Trim whitespace and merge labels case-insensitively before grouping. */
+  label_normalize?: boolean;
+  /** Explicit label remapping applied before grouping, e.g. { "USA": "United States" }. */
+  label_mapping?: Record<string, string>;
+  /**
+   * Keep only the top-N slices (by value, desc) and bucket the rest as "Others".
+   * 0 = disabled. Stored as number; ChartBuilder select emits a string that is
+   * coerced to number in the transformer.
+   */
+  top_n?: number;
+
   // Geo chart fields
   latitude?: string;
   longitude?: string;

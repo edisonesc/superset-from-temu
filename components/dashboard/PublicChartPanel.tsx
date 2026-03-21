@@ -1,6 +1,6 @@
 "use client";
 
-import { memo } from "react";
+import { memo, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { getChart } from "@/components/charts/registry";
 import type { FilterContext, ChartComponentProps, ChartVizType } from "@/types";
@@ -68,13 +68,21 @@ export const PublicChartPanel = memo(function PublicChartPanel({
   const vizType = metaQuery.data?.vizType as ChartVizType | undefined;
 
   let ChartComponent = null;
+  let chartTransformer = getChart("bar").transformer;
   if (vizType) {
     try {
-      ChartComponent = getChart(vizType).component;
+      const def = getChart(vizType);
+      ChartComponent = def.component;
+      chartTransformer = def.transformer;
     } catch {
       // Unknown viz type
     }
   }
+
+  const transformedData = useMemo(() => {
+    if (!dataQuery.data) return null;
+    return chartTransformer(dataQuery.data.data, dataQuery.data.config);
+  }, [dataQuery.data, chartTransformer]);
 
   return (
     <div
@@ -103,10 +111,10 @@ export const PublicChartPanel = memo(function PublicChartPanel({
           </div>
         )}
 
-        {!isLoading && !error && dataQuery.data && ChartComponent && (
+        {!isLoading && !error && transformedData && ChartComponent && (
           <ChartComponent
-            data={dataQuery.data.data}
-            config={dataQuery.data.config}
+            data={transformedData.data}
+            config={transformedData.config}
             onCrossFilter={onCrossFilter}
           />
         )}

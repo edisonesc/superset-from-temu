@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useCallback, useRef } from "react";
+import React, { useState, useEffect, useCallback, useRef, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
@@ -182,6 +182,13 @@ export default function ChartBuilder({ initialChartId }: Props) {
   function setConfigField(key: keyof ChartConfig, value: unknown) {
     setConfig((prev) => ({ ...prev, [key]: value }));
   }
+
+  // Apply the chart-specific transformer to raw preview data before rendering.
+  // This is where aggregation, label normalization, and other data transforms run.
+  const transformedPreview = useMemo(() => {
+    if (!previewData) return null;
+    return chartDef.transformer(previewData.data, previewData.config);
+  }, [previewData, chartDef]);
 
   // ── Render ───────────────────────────────────────────────────────────────
   const ChartComponent = chartDef.component;
@@ -579,8 +586,8 @@ export default function ChartBuilder({ initialChartId }: Props) {
             ) : (
               <div className="h-full">
                 <ChartComponent
-                  data={previewData.data}
-                  config={previewData.config}
+                  data={transformedPreview?.data ?? previewData.data}
+                  config={transformedPreview?.config ?? previewData.config}
                 />
               </div>
             )}

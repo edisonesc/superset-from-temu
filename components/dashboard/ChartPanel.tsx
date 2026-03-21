@@ -145,13 +145,21 @@ export const ChartPanel = memo(function ChartPanel({
   const vizType = metaQuery.data?.vizType as ChartVizType | undefined;
 
   let ChartComponent = null;
+  let chartTransformer = getChart("bar").transformer; // default placeholder, overwritten below
   if (vizType) {
     try {
-      ChartComponent = getChart(vizType).component;
+      const def = getChart(vizType);
+      ChartComponent = def.component;
+      chartTransformer = def.transformer;
     } catch {
       // Unknown viz type — handled below
     }
   }
+
+  const transformedData = useMemo(() => {
+    if (!dataQuery.data) return null;
+    return chartTransformer(dataQuery.data.data, dataQuery.data.config);
+  }, [dataQuery.data, chartTransformer]);
 
   return (
     <div
@@ -231,10 +239,10 @@ export const ChartPanel = memo(function ChartPanel({
           </div>
         )}
 
-        {!isLoading && !error && dataQuery.data && ChartComponent && (
+        {!isLoading && !error && transformedData && ChartComponent && (
           <ChartComponent
-            data={dataQuery.data.data}
-            config={dataQuery.data.config}
+            data={transformedData.data}
+            config={transformedData.config}
             onCrossFilter={onCrossFilter}
           />
         )}
