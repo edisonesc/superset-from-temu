@@ -24,10 +24,11 @@ export default async function DashboardLayout({
     <div className="flex min-h-screen" style={{ background: "var(--bg-base)" }}>
       {/* ── Sidebar ─────────────────────────────────────────────────────── */}
       <aside
-        className="flex w-56 flex-shrink-0 flex-col"
+        className="fixed inset-y-0 left-0 flex w-56 flex-col"
         style={{
           background: "var(--bg-surface)",
           borderRight: "1px solid var(--bg-border)",
+          zIndex: 40,
         }}
       >
         {/* Brand */}
@@ -72,7 +73,7 @@ export default async function DashboardLayout({
       </aside>
 
       {/* ── Main content ─────────────────────────────────────────────────── */}
-      <main className="flex-1 overflow-auto">{children}</main>
+      <main className="ml-56 flex-1 overflow-auto">{children}</main>
     </div>
   );
 }
