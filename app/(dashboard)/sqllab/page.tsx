@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { format as formatSql } from "sql-formatter";
@@ -10,6 +10,7 @@ import {
 } from "@tanstack/react-table";
 import { useSqlLabStore } from "@/stores/sqllab-store";
 import SqlEditor from "@/components/sqllab/SqlEditor";
+import ResizeHandle from "@/components/sqllab/ResizeHandle";
 import type { QueryResult } from "@/lib/query-runner";
 import type { SchemaTable } from "@/app/api/connections/[id]/schema/route";
 
@@ -307,6 +308,23 @@ export default function SqlLabPage() {
   const [editingTabId, setEditingTabId] = useState<string | null>(null);
   const [editingTabName, setEditingTabName] = useState("");
 
+  const [leftPanelWidth, setLeftPanelWidth] = useState<number>(224);
+  const [bottomPanelHeight, setBottomPanelHeight] = useState<number>(224);
+
+  const LEFT_PANEL_MIN = 140, LEFT_PANEL_MAX = 450;
+  const BOTTOM_PANEL_MIN = 100, BOTTOM_PANEL_MAX = 550;
+
+  // Read persisted sizes after mount to avoid SSR/client hydration mismatch
+  useEffect(() => {
+    const w = localStorage.getItem("sqllab:leftPanelWidth");
+    if (w) setLeftPanelWidth(Number(w));
+    const h = localStorage.getItem("sqllab:bottomPanelHeight");
+    if (h) setBottomPanelHeight(Number(h));
+  }, []);
+
+  useEffect(() => { localStorage.setItem("sqllab:leftPanelWidth", String(leftPanelWidth)); }, [leftPanelWidth]);
+  useEffect(() => { localStorage.setItem("sqllab:bottomPanelHeight", String(bottomPanelHeight)); }, [bottomPanelHeight]);
+
   const { data: connectionsData } = useQuery({
     queryKey: ["connections"],
     queryFn: () => fetch("/api/connections").then((r) => r.json()).then((d) => (d.data ?? []) as Connection[]),
@@ -412,6 +430,42 @@ export default function SqlLabPage() {
 
   const isRunDisabled = !activeTab?.connectionId || !activeTab?.sql?.trim() || activeTab.status === "running";
 
+  const handleLeftResizeStart = useCallback((e: React.MouseEvent) => {
+    const startX = e.clientX, startWidth = leftPanelWidth;
+    const onMouseMove = (ev: MouseEvent) => {
+      const next = Math.min(LEFT_PANEL_MAX, Math.max(LEFT_PANEL_MIN, startWidth + ev.clientX - startX));
+      setLeftPanelWidth(next);
+    };
+    const onMouseUp = () => {
+      document.removeEventListener("mousemove", onMouseMove);
+      document.removeEventListener("mouseup", onMouseUp);
+      document.body.style.cursor = "";
+      document.body.style.userSelect = "";
+    };
+    document.body.style.cursor = "col-resize";
+    document.body.style.userSelect = "none";
+    document.addEventListener("mousemove", onMouseMove);
+    document.addEventListener("mouseup", onMouseUp);
+  }, [leftPanelWidth, LEFT_PANEL_MIN, LEFT_PANEL_MAX]);
+
+  const handleBottomResizeStart = useCallback((e: React.MouseEvent) => {
+    const startY = e.clientY, startHeight = bottomPanelHeight;
+    const onMouseMove = (ev: MouseEvent) => {
+      const next = Math.min(BOTTOM_PANEL_MAX, Math.max(BOTTOM_PANEL_MIN, startHeight + startY - ev.clientY));
+      setBottomPanelHeight(next);
+    };
+    const onMouseUp = () => {
+      document.removeEventListener("mousemove", onMouseMove);
+      document.removeEventListener("mouseup", onMouseUp);
+      document.body.style.cursor = "";
+      document.body.style.userSelect = "";
+    };
+    document.body.style.cursor = "row-resize";
+    document.body.style.userSelect = "none";
+    document.addEventListener("mousemove", onMouseMove);
+    document.addEventListener("mouseup", onMouseUp);
+  }, [bottomPanelHeight, BOTTOM_PANEL_MIN, BOTTOM_PANEL_MAX]);
+
   return (
     <div
       className="flex h-screen flex-col"
@@ -480,9 +534,10 @@ export default function SqlLabPage() {
       <div className="flex min-h-0 flex-1">
         {/* Schema browser */}
         {schemaBrowserOpen && (
+          <>
           <div
-            className="flex w-56 shrink-0 flex-col"
-            style={{ background: "var(--bg-surface)", borderRight: "1px solid var(--bg-border)" }}
+            className="flex shrink-0 flex-col"
+            style={{ width: `${leftPanelWidth}px`, background: "var(--bg-surface)" }}
           >
             <div
               className="flex items-center justify-between px-3 py-2"
@@ -501,6 +556,8 @@ export default function SqlLabPage() {
             </div>
             <SchemaBrowser connections={connections} onInsertTable={handleInsertTable} />
           </div>
+          <ResizeHandle direction="horizontal" onResizeStart={handleLeftResizeStart} />
+          </>
         )}
 
         {/* Editor + results */}
@@ -586,7 +643,8 @@ export default function SqlLabPage() {
           </div>
 
           {/* Bottom panel */}
-          <div className="flex h-56 shrink-0 flex-col" style={{ borderTop: "1px solid var(--bg-border)" }}>
+          <ResizeHandle direction="vertical" onResizeStart={handleBottomResizeStart} />
+          <div className="flex shrink-0 flex-col" style={{ height: `${bottomPanelHeight}px` }}>
             {/* Panel tabs */}
             <div
               className="flex items-center"

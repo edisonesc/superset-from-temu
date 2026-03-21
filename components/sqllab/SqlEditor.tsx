@@ -46,6 +46,7 @@ function buildEditorTheme(t: ThemeTokens, dark: boolean) {
         color: t.EDITOR_TEXT,
       },
       ".cm-placeholder": { color: t.EDITOR_PLACEHOLDER },
+      "&.cm-all-selected .cm-content": { background: t.EDITOR_SELECTION },
     },
     { dark },
   );
@@ -124,6 +125,12 @@ export default function SqlEditor({ value, onChange, onRun, className }: SqlEdit
             if (update.docChanged) {
               onChangeRef.current(update.state.doc.toString());
             }
+            const { from, to } = update.state.selection.main;
+            const allSelected = update.state.selection.ranges.length === 1
+              && from === 0
+              && to === update.state.doc.length
+              && to > 0;
+            update.view.dom.classList.toggle("cm-all-selected", allSelected);
           }),
           EditorView.lineWrapping,
         ],
