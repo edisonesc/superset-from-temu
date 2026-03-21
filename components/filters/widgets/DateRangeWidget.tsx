@@ -67,61 +67,50 @@ export function DateRangeWidget({ config }: Props) {
   }
 
   return (
-    <div className="flex min-w-0 flex-col gap-2 overflow-hidden">
-      <div>
-        <label className="mb-1 block text-xs font-medium" style={{ color: "var(--text-secondary)" }}>
-          From
-        </label>
-        <input
-          type="date"
-          value={value.from ?? ""}
-          onChange={(e) => update({ from: e.target.value || null })}
-          style={inputStyle}
+    <div className="flex min-w-0 items-center gap-1 overflow-hidden">
+      <input
+        type="date"
+        value={value.from ?? ""}
+        onChange={(e) => update({ from: e.target.value || null })}
+        style={{ ...inputStyle, flex: "1 1 0", minWidth: 0 }}
+        title="From"
+        onFocus={onFocusInput}
+        onBlur={onBlurInput}
+      />
+      <span className="shrink-0 text-xs" style={{ color: "var(--text-muted)" }}>–</span>
+      <input
+        type="date"
+        value={value.to ?? ""}
+        onChange={(e) => update({ to: e.target.value || null })}
+        style={{ ...inputStyle, flex: "1 1 0", minWidth: 0 }}
+        title="To"
+        onFocus={onFocusInput}
+        onBlur={onBlurInput}
+      />
+      <div className="relative shrink-0" style={{ width: "80px" }}>
+        <select
+          value={value.grain ?? "P1D"}
+          onChange={(e) => update({ grain: e.target.value as TimeGrain })}
+          style={{ ...selectStyle, width: "100%" }}
+          title="Time grain"
           onFocus={onFocusInput}
           onBlur={onBlurInput}
-        />
-      </div>
-      <div>
-        <label className="mb-1 block text-xs font-medium" style={{ color: "var(--text-secondary)" }}>
-          To
-        </label>
-        <input
-          type="date"
-          value={value.to ?? ""}
-          onChange={(e) => update({ to: e.target.value || null })}
-          style={inputStyle}
-          onFocus={onFocusInput}
-          onBlur={onBlurInput}
-        />
-      </div>
-      <div>
-        <label className="mb-1 block text-xs font-medium" style={{ color: "var(--text-secondary)" }}>
-          Grain
-        </label>
-        <div className="relative">
-          <select
-            value={value.grain ?? "P1D"}
-            onChange={(e) => update({ grain: e.target.value as TimeGrain })}
-            style={selectStyle}
-            onFocus={onFocusInput}
-            onBlur={onBlurInput}
-          >
-            {GRAIN_OPTIONS.map((g) => (
-              <option key={g.value} value={g.value}>
-                {g.label}
-              </option>
-            ))}
-          </select>
-          <svg
-            className="pointer-events-none absolute right-2 top-1/2 h-3 w-3 -translate-y-1/2"
-            style={{ display: "block", color: "var(--text-muted)" }}
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-          </svg>
-        </div>
+        >
+          {GRAIN_OPTIONS.map((g) => (
+            <option key={g.value} value={g.value}>
+              {g.label}
+            </option>
+          ))}
+        </select>
+        <svg
+          className="pointer-events-none absolute right-2 top-1/2 h-3 w-3 -translate-y-1/2"
+          style={{ display: "block", color: "var(--text-muted)" }}
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+        </svg>
       </div>
     </div>
   );
