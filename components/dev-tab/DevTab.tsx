@@ -34,9 +34,12 @@ export function DevTab() {
     },
     {
       title: "Onboarding",
-      content: <MarkdownContent content={readMd("ONBOARDING.md")} />,
+      content: <MarkdownContent content={readMd("docs/ONBOARDING.md")} />,
     },
-    // ── Add more items below ──────────────────────────────────────────────
+    {
+      title: "Features",
+      content: <MarkdownContent content={readMd("docs/FEATURES.md")} />,
+    },
   ];
 
   return <DevTabFAB items={items} />;
