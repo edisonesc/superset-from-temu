@@ -22,7 +22,7 @@
 <img width="2727" height="352" alt="image" src="https://github.com/user-attachments/assets/9d8f75e4-d94a-491f-91cc-3697fac732a5" />
 <img width="873" height="969" alt="image" src="https://github.com/user-attachments/assets/83bfe9d7-5208-4aea-8803-f445ac538f2d" />
 
-For codebase, see [ONBOARDING.md](ONBOARDING.md).
+For codebase, see [ONBOARDING.md](docs/ONBOARDING.md).
 
 ## Method 1: Local Dev
 
