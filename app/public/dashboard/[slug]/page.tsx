@@ -4,8 +4,9 @@ import { useState, useCallback } from "react";
 import { useParams, useSearchParams } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import { PublicChartPanel } from "@/components/dashboard/PublicChartPanel";
+import { MarkdownContent } from "@/components/dev-tab/markdown";
 import type { FilterContext } from "@/types";
-import type { LayoutItem } from "@/stores/dashboard-store";
+import type { LayoutItem, DashboardTab } from "@/stores/dashboard-store";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -16,9 +17,21 @@ type PublicDashboard = {
   name: string;
   description: string | null;
   slug: string;
-  layout: LayoutItem[] | null;
+  layout: unknown;
   isPublished: boolean;
 };
+
+// Detect and normalise either legacy flat LayoutItem[] or new DashboardTab[] format.
+function normaliseTabs(raw: unknown): DashboardTab[] {
+  if (!Array.isArray(raw) || raw.length === 0) {
+    return [{ id: "default", name: "Tab 1", layout: [] }];
+  }
+  const first = raw[0] as Record<string, unknown>;
+  if (typeof first.name === "string" && Array.isArray(first.layout)) {
+    return raw as DashboardTab[];
+  }
+  return [{ id: "default", name: "Tab 1", layout: raw as LayoutItem[] }];
+}
 
 // ---------------------------------------------------------------------------
 // PublicDashboardPage
@@ -34,12 +47,13 @@ export default function PublicDashboardPage() {
   const isEmbed = searchParams.get("embed") === "true";
 
   const [filters, setFilters] = useState<FilterContext>({});
+  const [activeTabIdx, setActiveTabIdx] = useState(0);
 
   const handleCrossFilter = useCallback((column: string, value: unknown) => {
     setFilters((prev) => {
-      // Toggle: clicking the same value clears that filter
       if (prev[column] === value) {
-        const { [column]: _, ...rest } = prev;
+        const rest = { ...prev };
+        delete rest[column];
         return rest;
       }
       return { ...prev, [column]: value };
@@ -58,8 +72,6 @@ export default function PublicDashboardPage() {
     retry: false,
     staleTime: 1000 * 60 * 5,
   });
-
-  const layout = (data?.layout as LayoutItem[]) ?? [];
 
   // ---------------------------------------------------------------------------
   // States
@@ -87,6 +99,10 @@ export default function PublicDashboardPage() {
     );
   }
 
+  const tabs = normaliseTabs(data.layout);
+  const clampedIdx = Math.min(activeTabIdx, tabs.length - 1);
+  const activeLayout = tabs[clampedIdx]?.layout ?? [];
+
   const activeFilters = Object.entries(filters).filter(
     ([, v]) => v !== null && v !== undefined,
   );
@@ -108,6 +124,29 @@ export default function PublicDashboardPage() {
             <p className="mt-0.5 text-sm" style={{ color: "var(--text-muted)" }}>{data.description}</p>
           )}
         </header>
+      )}
+
+      {/* Tab bar — shown when dashboard has multiple tabs */}
+      {tabs.length > 1 && (
+        <div
+          className="flex items-center gap-1 overflow-x-auto px-4"
+          style={{ background: "var(--bg-surface)", borderBottom: "1px solid var(--bg-border)" }}
+        >
+          {tabs.map((tab, idx) => (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTabIdx(idx)}
+              className="px-4 py-2 text-xs font-medium whitespace-nowrap transition-colors"
+              style={{
+                color: idx === clampedIdx ? "var(--accent)" : "var(--text-secondary)",
+                borderBottom: idx === clampedIdx ? "2px solid var(--accent)" : "2px solid transparent",
+                background: "none",
+              }}
+            >
+              {tab.name}
+            </button>
+          ))}
+        </div>
       )}
 
       {/* Active cross-filter chips — hidden in embed mode */}
@@ -145,7 +184,7 @@ export default function PublicDashboardPage() {
 
       {/* Dashboard grid */}
       <main className="flex-1 overflow-auto p-4">
-        {layout.length === 0 ? (
+        {activeLayout.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-20 text-center">
             <p className="text-sm" style={{ color: "var(--text-muted)" }}>This dashboard has no charts.</p>
           </div>
@@ -154,7 +193,7 @@ export default function PublicDashboardPage() {
             className="grid gap-4"
             style={{ gridTemplateColumns: "repeat(12, 1fr)" }}
           >
-            {layout.map((item) => (
+            {activeLayout.map((item) => (
               <div
                 key={item.id}
                 style={{
@@ -162,11 +201,17 @@ export default function PublicDashboardPage() {
                   minHeight: `${item.rowSpan * 80}px`,
                 }}
               >
-                <PublicChartPanel
-                  chartId={item.chartId}
-                  filters={filters}
-                  onCrossFilter={handleCrossFilter}
-                />
+                {item.type === "markdown" ? (
+                  <div className="h-full p-3" style={{ background: "var(--bg-surface)", border: "1px solid var(--bg-border)", borderRadius: "2px" }}>
+                    <MarkdownContent content={item.content ?? ""} />
+                  </div>
+                ) : item.chartId ? (
+                  <PublicChartPanel
+                    chartId={item.chartId}
+                    filters={filters}
+                    onCrossFilter={handleCrossFilter}
+                  />
+                ) : null}
               </div>
             ))}
           </div>

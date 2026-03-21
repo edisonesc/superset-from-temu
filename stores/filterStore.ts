@@ -117,7 +117,8 @@ export const useFilterStore = create<FilterState & FilterActions>()(
 
     clearFilter: (filterId) =>
       set((state) => {
-        const { [filterId]: _, ...rest } = state.values;
+        const rest = { ...state.values };
+        delete rest[filterId];
         return { values: rest };
       }),
 
@@ -140,8 +141,10 @@ export const useFilterStore = create<FilterState & FilterActions>()(
 
     removeConfig: (filterId) =>
       set((state) => {
-        const { [filterId]: _c, ...configs } = state.configs;
-        const { [filterId]: _v, ...values } = state.values;
+        const configs = { ...state.configs };
+        const values = { ...state.values };
+        delete configs[filterId];
+        delete values[filterId];
         return { configs, values };
       }),
 

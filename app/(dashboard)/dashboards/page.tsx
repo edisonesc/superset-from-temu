@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
@@ -27,6 +27,7 @@ function timeAgo(dateStr: string) {
 
 function CreateDashboardModal({ onClose }: { onClose: () => void }) {
   const router = useRouter();
+  const queryClient = useQueryClient();
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [loading, setLoading] = useState(false);
@@ -43,6 +44,7 @@ function CreateDashboardModal({ onClose }: { onClose: () => void }) {
       const json = await res.json();
       if (json.error) { toast.error(json.error); return; }
       toast.success("Dashboard created");
+      await queryClient.invalidateQueries({ queryKey: ["dashboards"] });
       router.push(`/dashboards/${json.data.id}`);
     } catch {
       toast.error("Failed to create dashboard");

@@ -137,7 +137,22 @@ export interface ChartConfig {
 
   time_range?: string;
   filters?: FilterItem[];
+
+  // Time grain handling
+  time_column?: string;
+  time_grain?: "day" | "week" | "month" | "quarter" | "year";
+
+  // Query controls
+  row_limit?: number;
+  order_by?: string;
+  sort_order?: "ASC" | "DESC";
+
+  // Auto-refresh (seconds; 0 or undefined = off)
+  refresh_frequency?: number;
 }
+
+/** A saved metric expression attached to a dataset. */
+export type SavedMetric = { name: string; expression: string };
 
 /** Describes a single configurable field exposed in the ChartBuilder form. */
 export type ChartConfigField = {

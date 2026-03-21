@@ -8,7 +8,31 @@ import { createId } from "@paralleldrive/cuid2";
 import type { ApiResponse } from "@/types";
 
 /** Shape of each panel in the dashboard layout JSON. */
-type LayoutItem = { id: string; chartId: string; colSpan: number; rowSpan: number };
+type LayoutItem = {
+  id: string;
+  chartId: string;
+  type?: string;
+  content?: string;
+  colSpan: number;
+  rowSpan: number;
+};
+
+/** New tabbed layout format. */
+type DashboardTab = { id: string; name: string; layout: LayoutItem[] };
+
+/** Extract all chart panels from either layout format. */
+function extractChartPanels(raw: unknown[]): LayoutItem[] {
+  if (raw.length === 0) return [];
+  const first = raw[0] as Record<string, unknown>;
+  // Tabs format: array of { id, name, layout[] }
+  if (typeof first.name === "string" && Array.isArray(first.layout)) {
+    return (raw as DashboardTab[]).flatMap((t) => t.layout).filter(
+      (p) => p.chartId && p.type !== "markdown",
+    );
+  }
+  // Legacy flat format
+  return (raw as LayoutItem[]).filter((p) => p.chartId && p.type !== "markdown");
+}
 
 // ---------------------------------------------------------------------------
 // Validation
@@ -137,17 +161,17 @@ export async function PUT(
 
     // Sync dashboard_charts join table when layout is updated
     if (parsed.data.layout !== undefined) {
-      const layout = parsed.data.layout as LayoutItem[];
+      const chartPanels = extractChartPanels(parsed.data.layout as unknown[]);
 
       // Delete all existing dashboard_charts for this dashboard
       await db
         .delete(dashboardCharts)
         .where(eq(dashboardCharts.dashboardId, id));
 
-      // Re-insert from the new layout
-      if (layout.length > 0) {
+      // Re-insert only chart panels (skip markdown and empty-chartId panels)
+      if (chartPanels.length > 0) {
         await db.insert(dashboardCharts).values(
-          layout.map((item) => ({
+          chartPanels.map((item) => ({
             id: item.id ?? createId(),
             dashboardId: id,
             chartId: item.chartId,
