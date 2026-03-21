@@ -20,7 +20,7 @@
 
 For codebase, see [ONBOARDING.md](ONBOARDING.md).
 
-## Prerequisites & Setup
+## Method 1: Local Dev
 
 ### 1. System Requirements
 
@@ -98,6 +98,46 @@ curl -X POST http://localhost:3000/api/auth/register \
 New users default to the gamma role. Manually update the role to admin in MySQL if needed:
 
 `UPDATE users SET role = 'admin' WHERE email = 'admin@example.com';`
+
+---
+
+## Method 2: Docker (all-in-one)
+
+Runs the app, MySQL, and Redis inside Docker with live reload. No local Node.js, MySQL, or Redis required.
+
+### 1. Configure Environment
+
+Copy the example env and fill in the two secrets:
+
+```bash
+cp .env.example .env.local
+```
+
+```
+NEXTAUTH_SECRET=   # openssl rand -base64 32
+ENCRYPTION_KEY=    # openssl rand -hex 32
+```
+
+> `DATABASE_URL`, `REDIS_URL`, and `NEXTAUTH_URL` are set automatically by the compose file — leave them blank or omit them from `.env.local`.
+
+### 2. Start
+
+```bash
+docker compose -f docker-compose.dev.yml up --build
+```
+
+On first start this will:
+- Create the MySQL and Redis containers
+- Run Drizzle migrations
+- Seed an admin user (`admin@gmail.com` / `password`) and a test connection
+- Start Next.js at http://localhost:3000 with HMR
+
+### Stopping & Data
+
+```bash
+docker compose -f docker-compose.dev.yml down        # stop — data persists
+docker compose -f docker-compose.dev.yml down -v     # stop + wipe all volumes (fresh DB)
+```
 
 ---
 
