@@ -8,6 +8,7 @@ import type { QueryResult } from "@/lib/query-runner";
 const bodySchema = z.object({
   connectionId: z.string().min(1),
   sql: z.string().min(1),
+  bypassCache: z.boolean().optional(),
 });
 
 /**
@@ -34,7 +35,8 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
       );
     }
 
-    const result = await runQuery(parsed.data.connectionId, parsed.data.sql, session.user.id);
+    // SQL Lab always bypasses cache so users see fresh results on every run
+    const result = await runQuery(parsed.data.connectionId, parsed.data.sql, session.user.id, parsed.data.bypassCache ?? true);
     return NextResponse.json<ApiResponse<QueryResult>>({ data: result, error: null });
   } catch (err) {
     const message = err instanceof Error ? err.message : "Query failed";

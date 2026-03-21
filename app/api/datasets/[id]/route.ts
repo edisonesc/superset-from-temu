@@ -4,6 +4,7 @@ import { db } from "@/db";
 import { datasets, databaseConnections, charts } from "@/db/schema";
 import { eq, sql } from "drizzle-orm";
 import { z } from "zod";
+import { cache } from "@/lib/redis";
 import type { ApiResponse } from "@/types";
 
 const updateDatasetSchema = z.object({
@@ -130,6 +131,13 @@ export async function PUT(
     }
 
     await db.update(datasets).set(updates).where(eq(datasets.id, id));
+
+    // Invalidate chart caches for all charts that use this dataset
+    const affectedCharts = await db
+      .select({ id: charts.id })
+      .from(charts)
+      .where(eq(charts.datasetId, id));
+    await Promise.all(affectedCharts.map((c) => cache.delPattern(`chart:${c.id}:*`)));
 
     return NextResponse.json<ApiResponse<{ id: string }>>({ data: { id }, error: null });
   } catch (err) {

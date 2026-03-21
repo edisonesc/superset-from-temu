@@ -1,5 +1,5 @@
 import { db } from "@/db";
-import { charts, datasets } from "@/db/schema";
+import { charts, datasets, databaseConnections } from "@/db/schema";
 import { eq } from "drizzle-orm";
 import { cache } from "@/lib/redis";
 import { runQuery } from "@/lib/query-runner";
@@ -26,6 +26,14 @@ export type NativeFilterInput = {
 // Helpers
 // ---------------------------------------------------------------------------
 
+type Dialect = "mysql" | "postgresql";
+
+/** Quotes a SQL identifier using the correct syntax for the given dialect. */
+function quoteIdentifier(name: string, dialect: Dialect): string {
+  if (dialect === "postgresql") return `"${name}"`;
+  return `\`${name}\``;
+}
+
 function buildCacheKey(
   chartId: string,
   filters: FilterContext,
@@ -46,7 +54,7 @@ function buildCacheKey(
  *  - select:     column IN ('v1', 'v2', ...)
  *  - search:     column LIKE '%query%'
  */
-function applyNativeFilters(baseSql: string, filters: NativeFilterInput[]): string {
+function applyNativeFilters(baseSql: string, filters: NativeFilterInput[], dialect: Dialect): string {
   if (filters.length === 0) return baseSql;
 
   const conditions: string[] = [];
@@ -54,7 +62,7 @@ function applyNativeFilters(baseSql: string, filters: NativeFilterInput[]): stri
   for (const { column, value } of filters) {
     const safeCol = column.replace(/[^a-zA-Z0-9_.]/g, "");
     if (!safeCol) continue;
-    const quotedCol = `\`${safeCol}\``;
+    const quotedCol = quoteIdentifier(safeCol, dialect);
 
     if (value.type === "date_range") {
       if (value.from) {
@@ -91,20 +99,21 @@ function applyNativeFilters(baseSql: string, filters: NativeFilterInput[]): stri
  * Wraps the base SQL in a subquery and applies cross-filter WHERE conditions.
  * Column names are sanitised to [a-zA-Z0-9_] to prevent injection.
  */
-function applyFilters(baseSql: string, filters: FilterContext): string {
+function applyFilters(baseSql: string, filters: FilterContext, dialect: Dialect): string {
   const conditions = Object.entries(filters)
     .filter(([, val]) => val !== null && val !== undefined)
     .map(([col, val]) => {
       const safeCol = col.replace(/[^a-zA-Z0-9_.]/g, "");
       if (!safeCol) return null;
+      const quotedCol = quoteIdentifier(safeCol, dialect);
       if (Array.isArray(val)) {
         const vals = val
           .map((v) => `'${String(v).replace(/'/g, "''")}'`)
           .join(", ");
-        return `\`${safeCol}\` IN (${vals})`;
+        return `${quotedCol} IN (${vals})`;
       }
       const safeVal = String(val).replace(/'/g, "''");
-      return `\`${safeCol}\` = '${safeVal}'`;
+      return `${quotedCol} = '${safeVal}'`;
     })
     .filter(Boolean) as string[];
 
@@ -126,13 +135,13 @@ function applyFilters(baseSql: string, filters: FilterContext): string {
  * @param dataset - The dataset record (includes tableName or sqlDefinition)
  * @returns A SQL string ready to pass to runQuery
  */
-export function buildChartQuery(chart: Chart, dataset: Dataset): string {
+export function buildChartQuery(chart: Chart, dataset: Dataset, dialect: Dialect = "mysql"): string {
   const config = chart.config as ChartConfig;
 
   // Base table or virtual dataset subquery
   const source = dataset.sqlDefinition
     ? `(${dataset.sqlDefinition}) AS __dataset__`
-    : `\`${dataset.tableName}\``;
+    : quoteIdentifier(dataset.tableName ?? "", dialect);
 
   const selectParts: string[] = [];
   const groupByParts: string[] = [];
@@ -156,7 +165,7 @@ export function buildChartQuery(chart: Chart, dataset: Dataset): string {
   const isAggChart = !["table", "pivot_table"].includes(chart.vizType);
 
   for (const dim of dims) {
-    const quoted = `\`${dim.replace(/`/g, "")}\``;
+    const quoted = quoteIdentifier(dim.replace(/[`"]/g, ""), dialect);
     selectParts.push(quoted);
     if (isAggChart) groupByParts.push(quoted);
   }
@@ -168,12 +177,21 @@ export function buildChartQuery(chart: Chart, dataset: Dataset): string {
   if (config.comparison_metric?.trim()) rawMetrics.push(config.comparison_metric);
   if (config.bubble_size?.trim()) rawMetrics.push(config.bubble_size);
 
+  const aggregation = config.aggregation;
+  let hasAggregation = false;
+
   rawMetrics.forEach((m, i) => {
-    // If it looks like an aggregation expression (contains a function call)
+    // If it looks like an aggregation expression (contains a function call), use as-is
     if (/\w+\s*\(/.test(m)) {
       selectParts.push(`${m} AS __metric_${i}__`);
+      hasAggregation = true;
+    } else if (isAggChart && aggregation) {
+      // Apply the configured aggregation function to plain column names
+      const quotedCol = quoteIdentifier(m.replace(/[`"]/g, ""), dialect);
+      selectParts.push(`${aggregation}(${quotedCol}) AS __metric_${i}__`);
+      hasAggregation = true;
     } else {
-      selectParts.push(`\`${m.replace(/`/g, "")}\``);
+      selectParts.push(quoteIdentifier(m.replace(/[`"]/g, ""), dialect));
     }
   });
 
@@ -184,7 +202,7 @@ export function buildChartQuery(chart: Chart, dataset: Dataset): string {
 
   let sql = `SELECT ${selectParts.join(", ")}\nFROM ${source}`;
 
-  if (isAggChart && groupByParts.length > 0 && rawMetrics.some((m) => /\w+\s*\(/.test(m))) {
+  if (isAggChart && groupByParts.length > 0 && hasAggregation) {
     sql += `\nGROUP BY ${groupByParts.join(", ")}`;
   }
 
@@ -232,13 +250,22 @@ export async function fetchChartData(
 
   if (!dataset) throw new Error("Dataset not found");
 
+  // Load connection to determine SQL dialect for correct identifier quoting
+  const [connection] = await db
+    .select({ dialect: databaseConnections.dialect })
+    .from(databaseConnections)
+    .where(eq(databaseConnections.id, dataset.connectionId))
+    .limit(1);
+
+  const dialect: Dialect = connection?.dialect === "postgresql" ? "postgresql" : "mysql";
+
   // Build SQL — apply cross-filters first, then native filters
-  const baseSql = buildChartQuery(chart, dataset);
+  const baseSql = buildChartQuery(chart, dataset, dialect);
   let filteredSql = Object.keys(filters).length
-    ? applyFilters(baseSql, filters)
+    ? applyFilters(baseSql, filters, dialect)
     : baseSql;
   if (nativeFilters.length > 0) {
-    filteredSql = applyNativeFilters(filteredSql, nativeFilters);
+    filteredSql = applyNativeFilters(filteredSql, nativeFilters, dialect);
   }
 
   // Execute via runQuery (handles limit enforcement + history logging)

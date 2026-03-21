@@ -81,10 +81,13 @@ export async function runQuery(
   connectionId: string,
   sql: string,
   userId: string,
+  bypassCache?: boolean,
 ): Promise<QueryResult> {
   const cacheKey = buildCacheKey(connectionId, sql);
-  const cached = await cache.get<QueryResult>(cacheKey);
-  if (cached) return cached;
+  if (!bypassCache) {
+    const cached = await cache.get<QueryResult>(cacheKey);
+    if (cached) return cached;
+  }
 
   const [connection] = await db
     .select()
@@ -174,7 +177,9 @@ export async function runQuery(
       durationMs: result.durationMs,
     });
 
-    await cache.set(cacheKey, result, QUERY_CACHE_TTL_SECONDS);
+    if (!bypassCache) {
+      await cache.set(cacheKey, result, QUERY_CACHE_TTL_SECONDS);
+    }
     return result;
   } catch (err) {
     const durationMs = Date.now() - start;
