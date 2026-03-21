@@ -84,7 +84,7 @@ function buildGeoComponent(zoom: number, tokens: ThemeTokens) {
     itemStyle: {
       areaColor: tokens.GEO_AREA_COLOR,
       borderColor: tokens.GEO_BORDER_COLOR,
-      borderWidth: 0.3,
+      borderWidth: 0.5,
     },
     silent: false,
   };
@@ -147,6 +147,7 @@ function buildScatterOption(
 
   return {
     backgroundColor: tokens.GEO_SEA_COLOR,
+    labelLayout: { hideOverlap: false },
     color: tokens.scatterColors,
     tooltip: buildTooltip(tokens),
     legend: showLegend
@@ -176,6 +177,7 @@ function buildHeatmapOption(
 
   return {
     backgroundColor: tokens.GEO_SEA_COLOR,
+    labelLayout: { hideOverlap: false },
     tooltip: buildTooltip(tokens),
     geo: buildGeoComponent(zoom, tokens),
     visualMap: buildVisualMap(minVal, maxVal, tokens.HEATMAP_GRADIENT, tokens),
@@ -209,6 +211,7 @@ function buildChoroplethOption(
 
   return {
     backgroundColor: tokens.GEO_SEA_COLOR,
+    labelLayout: { hideOverlap: false },
     tooltip: {
       trigger: "item",
       ...tokens.TOOLTIP_STYLE,
@@ -224,8 +227,14 @@ function buildChoroplethOption(
         roam: true,
         zoom,
         data,
+        label: {
+          show: true,
+          color: tokens.GEO_LABEL_COLOR,
+          fontSize: 10,
+          fontWeight: "bold",
+        },
         emphasis: {
-          label: { show: true, color: tokens.TEXT_COLOR, fontSize: 11 },
+          label: { show: true, color: tokens.GEO_LABEL_COLOR, fontSize: 10 },
           itemStyle: { areaColor: tokens.GEO_AREA_HOVER_COLOR },
         },
         itemStyle: {

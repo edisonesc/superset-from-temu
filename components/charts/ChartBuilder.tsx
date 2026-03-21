@@ -20,11 +20,12 @@ import {
   LayoutGrid,
   Save,
   RefreshCw,
+  Map,
 } from "@/components/ui/icons";
 
 const ICON_MAP: Record<string, React.ComponentType<{ className?: string }>> = {
   BarChart2, TrendingUp, PieChart, ScatterChart, AreaChart,
-  Grid3x3: Grid3X3, Hash, Sigma, Table2, LayoutGrid,
+  Grid3x3: Grid3X3, Hash, Sigma, Table2, LayoutGrid, Map,
 };
 
 // ---------------------------------------------------------------------------

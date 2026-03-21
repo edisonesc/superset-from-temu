@@ -237,11 +237,11 @@ export const DARK_TOKENS: ThemeTokens = {
   ] as const,
 
   // Geo map — dark mode: dark navy scheme matching screenshot reference
-  GEO_SEA_COLOR:        "#0E1118", // near-black sea / canvas background
-  GEO_AREA_COLOR:       "#1C2636", // dark navy land — slightly lighter than sea
-  GEO_AREA_HOVER_COLOR: "rgba(255,255,255,0.07)", // very subtle white overlay on hover
-  GEO_BORDER_COLOR:     "rgba(255,255,255,0.15)", // soft white country outlines
-  GEO_LABEL_COLOR:      "#546E8A", // muted blue-grey continent labels
+  GEO_SEA_COLOR:        "#080D14", // deep blue-black ocean (darkest layer)
+  GEO_AREA_COLOR:       "#1E3A52", // blue-slate land — strong contrast from sea
+  GEO_AREA_HOVER_COLOR: "#2A5070", // deeper teal-blue hover — clearly distinct
+  GEO_BORDER_COLOR:     "rgba(140,180,220,0.45)", // visible blue-white outlines
+  GEO_LABEL_COLOR:      "#8BAEC8", // bright steel-blue labels — easy to read
 
   chartColors: [
     "#5EECFA", // --accent-bright dark (brightest)

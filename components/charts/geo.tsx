@@ -34,6 +34,7 @@ import {
   LegendComponent,
   VisualMapComponent,
 } from "echarts/components";
+import { LabelLayout } from "echarts/features";
 import { CanvasRenderer } from "echarts/renderers";
 
 import { GeoChartEngine } from "@/lib/geo/core/GeoChartEngine";
@@ -59,6 +60,7 @@ echarts.use([
   TooltipComponent,
   LegendComponent,
   VisualMapComponent,
+  LabelLayout,
   CanvasRenderer,
 ]);
 
@@ -252,6 +254,7 @@ export default function GeoChart({
       option={option}
       style={{ height: "100%", width: "100%" }}
       onEvents={onEvents}
+      opts={{ devicePixelRatio: window.devicePixelRatio }}
       notMerge
     />
   );
