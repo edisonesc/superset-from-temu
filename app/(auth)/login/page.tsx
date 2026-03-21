@@ -64,7 +64,7 @@ function LoginForm() {
         {/* Logo / title */}
         <div className="mb-8 text-center">
           <h1 className="text-2xl font-bold tracking-tight text-white">
-            <span style={{ color: "var(--accent-bright)" }}>S</span>UPASET
+            <span style={{ color: "var(--accent-bright)" }}>S</span>UPASET V2
           </h1>
           <p
             className="mt-1 text-sm"

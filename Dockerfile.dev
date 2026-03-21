@@ -1,0 +1,13 @@
+FROM node:20-alpine
+WORKDIR /app
+
+COPY package.json package-lock.json ./
+RUN npm ci
+
+# Source code is mounted as a volume at runtime — no COPY needed
+ENV NODE_ENV=development
+# Required for file-watching inside Docker on WSL2/Linux
+ENV WATCHPACK_POLLING=true
+ENV CHOKIDAR_USEPOLLING=true
+
+EXPOSE 3000

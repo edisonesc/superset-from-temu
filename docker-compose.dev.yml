@@ -1,0 +1,66 @@
+services:
+  db:
+    image: mysql:8
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: secret
+      MYSQL_DATABASE: superset_meta
+    # ports:
+    #   - "3306:3306"
+    volumes:
+      - mysql_data_dev:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-psecret"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data_dev:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    volumes:
+      - .:/app                      # mount source for live reload
+      - node_modules_dev:/app/node_modules  # preserve container's node_modules
+      - next_cache_dev:/app/.next   # isolate build cache
+    environment:
+      NODE_ENV: development
+      WATCHPACK_POLLING: "true"
+      CHOKIDAR_USEPOLLING: "true"
+      NEXTAUTH_URL: http://localhost:3000
+      AUTH_TRUST_HOST: "true"
+      DATABASE_URL: mysql://root:secret@db:3306/superset_meta
+      REDIS_URL: redis://redis:6379
+    env_file:
+      - .env.local   # NEXTAUTH_SECRET, ENCRYPTION_KEY
+    command: >
+      sh -c "node scripts/migrate.mjs &&
+             npx tsx db/seeds/seed-connection.ts &&
+             npm run dev"
+
+volumes:
+  mysql_data_dev:
+  redis_data_dev:
+  node_modules_dev:
+  next_cache_dev:
