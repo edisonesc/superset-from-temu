@@ -11,7 +11,11 @@ for var in DATABASE_URL REDIS_URL NEXTAUTH_SECRET NEXTAUTH_URL ENCRYPTION_KEY; d
 done
 
 echo "▶ Syncing migration history (marking pre-existing tables)..."
-node scripts/mark-migrated.mjs
+for i in $(seq 1 20); do
+  node scripts/mark-migrated.mjs && break
+  echo "  Database not ready, retrying ($i/20)..."
+  sleep 3
+done
 
 echo "▶ Running database migrations..."
 node scripts/migrate.mjs
