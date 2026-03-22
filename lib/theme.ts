@@ -94,11 +94,11 @@ export interface ThemeTokens {
   MAP_GRADIENT: readonly [string, string, string, string, string];
 
   // Geo map colours (theme-aware)
-  GEO_SEA_COLOR: string;         // ocean / canvas background
-  GEO_AREA_COLOR: string;        // default land fill
-  GEO_AREA_HOVER_COLOR: string;  // emphasis/hover land fill
-  GEO_BORDER_COLOR: string;      // country border stroke
-  GEO_LABEL_COLOR: string;       // continent / region label text
+  GEO_SEA_COLOR: string; // ocean / canvas background
+  GEO_AREA_COLOR: string; // default land fill
+  GEO_AREA_HOVER_COLOR: string; // emphasis/hover land fill
+  GEO_BORDER_COLOR: string; // country border stroke
+  GEO_LABEL_COLOR: string; // continent / region label text
 
   // Chart palettes (theme-specific)
   chartColors: readonly string[];
@@ -127,48 +127,50 @@ export interface ThemeTokens {
 // ---------------------------------------------------------------------------
 
 export const LIGHT_TOKENS: ThemeTokens = {
-  TEXT_COLOR:          "#9CA3AF", // --text-muted
-  SPLIT_LINE_COLOR:    "#F1F5F9", // --bg-hover
-  AXIS_LINE_COLOR:     "#E2E8F0", // --bg-border
-  AXIS_POINTER_COLOR:  "#1E293B", // --slate-900
+  TEXT_COLOR: "#9CA3AF", // --text-muted
+  SPLIT_LINE_COLOR: "#F1F5F9", // --bg-hover
+  AXIS_LINE_COLOR: "#E2E8F0", // --bg-border
+  AXIS_POINTER_COLOR: "#1E293B", // --slate-900
 
   TOOLTIP_STYLE: {
-    backgroundColor: "#FFFFFF",   // --bg-surface
-    borderColor:     "#E2E8F0",   // --bg-border
+    backgroundColor: "#FFFFFF", // --bg-surface
+    borderColor: "#E2E8F0", // --bg-border
     borderWidth: 1,
     textStyle: { color: "#111827", fontSize: 12 }, // --text-primary
     extraCssText:
       "border-radius:2px;box-shadow:0 4px 16px rgba(0,0,0,0.10);padding:10px 14px;",
   },
 
-  PIE_LABEL_COLOR:     "#6B7280", // --text-secondary
-  PIE_LABEL_LINE_COLOR:"#D1D5DB", // --gray-300
+  PIE_LABEL_COLOR: "#6B7280", // --text-secondary
+  PIE_LABEL_LINE_COLOR: "#D1D5DB", // --gray-300
 
+  // Aurora Borealis: ice-white → arctic blue → polar cyan → aurora indigo → deep space
   HEATMAP_GRADIENT: [
-    "#ECFEFF", // --heatmap-0
-    "#A5F3FC", // --heatmap-1
-    "#67E8F9", // --heatmap-2
-    "#22D3EE", // --heatmap-3
-    "#0E7490", // --heatmap-4 / --accent-deep
+    "#EEF9FF", // --heatmap-0  ice white
+    "#7ADCF5", // --heatmap-1  arctic blue
+    "#0AB5D4", // --heatmap-2  polar cyan
+    "#4428E0", // --heatmap-3  aurora indigo
+    "#1A0858", // --heatmap-4  deep space (highest value)
   ],
 
   HEATMAP_TOOLTIP_DIM: "#94A3B8", // --slate-400
-  SCATTER_EMPHASIS_SHADOW: "rgba(99,102,241,0.4)",
+  SCATTER_EMPHASIS_SHADOW: "rgba(98,72,236,0.35)",
 
+  // Oceanic: pale sky → sky blue → deep ocean → midnight → void
   MAP_GRADIENT: [
-    "#FFFDE7", // --map-gradient-0  cream white
-    "#FFADB5", // --map-gradient-1  light rose
-    "#E91E8C", // --map-gradient-2  hot pink / magenta
-    "#7B1FA2", // --map-gradient-3  deep purple
-    "#0D001A", // --map-gradient-4  near black
+    "#EDF5FF", // --map-gradient-0  pale sky
+    "#78C0F0", // --map-gradient-1  sky blue
+    "#1870D0", // --map-gradient-2  deep ocean
+    "#2818A8", // --map-gradient-3  midnight blue
+    "#080418", // --map-gradient-4  near-black void
   ] as const,
 
-  // Geo map — light mode: soft blue-grey sea/land scheme
-  GEO_SEA_COLOR:        "#EBF2F9", // light blue-grey ocean
-  GEO_AREA_COLOR:       "#D6E8F5", // soft blue land — distinct from sea
-  GEO_AREA_HOVER_COLOR: "#AECDE8", // slightly deeper blue on hover
-  GEO_BORDER_COLOR:     "#7A9EC4", // medium blue borders — crisp and visible
-  GEO_LABEL_COLOR:      "#4A7FA8", // muted steel-blue continent labels
+  // Geo map — light mode: clean polar cartography
+  GEO_SEA_COLOR: "#DBF0F8", // polar blue ocean
+  GEO_AREA_COLOR: "#E8F4EC", // pale sage land
+  GEO_AREA_HOVER_COLOR: "#B8E2D0", // mint highlight
+  GEO_BORDER_COLOR: "#58A8C8", // steel teal borders
+  GEO_LABEL_COLOR: "#2870A8", // ocean blue labels
 
   chartColors: [
     "#0E7490", // cyan-700  (deepest)
@@ -181,18 +183,18 @@ export const LIGHT_TOKENS: ThemeTokens = {
   ] as const,
   scatterColors: SCATTER_COLORS,
 
-  EDITOR_BG:              "#FFFFFF",                // --bg-surface
-  EDITOR_TEXT:            "#111827",                // --text-primary
-  EDITOR_CARET:           "#20A7C9",                // --accent
-  EDITOR_ACTIVE_LINE:     "#F8FAFC",                // --bg-elevated
-  EDITOR_SELECTION:       "rgba(32,167,201,0.15)",  // --accent-15
-  EDITOR_GUTTER_BG:       "#F8FAFC",                // --bg-elevated
-  EDITOR_GUTTER_BORDER:   "#E2E8F0",                // --bg-border
-  EDITOR_GUTTER_TEXT:     "#9CA3AF",                // --text-muted
-  EDITOR_TOOLTIP_BG:      "#FFFFFF",                // --bg-surface
-  EDITOR_TOOLTIP_BORDER:  "#E2E8F0",                // --bg-border
+  EDITOR_BG: "#FFFFFF", // --bg-surface
+  EDITOR_TEXT: "#111827", // --text-primary
+  EDITOR_CARET: "#20A7C9", // --accent
+  EDITOR_ACTIVE_LINE: "#F8FAFC", // --bg-elevated
+  EDITOR_SELECTION: "rgba(32,167,201,0.15)", // --accent-15
+  EDITOR_GUTTER_BG: "#F8FAFC", // --bg-elevated
+  EDITOR_GUTTER_BORDER: "#E2E8F0", // --bg-border
+  EDITOR_GUTTER_TEXT: "#9CA3AF", // --text-muted
+  EDITOR_TOOLTIP_BG: "#FFFFFF", // --bg-surface
+  EDITOR_TOOLTIP_BORDER: "#E2E8F0", // --bg-border
   EDITOR_AUTOCOMPLETE_HOVER: "rgba(32,167,201,0.10)", // --accent-10
-  EDITOR_PLACEHOLDER:     "#9CA3AF",                // --text-muted
+  EDITOR_PLACEHOLDER: "#9CA3AF", // --text-muted
 };
 
 // ---------------------------------------------------------------------------
@@ -200,48 +202,50 @@ export const LIGHT_TOKENS: ThemeTokens = {
 // ---------------------------------------------------------------------------
 
 export const DARK_TOKENS: ThemeTokens = {
-  TEXT_COLOR:          "#4A5568", // --text-muted dark
-  SPLIT_LINE_COLOR:    "#161B28", // --bg-hover dark
-  AXIS_LINE_COLOR:     "#1C2130", // --bg-border dark
-  AXIS_POINTER_COLOR:  "#E2EAF8", // --slate-900 dark (inverted)
+  TEXT_COLOR: "#4A5568", // --text-muted dark
+  SPLIT_LINE_COLOR: "#161B28", // --bg-hover dark
+  AXIS_LINE_COLOR: "#1C2130", // --bg-border dark
+  AXIS_POINTER_COLOR: "#E2EAF8", // --slate-900 dark (inverted)
 
   TOOLTIP_STYLE: {
-    backgroundColor: "#0C1018",   // --bg-surface dark
-    borderColor:     "#1C2130",   // --bg-border dark
+    backgroundColor: "#0C1018", // --bg-surface dark
+    borderColor: "#1C2130", // --bg-border dark
     borderWidth: 1,
     textStyle: { color: "#E8EEF8", fontSize: 12 }, // --text-primary dark
     extraCssText:
       "border-radius:2px;box-shadow:0 4px 24px rgba(0,0,0,0.60);padding:10px 14px;",
   },
 
-  PIE_LABEL_COLOR:     "#7D8BA0", // --text-secondary dark
-  PIE_LABEL_LINE_COLOR:"#2D3748", // --gray-300 dark
+  PIE_LABEL_COLOR: "#8FA4C0", // slightly brighter for dark neon context
+  PIE_LABEL_LINE_COLOR: "#2A3450", // subtle connector lines
 
+  // Solar Plasma: void → deep violet → plasma magenta → orange → solar gold
   HEATMAP_GRADIENT: [
-    "#0A1F2E", // --heatmap-0 dark
-    "#0097B2", // --heatmap-1 dark
-    "#00C8D8", // --heatmap-2 dark
-    "#00D4E8", // --heatmap-3 dark
-    "#5EECFA", // --heatmap-4 dark (brightest)
+    "#060410", // --heatmap-0  void black
+    "#480880", // --heatmap-1  plasma violet
+    "#C010A8", // --heatmap-2  plasma magenta
+    "#FF4820", // --heatmap-3  plasma orange
+    "#FFD840", // --heatmap-4  solar gold (highest value)
   ],
 
   HEATMAP_TOOLTIP_DIM: "#4A5568", // --slate-400 dark
-  SCATTER_EMPHASIS_SHADOW: "rgba(0,212,232,0.4)",
+  SCATTER_EMPHASIS_SHADOW: "rgba(8,216,240,0.35)",
 
+  // Thermal Vision: cold void → violet → magenta → hot → peak gold
   MAP_GRADIENT: [
-    "#FFFDE7", // --map-gradient-0
-    "#FFADB5", // --map-gradient-1
-    "#E91E8C", // --map-gradient-2
-    "#7B1FA2", // --map-gradient-3
-    "#0D001A", // --map-gradient-4
+    "#040818", // --map-gradient-0  cold void
+    "#3808A0", // --map-gradient-1  cold signal
+    "#C800C8", // --map-gradient-2  warm signal
+    "#FF3808", // --map-gradient-3  hot signal
+    "#FFE030", // --map-gradient-4  peak signal
   ] as const,
 
-  // Geo map — dark mode: dark navy scheme matching screenshot reference
-  GEO_SEA_COLOR:        "#080D14", // deep blue-black ocean (darkest layer)
-  GEO_AREA_COLOR:       "#1E3A52", // blue-slate land — strong contrast from sea
-  GEO_AREA_HOVER_COLOR: "#2A5070", // deeper teal-blue hover — clearly distinct
-  GEO_BORDER_COLOR:     "rgba(140,180,220,0.45)", // visible blue-white outlines
-  GEO_LABEL_COLOR:      "#8BAEC8", // bright steel-blue labels — easy to read
+  // Geo map — dark mode: cyberpunk night earth
+  GEO_SEA_COLOR: "#040B14", // deep space navy
+  GEO_AREA_COLOR: "#0C1828", // dark slate
+  GEO_AREA_HOVER_COLOR: "#142238", // lit slate
+  GEO_BORDER_COLOR: "rgba(8,216,240,0.55)", // cyan glow borders
+  GEO_LABEL_COLOR: "#28C8E8", // electric cyan labels
 
   chartColors: [
     "#5EECFA", // --accent-bright dark (brightest)
@@ -260,18 +264,18 @@ export const DARK_TOKENS: ThemeTokens = {
     "#FF4F8B", // hot pink
   ],
 
-  EDITOR_BG:              "#0C1018",                // --bg-surface dark
-  EDITOR_TEXT:            "#E8EEF8",                // --text-primary dark
-  EDITOR_CARET:           "#00D4E8",                // --accent dark
-  EDITOR_ACTIVE_LINE:     "#111620",                // --bg-elevated dark
-  EDITOR_SELECTION:       "rgba(0,212,232,0.15)",   // --accent-15 dark
-  EDITOR_GUTTER_BG:       "#111620",                // --bg-elevated dark
-  EDITOR_GUTTER_BORDER:   "#1C2130",                // --bg-border dark
-  EDITOR_GUTTER_TEXT:     "#4A5568",                // --text-muted dark
-  EDITOR_TOOLTIP_BG:      "#0C1018",                // --bg-surface dark
-  EDITOR_TOOLTIP_BORDER:  "#1C2130",                // --bg-border dark
+  EDITOR_BG: "#0C1018", // --bg-surface dark
+  EDITOR_TEXT: "#E8EEF8", // --text-primary dark
+  EDITOR_CARET: "#00D4E8", // --accent dark
+  EDITOR_ACTIVE_LINE: "#111620", // --bg-elevated dark
+  EDITOR_SELECTION: "rgba(0,212,232,0.15)", // --accent-15 dark
+  EDITOR_GUTTER_BG: "#111620", // --bg-elevated dark
+  EDITOR_GUTTER_BORDER: "#1C2130", // --bg-border dark
+  EDITOR_GUTTER_TEXT: "#4A5568", // --text-muted dark
+  EDITOR_TOOLTIP_BG: "#0C1018", // --bg-surface dark
+  EDITOR_TOOLTIP_BORDER: "#1C2130", // --bg-border dark
   EDITOR_AUTOCOMPLETE_HOVER: "rgba(0,212,232,0.10)", // --accent-10 dark
-  EDITOR_PLACEHOLDER:     "#4A5568",                // --text-muted dark
+  EDITOR_PLACEHOLDER: "#4A5568", // --text-muted dark
 };
 
 // ---------------------------------------------------------------------------
@@ -289,46 +293,46 @@ export function useEchartsTheme(): ThemeTokens {
 // ---------------------------------------------------------------------------
 
 /** @deprecated Use useEchartsTheme().TEXT_COLOR */
-export const TEXT_COLOR          = LIGHT_TOKENS.TEXT_COLOR;
+export const TEXT_COLOR = LIGHT_TOKENS.TEXT_COLOR;
 /** @deprecated Use useEchartsTheme().SPLIT_LINE_COLOR */
-export const SPLIT_LINE_COLOR    = LIGHT_TOKENS.SPLIT_LINE_COLOR;
+export const SPLIT_LINE_COLOR = LIGHT_TOKENS.SPLIT_LINE_COLOR;
 /** @deprecated Use useEchartsTheme().AXIS_LINE_COLOR */
-export const AXIS_LINE_COLOR     = LIGHT_TOKENS.AXIS_LINE_COLOR;
+export const AXIS_LINE_COLOR = LIGHT_TOKENS.AXIS_LINE_COLOR;
 /** @deprecated Use useEchartsTheme().AXIS_POINTER_COLOR */
-export const AXIS_POINTER_COLOR  = LIGHT_TOKENS.AXIS_POINTER_COLOR;
+export const AXIS_POINTER_COLOR = LIGHT_TOKENS.AXIS_POINTER_COLOR;
 /** @deprecated Use useEchartsTheme().TOOLTIP_STYLE */
-export const TOOLTIP_STYLE       = LIGHT_TOKENS.TOOLTIP_STYLE;
+export const TOOLTIP_STYLE = LIGHT_TOKENS.TOOLTIP_STYLE;
 /** @deprecated Use useEchartsTheme().PIE_LABEL_COLOR */
-export const PIE_LABEL_COLOR     = LIGHT_TOKENS.PIE_LABEL_COLOR;
+export const PIE_LABEL_COLOR = LIGHT_TOKENS.PIE_LABEL_COLOR;
 /** @deprecated Use useEchartsTheme().PIE_LABEL_LINE_COLOR */
-export const PIE_LABEL_LINE_COLOR= LIGHT_TOKENS.PIE_LABEL_LINE_COLOR;
+export const PIE_LABEL_LINE_COLOR = LIGHT_TOKENS.PIE_LABEL_LINE_COLOR;
 /** @deprecated Use useEchartsTheme().HEATMAP_GRADIENT */
-export const HEATMAP_GRADIENT    = LIGHT_TOKENS.HEATMAP_GRADIENT;
+export const HEATMAP_GRADIENT = LIGHT_TOKENS.HEATMAP_GRADIENT;
 /** @deprecated Use useEchartsTheme().HEATMAP_TOOLTIP_DIM */
 export const HEATMAP_TOOLTIP_DIM = LIGHT_TOKENS.HEATMAP_TOOLTIP_DIM;
 /** @deprecated Use useEchartsTheme().SCATTER_EMPHASIS_SHADOW */
 export const SCATTER_EMPHASIS_SHADOW = LIGHT_TOKENS.SCATTER_EMPHASIS_SHADOW;
 /** @deprecated Use useEchartsTheme().EDITOR_BG */
-export const EDITOR_BG              = LIGHT_TOKENS.EDITOR_BG;
+export const EDITOR_BG = LIGHT_TOKENS.EDITOR_BG;
 /** @deprecated Use useEchartsTheme().EDITOR_TEXT */
-export const EDITOR_TEXT            = LIGHT_TOKENS.EDITOR_TEXT;
+export const EDITOR_TEXT = LIGHT_TOKENS.EDITOR_TEXT;
 /** @deprecated Use useEchartsTheme().EDITOR_CARET */
-export const EDITOR_CARET           = LIGHT_TOKENS.EDITOR_CARET;
+export const EDITOR_CARET = LIGHT_TOKENS.EDITOR_CARET;
 /** @deprecated Use useEchartsTheme().EDITOR_ACTIVE_LINE */
-export const EDITOR_ACTIVE_LINE     = LIGHT_TOKENS.EDITOR_ACTIVE_LINE;
+export const EDITOR_ACTIVE_LINE = LIGHT_TOKENS.EDITOR_ACTIVE_LINE;
 /** @deprecated Use useEchartsTheme().EDITOR_SELECTION */
-export const EDITOR_SELECTION       = LIGHT_TOKENS.EDITOR_SELECTION;
+export const EDITOR_SELECTION = LIGHT_TOKENS.EDITOR_SELECTION;
 /** @deprecated Use useEchartsTheme().EDITOR_GUTTER_BG */
-export const EDITOR_GUTTER_BG       = LIGHT_TOKENS.EDITOR_GUTTER_BG;
+export const EDITOR_GUTTER_BG = LIGHT_TOKENS.EDITOR_GUTTER_BG;
 /** @deprecated Use useEchartsTheme().EDITOR_GUTTER_BORDER */
-export const EDITOR_GUTTER_BORDER   = LIGHT_TOKENS.EDITOR_GUTTER_BORDER;
+export const EDITOR_GUTTER_BORDER = LIGHT_TOKENS.EDITOR_GUTTER_BORDER;
 /** @deprecated Use useEchartsTheme().EDITOR_GUTTER_TEXT */
-export const EDITOR_GUTTER_TEXT     = LIGHT_TOKENS.EDITOR_GUTTER_TEXT;
+export const EDITOR_GUTTER_TEXT = LIGHT_TOKENS.EDITOR_GUTTER_TEXT;
 /** @deprecated Use useEchartsTheme().EDITOR_TOOLTIP_BG */
-export const EDITOR_TOOLTIP_BG      = LIGHT_TOKENS.EDITOR_TOOLTIP_BG;
+export const EDITOR_TOOLTIP_BG = LIGHT_TOKENS.EDITOR_TOOLTIP_BG;
 /** @deprecated Use useEchartsTheme().EDITOR_TOOLTIP_BORDER */
-export const EDITOR_TOOLTIP_BORDER  = LIGHT_TOKENS.EDITOR_TOOLTIP_BORDER;
+export const EDITOR_TOOLTIP_BORDER = LIGHT_TOKENS.EDITOR_TOOLTIP_BORDER;
 /** @deprecated Use useEchartsTheme().EDITOR_AUTOCOMPLETE_HOVER */
 export const EDITOR_AUTOCOMPLETE_HOVER = LIGHT_TOKENS.EDITOR_AUTOCOMPLETE_HOVER;
 /** @deprecated Use useEchartsTheme().EDITOR_PLACEHOLDER */
-export const EDITOR_PLACEHOLDER     = LIGHT_TOKENS.EDITOR_PLACEHOLDER;
+export const EDITOR_PLACEHOLDER = LIGHT_TOKENS.EDITOR_PLACEHOLDER;

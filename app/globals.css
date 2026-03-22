@@ -48,19 +48,19 @@
   --chart-6: #67E8F9;   /* cyan-300  */
   --chart-7: #A5F3FC;   /* cyan-200  */
 
-  /* Heatmap sequential palette (light → --accent-deep) */
-  --heatmap-0: #ECFEFF;
-  --heatmap-1: #A5F3FC;
-  --heatmap-2: #67E8F9;
-  --heatmap-3: #22D3EE;
-  /* --heatmap-4 = --accent-deep */
+  /* Heatmap — Aurora Borealis (ice → arctic → cyan → aurora → deep space) */
+  --heatmap-0: #EEF9FF;   /* ice white   */
+  --heatmap-1: #7ADCF5;   /* arctic blue */
+  --heatmap-2: #0AB5D4;   /* polar cyan  */
+  --heatmap-3: #4428E0;   /* aurora indigo */
+  /* --heatmap-4 = deep space: #1A0858 (set in theme.ts) */
 
-  /* Geo map gradient — cream → rose → hot-pink → purple → near-black */
-  --map-gradient-0: #FFFDE7;
-  --map-gradient-1: #FFADB5;
-  --map-gradient-2: #E91E8C;
-  --map-gradient-3: #7B1FA2;
-  --map-gradient-4: #0D001A;
+  /* Geo map gradient — Oceanic (pale sky → ocean → midnight → void) */
+  --map-gradient-0: #EDF5FF;
+  --map-gradient-1: #78C0F0;
+  --map-gradient-2: #1870D0;
+  --map-gradient-3: #2818A8;
+  --map-gradient-4: #080418;
 
   /* Accent opacity variants — used by SqlEditor selection & autocomplete */
   --accent-10: rgba(32,167,201,0.10);
@@ -133,18 +133,19 @@
   --slate-900: #E2EAF8;
   --gray-300:  #2D3748;
 
-  /* Heatmap — dark-to-bright cyan */
-  --heatmap-0: #0A1F2E;
-  --heatmap-1: #0097B2;
-  --heatmap-2: #00C8D8;
-  --heatmap-3: #00D4E8;
+  /* Heatmap — Solar Plasma (void → violet → magenta → orange → solar gold) */
+  --heatmap-0: #060410;   /* void black     */
+  --heatmap-1: #480880;   /* plasma violet  */
+  --heatmap-2: #C010A8;   /* plasma magenta */
+  --heatmap-3: #FF4820;   /* plasma orange  */
+  /* --heatmap-4 = solar gold: #FFD840 (set in theme.ts) */
 
-  /* Geo map gradient — same values; dark mode CSS filter handles inversion */
-  --map-gradient-0: #FFFDE7;
-  --map-gradient-1: #FFADB5;
-  --map-gradient-2: #E91E8C;
-  --map-gradient-3: #7B1FA2;
-  --map-gradient-4: #0D001A;
+  /* Geo map gradient — Thermal Vision (cold void → magenta → hot → peak gold) */
+  --map-gradient-0: #040818;
+  --map-gradient-1: #3808A0;
+  --map-gradient-2: #C800C8;
+  --map-gradient-3: #FF3808;
+  --map-gradient-4: #FFE030;
 
   /* Login page — dark card */
   --login-card-bg:     rgba(12,16,24,0.92);
