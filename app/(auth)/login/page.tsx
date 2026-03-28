@@ -49,13 +49,13 @@ function LoginForm() {
       // style={{ background: "var(--login-bg)" }}
     >
       <div className="absolute inset-0 -z-10">
-        <Image
+        {/* <Image
           src="/team2.jpg"
           alt="Background"
           fill
           priority
           className="object-cover"
-        />
+        /> */}
         <div className="absolute inset-0  bg-black/20" />
         {/* bg-black/60 */}
       </div>
